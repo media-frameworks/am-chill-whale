@@ -1,5 +1,7 @@
 import styled from "styled-components";
 
+import AppColors from "./AppColors";
+
 export class AppStyles {
 
     static PageWrapper = styled.div`
@@ -12,7 +14,7 @@ export class AppStyles {
         top: 0;
         left: 0;
         right: 0;
-        background-color: #fcfcfc;
+        background-color: ${AppColors.PAGE_FIELD};
         overflow: auto;
     `;
 
