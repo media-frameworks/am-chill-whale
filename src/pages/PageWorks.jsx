@@ -1,14 +1,29 @@
 import {Component} from 'react';
+import PropTypes from 'prop-types';
 
-import AppStyles from "../app/AppStyles";
-import AppTitleBar from "../app/AppTitleBar";
+import {AppStyles, AppBrand, AppTitleBar} from "../app/AppImports";
 
 export class PageWorks extends Component {
+
+    static propTypes = {
+        routes: PropTypes.array,
+    }
+
     render() {
-        const title= "creative works";
-        const blurb= "artifacts for the third millennium";
+        const {routes} = this.props;
+        const feature_blocks = routes.map(route => {
+            return <AppStyles.FeatureBlock
+                onClick={e => window.location = route.path}>
+                {route.segment}
+            </AppStyles.FeatureBlock>
+        })
         return <AppStyles.PageWrapper>
-            <AppTitleBar title={title} blurb={blurb} />
+            <AppTitleBar
+                title={AppBrand.WORKS_TITLE}
+                blurb={AppBrand.CATCH_PHRASE}/>
+            <AppStyles.ContentWrapper>
+                {feature_blocks}
+            </AppStyles.ContentWrapper>
         </AppStyles.PageWrapper>
     }
 }
