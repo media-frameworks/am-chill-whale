@@ -2,19 +2,17 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import Utils from "../common/Utils";
 import AppBrand from "./AppBrand";
 import AppColors from "./AppColors";
-
-const TITLEBAR_FADE_IN_MS = 250;
+import AppStyles from "./AppStyles";
 
 const TitleBar = styled.div`
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 2.5rem;
-    border-bottom: 0.15rem solid #bbbbbb;
+    height: ${AppStyles.TITLEBAR_HEIGHT_REM}rem;
+    border-bottom: 0.15rem solid #aaaaaa;
     background: linear-gradient(120deg, ${AppColors.TITLEBAR_FIELD_1}, ${AppColors.TITLEBAR_FIELD_2}); 
     z-index: 100;
     box-shadow: 0.25rem 0.25rem 8rem rgba(0,0,0,15%);
@@ -22,44 +20,29 @@ const TitleBar = styled.div`
 `;
 
 const TitleText = styled.div`
+    ${AppStyles.noselect}
     position: fixed;
-    top: 0.5rem;
+    top: ${AppStyles.TITLEBAR_HEIGHT_REM - 1}rem;
     left: 2.5rem;
-    font-size: 2rem;
-    color: #aaaaaa;
-    letter-spacing: 0.5rem;
+    font-size: 1rem;
+    color: #888888;
+    letter-spacing: 0.75rem;
+    text-transform: uppercase;
 `;
 
 const TitleBlurb = styled.div`
+    ${AppStyles.noselect}
     position: fixed;
     font-family: Courier;
     font-weight: bold;
-    top: 0.75rem;
+    top: ${AppStyles.TITLEBAR_HEIGHT_REM - 1.75}rem;
     right: 2.5rem;
-    font-size: 1rem;
+    font-size: 0.75rem;
     color: white;
     letter-spacing: 0.25rem;
     margin-right: 1rem;
     margin-top: 0.75rem;
     text-shadow: 0.25rem 0.25rem 0.5rem #888888;
-`;
-
-const BrandLabel = styled.div`
-  position: fixed;
-  top: 0;
-  padding: 0.125rem 0.25rem;
-  color: white;
-  font-size: 0.95rem;
-  text-align: center;
-  width: 100%;
-  text-shadow: 0.25rem 0.25rem 0.75rem rgba(0,0,0,50%);
-  cursor: pointer;
-  background: linear-gradient(138deg, 
-    rgba(0,0,0,0) 0, 
-    rgba(0,0,0,0) 42.5%, 
-    #cccccc 50%, 
-    rgba(0,0,0,0) 57.5%, 
-    rgba(0,0,0,0) 100%);
 `;
 
 export class AppTitleBar extends Component {
@@ -75,13 +58,17 @@ export class AppTitleBar extends Component {
 
     componentDidMount() {
         const {titlebar_ref} = this.state;
-        Utils.animate(titlebar_ref, TITLEBAR_FADE_IN_MS, 0, 1, (value, is_last) => {
-            titlebar_ref.current.style.opacity = value;
-        });
+        AppBrand.swatch_fadein(titlebar_ref, AppBrand.COOL_FADE_IN_MS);
     }
 
     brand_label = () => {
-        return <BrandLabel onClick={e => window.location='/'}>{AppBrand.BRAND_NAME}</BrandLabel>
+        const {link_path} = this.props;
+        return <AppBrand.UpperSwatch>
+            <AppStyles.LinkSpan
+                onClick={e => window.location = link_path}>
+                {AppBrand.BRAND_NAME}
+            </AppStyles.LinkSpan>
+        </AppBrand.UpperSwatch>
     }
 
     render() {
