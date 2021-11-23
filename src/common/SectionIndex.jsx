@@ -7,6 +7,7 @@ import {faAngleRight} from '@fortawesome/free-solid-svg-icons'
 import {faAngleDown} from '@fortawesome/free-solid-svg-icons'
 
 import {AppStyles} from "../app/AppImports";
+import StoreS3, {S3_PREFIX} from "./StoreS3";
 
 const IndexWrapper = styled.div`
     position: fixed;
@@ -60,13 +61,37 @@ const EntryIcon = styled.div`
     width: 0.75rem;
 `;
 
+const SubEntry = styled.div`
+    ${AppStyles.block}
+    margin-left: 1.25rem;
+`;
+
 export class SectionIndex extends Component {
 
     static propTypes = {
         index: PropTypes.array.isRequired,
         title: PropTypes.string.isRequired,
         selected_title: PropTypes.string.isRequired,
+        selected_paths: PropTypes.array.isRequired,
         onSelect: PropTypes.func.isRequired,
+    }
+
+    list_selected_paths = () => {
+        const {selected_paths} = this.props;
+        return selected_paths.sort((a,b) => a > b ? 1 : -1)
+            .map(path => {
+                const project_ref = React.createRef();
+                StoreS3.get_file_async(`${path}main.json`, S3_PREFIX, data => {
+                    const json = JSON.parse(data);
+                    const interval = setInterval(() => {
+                        if (project_ref.current) {
+                            project_ref.current.innerText = json.name;
+                            clearInterval(interval)
+                        }
+                    }, 100);
+                });
+                return <SubEntry ref={project_ref}>...</SubEntry>
+            });
     }
 
     render() {
@@ -80,6 +105,7 @@ export class SectionIndex extends Component {
                     onClick={e => onSelect(entry.title)}>
                     <EntryIcon>{icon}</EntryIcon>
                     <EntryName>{entry.title}</EntryName>
+                    {isSelected ? this.list_selected_paths() : []}
                 </IndexEntry>
             });
         return <IndexWrapper>

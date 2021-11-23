@@ -41,6 +41,13 @@ export class AdminManifest extends Component {
         AppBrand.swatch_fadein(admin_back_ref, AppBrand.COOL_FADE_IN_MS);
     }
 
+    refresh_project_paths = (entry_key) => {
+        StoreS3.list_files_async(entry_key, S3_PREFIX, data => {
+            const project_paths = data.CommonPrefixes.map(obj => obj.Prefix.substr(S3_PREFIX.length + 1))
+            this.setState({project_paths: project_paths});
+        })
+    }
+
     selectEntry = (title) => {
         const {selected_title} = this.state;
         const isSelected = selected_title === title;
@@ -51,15 +58,11 @@ export class AdminManifest extends Component {
             });
         } else {
             const entry = SECTIONS.find(entry => entry.title === title);
-            StoreS3.list_files_async(entry.key, S3_PREFIX, data => {
-                const project_paths = data.CommonPrefixes.map(obj => obj.Prefix.substr(S3_PREFIX.length + 1))
-                console.log("project_paths", project_paths);
-                this.setState({
-                    selected_title: entry.title,
-                    selected_key: entry.key,
-                    project_paths: project_paths
-                });
-            })
+            this.setState({
+                selected_title: entry.title,
+                selected_key: entry.key,
+            });
+            this.refresh_project_paths(entry.key)
         }
     }
 
@@ -73,10 +76,20 @@ export class AdminManifest extends Component {
                 index={SECTIONS}
                 title={"index of works"}
                 selected_title={selected_title}
+                selected_paths={project_paths}
                 onSelect={title => this.selectEntry(title)}
             />
-            <ManifestTitleBar title={selected_title} s3_key={selected_key} project_paths={project_paths}/>
-            <ManifestFrame title={selected_title} s3_key={selected_key} project_paths={project_paths}/>
+            <ManifestTitleBar
+                title={selected_title}
+                s3_key={selected_key}
+                project_paths={project_paths}
+            />
+            <ManifestFrame
+                title={selected_title}
+                s3_key={selected_key}
+                project_paths={project_paths}
+                refresh_project_paths={() => this.refresh_project_paths (selected_key)}
+            />
         </AppStyles.PageWrapper>
     }
 }

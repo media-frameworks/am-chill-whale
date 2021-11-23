@@ -54,8 +54,8 @@ export class StoreS3 {
         };
         s3.getObject(params, (err, data) => {
             const str_data = data.Body.toString('utf-8');
-            console.log("s3.getObject", str_data);
             if (err) {
+                console.error("S3.getObject error", err);
                 cb (err)
             } else {
                 cb (str_data)

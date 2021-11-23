@@ -68,6 +68,7 @@ export class ManifestProjectsBar extends Component {
     static propTypes = {
         title: PropTypes.string.isRequired,
         s3_key: PropTypes.string.isRequired,
+        refresh_project_paths: PropTypes.func.isRequired,
     }
 
     state = {
@@ -76,7 +77,7 @@ export class ManifestProjectsBar extends Component {
     }
 
     create_project = (new_project_name) => {
-        const {s3_key} = this.props;
+        const {s3_key, refresh_project_paths} = this.props;
         const name_slug = Utils.text_to_slug(new_project_name);
         const file_name = `${s3_key}/${name_slug}/main.json`;
         const d = new Date();
@@ -88,7 +89,8 @@ export class ManifestProjectsBar extends Component {
         }
         console.log("new_project_name", new_project_name);
         StoreS3.put_file_async(file_name, JSON.stringify(main_json), S3_PREFIX, result => {
-            console.log("put_file_async result", result)
+            console.log("put_file_async result", result);
+            refresh_project_paths();
         })
     }
 

@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import {AppStyles} from "../../../app/AppImports";
+import {AppStyles, AppColors} from "../../../app/AppImports";
 import StoreS3, {S3_PREFIX} from "../../../common/StoreS3";
 
 const ProjectWrapper = styled.div`
@@ -13,19 +13,20 @@ const ProjectWrapper = styled.div`
     padding: 0.25rem 0.5rem;
     margin: 0.25rem 0;
     background-color: white;
+    min-height: 1.5rem;
 `;
 
 const ProjectNameSpan = styled.span`
     ${AppStyles.bold};
     ${AppStyles.pointer};
     font-size: 1.25rem;
-    color: #444444;
  `;
 
 export class ManifestProject extends Component {
 
     static propTypes = {
         project_path: PropTypes.string.isRequired,
+        expanded: PropTypes.bool.isRequired
     }
 
     state = {
@@ -42,9 +43,10 @@ export class ManifestProject extends Component {
 
     render() {
         const {data} = this.state;
-        const {project_path} = this.props;
+        const {project_path, expanded} = this.props;
+        const name_style = {color: expanded ? 'black' : AppColors.HSL_DEEP_BLUE};
         return <ProjectWrapper>
-            <ProjectNameSpan>{data.name}</ProjectNameSpan>
+            <ProjectNameSpan style={name_style}>{data.name}</ProjectNameSpan>
         </ProjectWrapper>
     }
 }

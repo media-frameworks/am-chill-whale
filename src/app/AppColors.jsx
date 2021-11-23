@@ -13,6 +13,11 @@ export class AppColors {
         color: ${AppColors.HSL_COOL_BLUE};
     `;
 
+    static HSL_DEEP_BLUE = 'hsla(200, 90%, 40%, 100%)';
+    static HSL_LIGHT_DEEP_BLUE = 'hsla(200, 50%, 50%, 50%)';
+    static COLOR_DEEP_BLUE = css`
+        color: ${AppColors.HSL_DEEP_BLUE};
+    `;
 }
 
 export default AppColors;
