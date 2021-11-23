@@ -52,6 +52,11 @@ export class AppStyles {
         ${AppStyles.noselect}
     `;
 
+    static Clickable = styled.div`
+        ${AppStyles.pointer}
+        ${AppStyles.noselect}
+    `;
+
     static PageWrapper = styled.div`
         position: absolute;
         font-family: Arial;
