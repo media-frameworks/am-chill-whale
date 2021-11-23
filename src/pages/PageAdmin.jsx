@@ -7,11 +7,12 @@ import {AppStyles, AppBrand, AppTitleBar} from "../app/AppImports";
 import Logo from "../res/images/logo.jpg"
 
 const SectionLink = styled.div`
+    ${AppStyles.noselect}
+    ${AppStyles.pointer}
     text-align: center;
     font-size: 2.0rem;
     color: #aaaaaa;
     letter-spacing: 1rem;
-    cursor: pointer;
     padding: 0.5rem;
 `;
 

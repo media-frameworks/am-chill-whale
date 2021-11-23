@@ -14,6 +14,39 @@ export class AppStyles {
         user-select: none;
     `;
 
+    static block = css`
+        display: block;
+    `;
+
+    static inline = css`
+        display: inline;
+    `;
+
+    static inline_block = css`
+        display: inline-block;
+    `;
+
+    static underline = css`
+        text-decoration: underline;
+    `;
+
+    static uppercase = css`
+        text-transform: uppercase;
+    `;
+
+    static bold = css`
+        font-weight: bold;
+    `;
+
+    static italic = css`
+        font-style: italic;
+    `;
+
+    static monospace = css`
+        font-family: Courier;
+        font-weight: bold;
+    `;
+
     static LinkSpan = styled.span`
         ${AppStyles.pointer}
         ${AppStyles.noselect}

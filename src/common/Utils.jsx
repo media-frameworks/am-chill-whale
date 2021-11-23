@@ -1,4 +1,3 @@
-
 export class Utils {
 
     static animate = (ref, duration_ms, start_value, end_value, fn, not_count = 0) => {
@@ -22,6 +21,12 @@ export class Utils {
             so_far++;
         }, time_slice);
         return interval;
+    }
+
+    static text_to_slug(str) {
+        return str.toLowerCase()
+            .replace(/[^\w ]+/g, '')
+            .replace(/ +/g, '-');
     }
 
 }
