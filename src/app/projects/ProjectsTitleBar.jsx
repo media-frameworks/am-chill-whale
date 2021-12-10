@@ -2,14 +2,14 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled, {css} from "styled-components";
 
-import {AppStyles} from "../../../app/AppStyles";
+import {AppStyles} from "../AppStyles";
 
-export const MANIFEST_TITLEBAR_HEIGHT_REM = 1.5;
+export const PROJECTS_TITLEBAR_HEIGHT_REM = 1.5;
 
 const TitleBarWrapper = styled.div`
     position: fixed;
     top: ${AppStyles.TITLEBAR_HEIGHT_REM}rem;
-    height: ${MANIFEST_TITLEBAR_HEIGHT_REM}rem;
+    height: ${PROJECTS_TITLEBAR_HEIGHT_REM}rem;
     left: 15%;
     right: 0;
     padding: 0.125rem 1rem 0;

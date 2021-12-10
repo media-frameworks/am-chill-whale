@@ -40,7 +40,7 @@ export class StoreS3 {
                 cb(false);
             }
             if (data) {
-                console.log("S3.upload", full_key);
+                // console.log("S3.upload", full_key);
                 cb(true);
             }
         });

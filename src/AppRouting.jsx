@@ -4,7 +4,7 @@ import {createBrowserHistory} from "history";
 import {AppAdmin} from "./app/AppImports";
 import {PageMain, PageLogin, PageAdmin, PageWorks, PageError} from "./pages/PageImports";
 import {WorksArt, WorksMusic, WorksVideo, WorksDoc} from "./pages/works/WorksImports";
-import {Admin3D, AdminFracto, AdminStudio, AdminManifest} from "./pages/admin/AdminImports";
+import {AdminThreeD, AdminFracto, AdminStudio, AdminManifest} from "./pages/admin/AdminImports";
 
 const ACCESS_PUBLIC = 'public';
 const ACCESS_PROTECTED = 'protected';
@@ -32,7 +32,7 @@ const routings = [
                         segment: "3d",
                         title: "3d",
                         path: AppAdmin.THREE_D_PATH,
-                        component: <Admin3D/>,
+                        component: <AdminThreeD/>,
                     },
                     {
                         segment: "fracto",
