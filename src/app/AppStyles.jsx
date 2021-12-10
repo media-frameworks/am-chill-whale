@@ -22,6 +22,10 @@ export class AppStyles {
         display: inline;
     `;
 
+    static align_top = css`
+        vertical-align: top;
+    `;
+
     static inline_block = css`
         display: inline-block;
     `;
@@ -47,6 +51,20 @@ export class AppStyles {
         font-weight: bold;
     `;
 
+    static ellipsis = css`
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    `;
+
+    static link = css`
+        ${AppStyles.italic};
+        ${AppStyles.pointer};
+        &: hover{
+            ${AppStyles.underline}
+        }
+    `;
+
     static LinkSpan = styled.span`
         ${AppStyles.pointer}
         ${AppStyles.noselect}
@@ -55,6 +73,10 @@ export class AppStyles {
     static Clickable = styled.div`
         ${AppStyles.pointer}
         ${AppStyles.noselect}
+    `;
+
+    static Block = styled.div`
+        ${AppStyles.block}
     `;
 
     static PageWrapper = styled.div`
@@ -133,6 +155,36 @@ export class AppStyles {
         text-align: center;
     `;
 
+    static COOL_BORDER = css`
+        border: 0.125rem solid ${AppColors.HSL_COOL_BLUE};
+        border-radius: 0.25rem;
+    `;
+
+    static COOL_BLUE_TEXT = css`
+        ${AppColors.COLOR_COOL_BLUE};
+        font-size: 1rem;
+        padding: 0.125rem 0;
+    `;
+
+    static InputText = styled.input`
+        ${AppStyles.COOL_BORDER};
+        min-width: 15rem;
+        outline: none;
+        padding: 0.125rem 0.25rem;
+        :: placeholder {
+            color: #bbbbbb;
+        }
+    `;
+
+    static InputTextArea = styled.textarea`
+        ${AppStyles.COOL_BORDER};
+        min-width: 15rem;
+        outline: none;
+        padding: 0.125rem 0.25rem;
+        :: placeholder {
+            color: #bbbbbb;
+        }
+    `;
 
 }
 

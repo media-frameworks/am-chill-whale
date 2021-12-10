@@ -9,6 +9,8 @@ import {faAngleDown} from '@fortawesome/free-solid-svg-icons'
 import {AppStyles} from "../app/AppImports";
 import StoreS3, {S3_PREFIX} from "./StoreS3";
 
+export const NO_SELECTION = "None";
+
 const IndexWrapper = styled.div`
     position: fixed;
     left: 0;
@@ -63,6 +65,7 @@ const EntryIcon = styled.div`
 
 const SubEntry = styled.div`
     ${AppStyles.block}
+    ${AppStyles.ellipsis}
     margin-left: 1.25rem;
 `;
 
@@ -71,14 +74,16 @@ export class SectionIndex extends Component {
     static propTypes = {
         index: PropTypes.array.isRequired,
         title: PropTypes.string.isRequired,
-        selected_title: PropTypes.string.isRequired,
-        selected_paths: PropTypes.array.isRequired,
-        onSelect: PropTypes.func.isRequired,
+        selected_index: PropTypes.string.isRequired,
+        index_paths: PropTypes.array.isRequired,
+        on_select_index: PropTypes.func.isRequired,
+        on_select_path: PropTypes.func.isRequired,
+        selected_path: PropTypes.string.isRequired,
     }
 
     list_selected_paths = () => {
-        const {selected_paths} = this.props;
-        return selected_paths.sort((a,b) => a > b ? 1 : -1)
+        const {index_paths, on_select_path, selected_path} = this.props;
+        return index_paths.sort((a, b) => a > b ? 1 : -1)
             .map(path => {
                 const project_ref = React.createRef();
                 StoreS3.get_file_async(`${path}main.json`, S3_PREFIX, data => {
@@ -90,21 +95,25 @@ export class SectionIndex extends Component {
                         }
                     }, 100);
                 });
-                return <SubEntry ref={project_ref}>...</SubEntry>
+                const style = {fontWeight: 'bold', color: '#333333'}
+                return <SubEntry
+                    style={path === selected_path ? style : {}}
+                    key={`subentry_${path}`}
+                    onClick={e => on_select_path(path)}
+                    ref={project_ref}>...</SubEntry>
             });
     }
 
     render() {
-        const {index, title, selected_title, onSelect} = this.props;
+        const {index, title, selected_index, on_select_index} = this.props;
         const entries = index.sort((a, b) => a.title > b.title ? 1 : -1)
             .map(entry => {
-                const isSelected = selected_title === entry.title;
+                const isSelected = selected_index === entry.title;
                 const icon = isSelected ? <FontAwesomeIcon icon={faAngleDown}/> : <FontAwesomeIcon icon={faAngleRight}/>
                 return <IndexEntry
-                    key={`index_entry_${entry.key}`}
-                    onClick={e => onSelect(entry.title)}>
-                    <EntryIcon>{icon}</EntryIcon>
-                    <EntryName>{entry.title}</EntryName>
+                    key={`index_entry_${entry.key}`}>
+                    <EntryIcon onClick={e => on_select_index(entry.title)}>{icon}</EntryIcon>
+                    <EntryName onClick={e => on_select_index(entry.title)}>{entry.title}</EntryName>
                     {isSelected ? this.list_selected_paths() : []}
                 </IndexEntry>
             });

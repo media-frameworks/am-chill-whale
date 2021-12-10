@@ -1,3 +1,6 @@
+
+import ReactTimeAgo from 'react-time-ago';
+
 export class Utils {
 
     static animate = (ref, duration_ms, start_value, end_value, fn, not_count = 0) => {
@@ -29,6 +32,17 @@ export class Utils {
             .replace(/ +/g, '-');
     }
 
+    static time_ago = (str) => {
+        if (!str) {
+            return "in the past";
+        }
+        return <ReactTimeAgo date={Date.parse(str)}/>;
+    }
+
+    static now_string = (str) => {
+        const d = new Date();
+        return d.toISOString();
+    }
 }
 
 export default Utils;
