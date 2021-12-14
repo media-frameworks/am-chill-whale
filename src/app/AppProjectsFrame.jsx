@@ -12,7 +12,6 @@ export class AppProjectsFrame extends Component {
     static propTypes = {
         sections: PropTypes.array.isRequired,
         sections_title: PropTypes.string.isRequired,
-        props_handler: PropTypes.element.isRequired,
     }
 
     state = {
@@ -50,7 +49,7 @@ export class AppProjectsFrame extends Component {
 
     render() {
         const {selected_title, selected_key, project_paths, selected_path} = this.state;
-        const {sections, sections_title, props_handler} = this.props;
+        const {sections, sections_title} = this.props;
         const have_selection = selected_key !== NO_SELECTION;
         return <AppStyles.Block>
             <SectionIndex
@@ -74,7 +73,6 @@ export class AppProjectsFrame extends Component {
                 selected_path={selected_path}
                 refresh_project_paths={() => this.refresh_project_paths(selected_key)}
                 on_select_path={path => this.setState({selected_path: path})}
-                props_handler={props_handler}
             />}
         </AppStyles.Block>
     }

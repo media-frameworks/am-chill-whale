@@ -5,7 +5,7 @@ import styled from "styled-components";
 import {AppStyles} from "../AppImports";
 import {PROJECTS_TITLEBAR_HEIGHT_REM} from "./ProjectsTitleBar";
 import ProjectsFrameBar from "./ProjectsFrameBar";
-import ProjectMeta from "./ProjectMeta";
+import ProjectBlock from "./ProjectBlock";
 
 const NONE_EXPANDED = 'None';
 
@@ -19,7 +19,7 @@ const FrameWrapper = styled.div`
     background-color: #dddddd;
 `;
 
-const ProjectsBlock = styled.div`
+const AllProjects = styled.div`
     margin-top: 3.25rem;
 `;
 
@@ -32,7 +32,6 @@ export class ProjectsFrame extends Component {
         selected_path: PropTypes.string.isRequired,
         on_select_path: PropTypes.func.isRequired,
         refresh_project_paths: PropTypes.func.isRequired,
-        props_handler: PropTypes.element.isRequired,
     }
 
     select_path = (project_path) => {
@@ -45,15 +44,12 @@ export class ProjectsFrame extends Component {
     }
 
     render() {
-        const {selected_path, props_handler} = this.props;
-        const {title, s3_key, project_paths, refresh_project_paths} = this.props;
+        const {title, s3_key, project_paths, selected_path, refresh_project_paths} = this.props;
         const projectBlocks = project_paths.map(project_path => {
             const is_expanded = project_path === selected_path;
-            const project_block = <ProjectMeta
-                expanded={is_expanded}
-                key={project_path}
+            const project_block = <ProjectBlock
                 project_path={project_path}
-                props_handler={props_handler}/>;
+                is_expanded={is_expanded}/>
             return is_expanded ? project_block :
                 <AppStyles.Clickable
                     key={`project_${project_path}`}
@@ -66,7 +62,7 @@ export class ProjectsFrame extends Component {
                 title={title}
                 s3_key={s3_key}
                 refresh_project_paths={() => refresh_project_paths()}/>
-            <ProjectsBlock>{projectBlocks}</ProjectsBlock>
+            <AllProjects>{projectBlocks}</AllProjects>
         </FrameWrapper>
     }
 }

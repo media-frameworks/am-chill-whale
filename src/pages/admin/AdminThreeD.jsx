@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import {AppStyles, AppBrand, AppTitleBar} from "../../app/AppImports";
 import AppProjectsFrame from "../../app/AppProjectsFrame";
-import ManifestProps from "./threed/ThreeDProps";
 
 const SECTIONS = [
     {title: "animator", key: "animator"},
@@ -33,7 +32,7 @@ export class AdminThreeD extends Component {
             <AppProjectsFrame
                 sections={SECTIONS}
                 sections_title={"frameworks"}
-                props_handler={ManifestProps}/>
+            />
         </AppStyles.PageWrapper>
     }
 }
