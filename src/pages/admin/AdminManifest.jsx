@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 
 import {AppStyles, AppBrand, AppTitleBar} from "../../app/AppImports";
 import AppProjectsFrame from "../../app/AppProjectsFrame";
-import ManifestProps from "./manifest/ManifestProps";
 
 const SECTIONS = [
     {title: "chaotic", key: "chaotic"},
@@ -43,7 +42,7 @@ export class AdminManifest extends Component {
             <AppProjectsFrame
                 sections={SECTIONS}
                 sections_title={"index of works"}
-                props_handler={ManifestProps}/>
+            />
         </AppStyles.PageWrapper>
     }
 }
