@@ -25,46 +25,50 @@ const AllProjects = styled.div`
 
 export class ProjectsFrame extends Component {
 
-    static propTypes = {
-        title: PropTypes.string.isRequired,
-        s3_key: PropTypes.string.isRequired,
-        project_paths: PropTypes.array.isRequired,
-        selected_path: PropTypes.string.isRequired,
-        on_select_path: PropTypes.func.isRequired,
-        refresh_project_paths: PropTypes.func.isRequired,
-    }
+   static propTypes = {
+      title: PropTypes.string.isRequired,
+      s3_key: PropTypes.string.isRequired,
+      project_paths: PropTypes.array.isRequired,
+      selected_path: PropTypes.string.isRequired,
+      on_select_path: PropTypes.func.isRequired,
+      refresh_project_paths: PropTypes.func.isRequired,
+      components: PropTypes.array.isRequired,
+   }
 
-    select_path = (project_path) => {
-        const {selected_path, on_select_path} = this.props;
-        if (selected_path === project_path) {
-            on_select_path(NONE_EXPANDED);
-        } else {
-            on_select_path(project_path);
-        }
-    }
+   select_path = (project_path) => {
+      const {selected_path, on_select_path} = this.props;
+      if (selected_path === project_path) {
+         on_select_path(NONE_EXPANDED);
+      } else {
+         on_select_path(project_path);
+      }
+   }
 
-    render() {
-        const {title, s3_key, project_paths, selected_path, refresh_project_paths} = this.props;
-        const projectBlocks = project_paths.map(project_path => {
-            const is_expanded = project_path === selected_path;
-            const project_block = <ProjectBlock
-                project_path={project_path}
-                is_expanded={is_expanded}/>
-            return is_expanded ? project_block :
-                <AppStyles.Clickable
-                    key={`project_${project_path}`}
-                    onClick={e => this.select_path(project_path)}>
-                    {project_block}
-                </AppStyles.Clickable>
-        });
-        return <FrameWrapper>
-            <ProjectsFrameBar
-                title={title}
-                s3_key={s3_key}
-                refresh_project_paths={() => refresh_project_paths()}/>
-            <AllProjects>{projectBlocks}</AllProjects>
-        </FrameWrapper>
-    }
+   render() {
+      const {title, s3_key, project_paths, selected_path, refresh_project_paths, components} = this.props;
+      const projectBlocks = project_paths.map(project_path => {
+         const is_expanded = project_path === selected_path;
+         const project_block = <ProjectBlock
+            key={`project_${project_path}`}
+            project_path={project_path}
+            is_expanded={is_expanded}
+            components={components}
+            refresh_project_paths={() => refresh_project_paths()}
+         />
+         return is_expanded ? project_block :
+            <AppStyles.Clickable
+               onClick={e => this.select_path(project_path)}>
+               {project_block}
+            </AppStyles.Clickable>
+      });
+      return <FrameWrapper>
+         <ProjectsFrameBar
+            title={title}
+            s3_key={s3_key}
+            refresh_project_paths={() => refresh_project_paths()}/>
+         <AllProjects>{projectBlocks}</AllProjects>
+      </FrameWrapper>
+   }
 }
 
 export default ProjectsFrame;

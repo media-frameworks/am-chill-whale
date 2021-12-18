@@ -1,1 +1,1 @@
-{"name":"accelerometer","s3_path":"animator/accelerometer/main.json","type":"project","created":"2021-12-10T22:32:57.108Z","description":"time-based motion along defined paths","updated":"2021-12-12T23:02:53.032Z","segments":[]}
+{"name":"accelerometer","s3_path":"animator/accelerometer/main.json","type":"project","created":"2021-12-10T22:32:57.108Z","description":"time-based motion along defined paths","updated":"2021-12-18T12:53:12.732Z","segments":[{"notes":[],"comps":[],"props":[],"type":"ThreeDFluidMotion"}]}

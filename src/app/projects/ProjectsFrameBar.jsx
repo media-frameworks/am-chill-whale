@@ -45,65 +45,65 @@ const CreateProjectText = styled.div`
 
 export class ProjectsFrameBar extends Component {
 
-    static propTypes = {
-        title: PropTypes.string.isRequired,
-        s3_key: PropTypes.string.isRequired,
-        refresh_project_paths: PropTypes.func.isRequired,
-    }
+   static propTypes = {
+      title: PropTypes.string.isRequired,
+      s3_key: PropTypes.string.isRequired,
+      refresh_project_paths: PropTypes.func.isRequired,
+   }
 
-    state = {
-        new_project_mode: false,
-        input_ref: React.createRef()
-    }
+   state = {
+      new_project_mode: false,
+      input_ref: React.createRef()
+   }
 
-    create_project = (new_project_name) => {
-        const {s3_key, refresh_project_paths} = this.props;
-        const name_slug = Utils.text_to_slug(new_project_name);
-        const file_name = `${s3_key}/${name_slug}/main.json`;
-        const d = new Date();
-        const main_json = {
-            name: new_project_name,
-            s3_path: file_name,
-            type: "project",
-            created: d.toISOString()
-        }
-        console.log("new_project_name", new_project_name);
-        StoreS3.put_file_async(file_name, JSON.stringify(main_json), S3_PREFIX, result => {
-            console.log("put_file_async result", result);
-            refresh_project_paths();
-        })
-    }
+   create_project = (new_project_name) => {
+      const {s3_key, refresh_project_paths} = this.props;
+      const name_slug = Utils.text_to_slug(new_project_name);
+      const file_name = `${s3_key}/${name_slug}/main.json`;
+      const d = new Date();
+      const main_json = {
+         name: new_project_name,
+         s3_path: file_name,
+         type: "project",
+         created: d.toISOString()
+      }
+      console.log("new_project_name", new_project_name);
+      StoreS3.put_file_async(file_name, JSON.stringify(main_json), S3_PREFIX, result => {
+         console.log("put_file_async result", result);
+         refresh_project_paths();
+      })
+   }
 
-    new_project_data = () => {
-        return <CoolInputText
-            value={''}
-            style_extra={{
-                fontSize: '1.25rem',
-                padding: '0.125rem 0.25rem'
-            }}
-            placeholder={'enter the new project title'}
-            callback={new_value => {
-                this.create_project(new_value);
-                this.setState({new_project_mode: false});
-            }}
-        />
-    }
+   new_project_data = () => {
+      return <CoolInputText
+         value={''}
+         style_extra={{
+            fontSize: '1.25rem',
+            padding: '0.125rem 0.25rem'
+         }}
+         placeholder={'enter the new project title'}
+         callback={new_value => {
+            this.create_project(new_value);
+            this.setState({new_project_mode: false});
+         }}
+      />
+   }
 
-    new_project_button = () => {
-        return <CreateProjectButton onClick={e => this.setState({new_project_mode: true})}>
-            <IconWrapper>
-                <FontAwesomeIcon icon={faPlusSquare}/>
-            </IconWrapper>
-            <CreateProjectText>{"new project"}</CreateProjectText>
-        </CreateProjectButton>;
-    }
+   new_project_button = () => {
+      return <CreateProjectButton onClick={e => this.setState({new_project_mode: true})}>
+         <IconWrapper>
+            <FontAwesomeIcon icon={faPlusSquare}/>
+         </IconWrapper>
+         <CreateProjectText>{"new project"}</CreateProjectText>
+      </CreateProjectButton>;
+   }
 
-    render() {
-        const {new_project_mode} = this.state;
-        return <ProjectBarWrapper>
-            {new_project_mode ? this.new_project_data() : this.new_project_button()}
-        </ProjectBarWrapper>
-    }
+   render() {
+      const {new_project_mode} = this.state;
+      return <ProjectBarWrapper>
+         {new_project_mode ? this.new_project_data() : this.new_project_button()}
+      </ProjectBarWrapper>
+   }
 }
 
 export default ProjectsFrameBar;
