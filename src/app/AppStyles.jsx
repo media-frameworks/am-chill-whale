@@ -57,6 +57,10 @@ export class AppStyles {
         white-space: nowrap;
     `;
 
+    static medium_box_shadow = css`
+        box-shadow: 0.25rem 0.25rem 0.5rem rgba(0,0,0,0.2);
+    `;
+
     static link = css`
         ${AppStyles.italic};
         ${AppStyles.pointer};
@@ -77,6 +81,10 @@ export class AppStyles {
 
     static Block = styled.div`
         ${AppStyles.block}
+    `;
+
+    static InlineBlock = styled.div`
+        ${AppStyles.inline_block}
     `;
 
     static PageWrapper = styled.div`
