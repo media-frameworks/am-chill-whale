@@ -49,7 +49,7 @@ export class ProjectsFrame extends Component {
       const projectBlocks = project_paths.map(project_path => {
          const is_expanded = project_path === selected_path;
          const project_block = <ProjectBlock
-            key={`project_${project_path}`}
+            key={`project_block_${project_path}`}
             project_path={project_path}
             is_expanded={is_expanded}
             components={components}
@@ -57,6 +57,7 @@ export class ProjectsFrame extends Component {
          />
          return is_expanded ? project_block :
             <AppStyles.Clickable
+               key={`clickable_${project_path}`}
                onClick={e => this.select_path(project_path)}>
                {project_block}
             </AppStyles.Clickable>

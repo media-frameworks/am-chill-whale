@@ -46,6 +46,13 @@ export class AppStyles {
         font-style: italic;
     `;
 
+    static absolute = css`
+        position: absolute;
+    `;
+    static fixed = css`
+        position: fixed;
+    `;
+
     static monospace = css`
         font-family: Courier;
         font-weight: bold;
@@ -85,6 +92,7 @@ export class AppStyles {
 
     static InlineBlock = styled.div`
         ${AppStyles.inline_block}
+        ${AppStyles.align_top}
     `;
 
     static PageWrapper = styled.div`
