@@ -1,10 +1,17 @@
 import React, {Component} from 'react';
 import styled from "styled-components";
+import PropTypes from 'introspective-prop-types'
 
 import Slider from 'rc-slider';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faPlusSquare} from '@fortawesome/free-regular-svg-icons';
+import {faMinusSquare} from '@fortawesome/free-regular-svg-icons';
 
-import {AppStyles} from "../../../app/AppImports";
+import {AppStyles, AppColors} from "../../../app/AppImports";
 import LinearEquation from "../../../common/math/LinearEquation";
+
+const MIN_POINT_COUNT = 3;
+const MAX_POINT_COUNT = 20;
 
 const BlockWrapper = styled(AppStyles.Block)`
     ${AppStyles.noselect}
@@ -30,6 +37,11 @@ const SliderWrapper = styled(AppStyles.InlineBlock)`
     z-index: 10;
 `;
 
+const PointCountWrapper = styled(AppStyles.Block)`
+    margin: 0.5rem 0;
+    height: 1rem;
+`;
+
 const ValuesColumn = styled(AppStyles.InlineBlock)`
     ${AppStyles.noselect}
     ${AppStyles.monospace}
@@ -50,178 +62,80 @@ const CanvasField = styled.canvas`
     ${AppStyles.fixed}    
 `;
 
+const PointCounter = styled.span`
+    ${AppStyles.monospace}    
+    font-size: 1rem;
+    padding: 0.25rem 0.5rem;    
+`;
+
+const PointCounterButton = styled(AppStyles.InlineBlock)`
+    ${AppStyles.pointer}    
+    ${AppColors.COLOR_COOL_BLUE}
+    font-size: 1rem;
+    margin-top: 0.1rem;
+`;
+
 export class ThreeDFluidMotion extends Component {
 
+   static propTypes = {
+      on_update: PropTypes.func.isRequired,
+   };
+
    state = {
-      inputs: [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
-      coefficients: [0, 0, 0, 0, 0, 0, 0],
+      inputs: [],
+      coefficients: [],
       width_px: 0,
       height_px: 0,
       canvas_ref: React.createRef(),
-      slider_refs: [
-         React.createRef(),
-         React.createRef(),
-         React.createRef(),
-         React.createRef(),
-         React.createRef(),
-         React.createRef(),
-         React.createRef(),
-      ],
+      slider_refs: [],
       values: [],
       ctx: null,
-      point_count: 7,
+      point_count: 0,
       canvas_top: 0,
       canvas_left: 0,
+      poly_matrix: []
    }
 
    componentDidMount() {
-      const {canvas_ref, width_px, height_px, slider_refs, point_count} = this.state;
+      const {canvas_ref} = this.state;
       const canvas = canvas_ref.current;
       if (!canvas) {
          console.log('no canvas');
          return;
       }
       const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#eeeeee';
-      ctx.fillRect(0, 0, width_px, height_px);
-      console.log("slider_refs[0].current", slider_refs[0].current)
-      const left_slider_bounds = slider_refs[0].current.getBoundingClientRect();
-      const right_slider_bounds = slider_refs[point_count - 1].current.getBoundingClientRect();
+      this.change_point_count(8);
+
+      let slider_refs = [];
+      for (let i = 0; i < MAX_POINT_COUNT; i++) {
+         slider_refs.push(React.createRef());
+      }
       this.setState({
          ctx: ctx,
-         width_px: right_slider_bounds.right - left_slider_bounds.right,
-         height_px: left_slider_bounds.height,
-         canvas_top: left_slider_bounds.top,
-         canvas_left: left_slider_bounds.left,
+         slider_refs: slider_refs
       });
-
    }
 
-   slider_value_3x3 = (index, value) => {
-      const {inputs} = this.state;
-      inputs[index] = value;
-      const matrix = [
-         [0, 0, 1],
-         [1, 1, 1],
-         [4, 2, 1]
-      ];
-      const coefficients = LinearEquation.solve_3x3(matrix, inputs);
-      let values = [];
-      for (let t = 0.0; t <= 2.0; t += 0.01) {
-         const t_2 = t * t;
-         value = coefficients[0] * t_2 + coefficients[1] * t + coefficients[2];
-         values.push({t: t, value: value});
-      }
-      this.fill_canvas(values);
-      this.setState({
-         inputs: inputs,
-         coefficients: coefficients,
-         values: values,
-      })
+   static query_interface = () => {
+      return {};
    }
 
-   slider_value_4x4 = (index, value) => {
-      const {inputs} = this.state;
+   set_slider_value = (index, value) => {
+      const {inputs, point_count, poly_matrix} = this.state;
       inputs[index] = value;
-      const matrix = [
-         [0, 0, 0, 1],
-         [1, 1, 1, 1],
-         [8, 4, 2, 1],
-         [27, 9, 3, 1],
-      ];
-      const coefficients = LinearEquation.solve_4x4(matrix, inputs);
+      const coefficients = LinearEquation.solve(poly_matrix, inputs);
       let values = [];
-      for (let t = 0.0; t <= 3.0; t += 0.01) {
-         const t_2 = t * t;
-         const t_3 = t_2 * t;
-         value = coefficients[0] * t_3 + coefficients[1] * t_2 + coefficients[2] * t + coefficients[3];
-         values.push({t: t, value: value});
-      }
-      this.fill_canvas(values);
-      this.setState({
-         inputs: inputs,
-         coefficients: coefficients,
-         values: values,
-      })
-   }
-
-   slider_value_5x5 = (index, value) => {
-      const {inputs} = this.state;
-      inputs[index] = value;
-      const matrix = [
-         [0, 0, 0, 0, 1],
-         [1, 1, 1, 1, 1],
-         [16, 8, 4, 2, 1],
-         [81, 27, 9, 3, 1],
-         [256, 64, 16, 4, 1],
-      ];
-      const coefficients = LinearEquation.solve_5x5(matrix, inputs);
-      let values = [];
-      for (let t = 0.0; t <= 4.0; t += 0.05) {
-         const t_2 = t * t;
-         const t_3 = t_2 * t;
-         const t_4 = t_3 * t;
-         value = coefficients[0] * t_4 + coefficients[1] * t_3 + coefficients[2] * t_2 + coefficients[3] * t + coefficients[4];
-         values.push({t: t, value: value});
-      }
-      this.fill_canvas(values);
-      this.setState({
-         inputs: inputs,
-         coefficients: coefficients,
-         values: values,
-      })
-   }
-
-   slider_value_6x6 = (index, value) => {
-      const {inputs} = this.state;
-      inputs[index] = value;
-      const matrix = [
-         [0, 0, 0, 0, 0, 1],
-         [1, 1, 1, 1, 1, 1],
-         [32, 16, 8, 4, 2, 1],
-         [243, 81, 27, 9, 3, 1],
-         [1024, 256, 64, 16, 4, 1],
-         [3125, 625, 125, 25, 5, 1],
-      ];
-      const coefficients = LinearEquation.solve_6x6(matrix, inputs);
-      let values = [];
-      for (let t = 0.0; t <= 5.0; t += 0.05) {
-         const t_2 = t * t;
-         const t_3 = t_2 * t;
-         const t_4 = t_3 * t;
-         const t_5 = t_4 * t;
-         value = coefficients[0] * t_5 + coefficients[1] * t_4 + coefficients[2] * t_3 + coefficients[3] * t_2 + coefficients[4] * t + coefficients[5];
-         values.push({t: t, value: value});
-      }
-      this.fill_canvas(values);
-      this.setState({
-         inputs: inputs,
-         coefficients: coefficients,
-         values: values,
-      })
-   }
-
-   slider_value_7x7 = (index, value) => {
-      const {inputs} = this.state;
-      inputs[index] = value;
-      const matrix = [
-         [0, 0, 0, 0, 0, 0, 1],
-         [1, 1, 1, 1, 1, 1, 1],
-         [64, 32, 16, 8, 4, 2, 1],
-         [729, 243, 81, 27, 9, 3, 1],
-         [4096, 1024, 256, 64, 16, 4, 1],
-         [15625, 3125, 625, 125, 25, 5, 1],
-         [46656, 7776, 1296, 216, 36, 6, 1],
-      ];
-      const coefficients = LinearEquation.solve_7x7(matrix, inputs);
-      let values = [];
-      for (let t = 0.0; t <= 6.0; t += 0.05) {
-         const t_2 = t * t;
-         const t_3 = t_2 * t;
-         const t_4 = t_3 * t;
-         const t_5 = t_4 * t;
-         const t_6 = t_5 * t;
-         value = coefficients[0] * t_6 + coefficients[1] * t_5 + coefficients[2] * t_4 + coefficients[3] * t_3 + coefficients[4] * t_2 + coefficients[5] * t + coefficients[6];
+      for (let t = 0.0; t <= point_count - 1; t += 0.025) {
+         let t_powers = [1, t];
+         let t_power_value = t;
+         for (let i = 2; i < point_count; i++) {
+            t_power_value *= t;
+            t_powers.push(t_power_value);
+         }
+         let value = 0;
+         for (let i = 0; i < point_count; i++) {
+            value += coefficients[i] * t_powers[point_count - i - 1];
+         }
          values.push({t: t, value: value});
       }
       this.fill_canvas(values);
@@ -251,10 +165,68 @@ export class ThreeDFluidMotion extends Component {
       ctx.stroke(region);
    }
 
+   set_poly_matrix = (point_count) => {
+      let first_row = [1];
+      let second_row = [1];
+      for (let i = 0; i < point_count - 1; i++) {
+         first_row.unshift(0);
+         second_row.push(1);
+      }
+      let poly_matrix = [first_row, second_row];
+      for (let factor = 2; factor < point_count; factor++) {
+         let value = 1;
+         let row_values = [1];
+         for (let col = 0; col < point_count - 1; col++) {
+            value *= factor;
+            row_values.unshift(value);
+         }
+         poly_matrix.push(row_values);
+      }
+      console.log("poly_matrix", poly_matrix)
+      return poly_matrix;
+   }
+
+   change_point_count = (point_count) => {
+      if (point_count < MIN_POINT_COUNT || point_count > MAX_POINT_COUNT) {
+         return;
+      }
+      let inputs = [];
+      let cofficients = [];
+      for (let i = 0; i < point_count; i++) {
+         inputs.push(0.5);
+         cofficients.push(0.0);
+      }
+      const poly_matrix = this.set_poly_matrix(point_count);
+      this.setState({
+         point_count: point_count,
+         inputs: inputs,
+         cofficients: cofficients,
+         width_px: 0,
+         height_px: 0,
+         poly_matrix: poly_matrix
+      });
+      const interval = setInterval(() => {
+         const {slider_refs} = this.state;
+         if (!slider_refs[0].current) {
+            return;
+         }
+         clearInterval(interval);
+         const left_slider_bounds = slider_refs[0].current.getBoundingClientRect();
+         const right_slider_bounds = slider_refs[point_count - 1].current.getBoundingClientRect();
+         this.setState({
+            width_px: right_slider_bounds.right - left_slider_bounds.right,
+            height_px: left_slider_bounds.height,
+            canvas_top: left_slider_bounds.top,
+            canvas_left: left_slider_bounds.left,
+         });
+         this.set_slider_value(0, 0.5)
+      }, 250);
+   }
+
    render() {
       const {
          inputs, coefficients, canvas_ref, width_px, height_px, slider_refs,
-         canvas_top, canvas_left
+         canvas_top, canvas_left, point_count
       } = this.state;
       const handle_style = {
          border: "0.15rem solid #666666",
@@ -273,7 +245,7 @@ export class ThreeDFluidMotion extends Component {
                vertical included
                handleStyle={handle_style}
                min={0.0} max={1.0} step={0.001}
-               onChange={value => this.slider_value_7x7(index, value)}
+               onChange={value => this.set_slider_value(index, value)}
                defaultValue={0.5}
                value={1.0 - input}
             />
@@ -293,6 +265,15 @@ export class ThreeDFluidMotion extends Component {
          left: `${canvas_left + 2}px`,
       }
       return <BlockWrapper>
+         <PointCountWrapper>
+            <PointCounterButton onClick={e => this.change_point_count(point_count - 1)}>
+               <FontAwesomeIcon icon={faMinusSquare}/>
+            </PointCounterButton>
+            <PointCounter>{`${point_count} points`}</PointCounter>
+            <PointCounterButton onClick={e => this.change_point_count(point_count + 1)}>
+               <FontAwesomeIcon icon={faPlusSquare}/>
+            </PointCounterButton>
+         </PointCountWrapper>
          <CanvasField
             ref={canvas_ref}
             style={field_styles}

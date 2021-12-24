@@ -8,10 +8,6 @@ import StoreS3, {S3_PREFIX} from "../../common/StoreS3";
 import ProjectMeta from "./ProjectMeta";
 import ProjectSegmentsFrame from "./ProjectSegmentsFrame";
 
-const EMPTY_SEGMENT = {
-   notes: [],
-};
-
 const ProjectWrapper = styled.div`
     ${AppStyles.block}
     ${AppStyles.noselect}
@@ -49,18 +45,19 @@ export class ProjectBlock extends Component {
       data: {}
    };
 
-   componentDidMount() {
+   load_data = () => {
       const {project_path} = this.props;
       StoreS3.get_file_async(`${project_path}main.json`, S3_PREFIX, data => {
-         let parsed_data = JSON.parse(data);
-         if (!parsed_data.segments) {
-            parsed_data.segments = [];
-         }
-         if (!parsed_data.segments.length) {
-            parsed_data.segments.push(EMPTY_SEGMENT);
-         }
-         this.setState({data: parsed_data});
+         this.setState({data: JSON.parse(data)});
       });
+   }
+
+   componentDidUpdate() {
+      this.load_data();
+   }
+
+   componentDidMount() {
+      this.load_data();
    }
 
    update_data = (data) => {

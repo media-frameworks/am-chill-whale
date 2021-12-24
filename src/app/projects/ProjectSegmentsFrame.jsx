@@ -9,6 +9,10 @@ import {AppStyles, AppColors} from "../AppImports";
 import CoolModal from "../../common/CoolModal";
 import ProjectSegment from "./ProjectSegment";
 
+const EMPTY_SEGMENT = {
+   props: {},
+};
+
 const SegmentsWrapper = styled.div`
    ${AppStyles.block}
    ${AppStyles.noselect}
@@ -88,12 +92,29 @@ export class ProjectSegmentsFrame extends Component {
       segment_index: -1
    };
 
+   componentDidUpdate(prevProps, prevState, snapshot) {
+      const {data, on_update} = this.props;
+      let update_needed = false;
+      if (!data.segments) {
+         data.segments = [];
+         update_needed = true;
+      }
+      if (!data.segments.length) {
+         data.segments.push(EMPTY_SEGMENT);
+         update_needed = true;
+      }
+      if (update_needed) {
+         on_update(data);
+      }
+   }
+
    all_components = () => {
       const {segment_index} = this.state;
       const {data, on_update, components} = this.props;
       const all_components = components.map((comp, index) => {
          return <ComponentSelector
             onClick={e => {
+               console.log("ComponentSelector data", data)
                data.segments[segment_index].type = comp.class_name;
                on_update(data);
                this.setState({in_type_modal: false});
@@ -110,7 +131,7 @@ export class ProjectSegmentsFrame extends Component {
    component_from_type = (type) => {
       const {components} = this.props;
       const found_component = components.find(comp => comp.class_name === type);
-      if (found_component){
+      if (found_component) {
          return found_component.component_type;
       }
       return false;
@@ -119,8 +140,8 @@ export class ProjectSegmentsFrame extends Component {
    render() {
       const {in_type_modal} = this.state;
       const {data, on_update} = this.props;
-      const segments = !data.segments ? '' : data.segments.map((segment, index) => {
-         const component_type = this.component_from_type(segment.type);
+      const segments = !data.segments ? '' : data.segments.map((segment_data, index) => {
+         const component_type = this.component_from_type(segment_data.type);
          const type_button = component_type ? '' : <SpecifyType
             onClick={e => this.setState({in_type_modal: true, segment_index: index})}>
             <IconWrapper><FontAwesomeIcon icon={faQuestionCircle}/></IconWrapper>
@@ -128,9 +149,9 @@ export class ProjectSegmentsFrame extends Component {
          </SpecifyType>
          const project_segment = !component_type ? '' : <ProjectSegment
             key={`segment_${index}_${data.updated}`}
-            segment={segment}
-            on_update={segment => {
-               data.segments[index] = segment;
+            component_props={segment_data.props}
+            on_update={props => {
+               data.segments[index].props = props;
                on_update(data);
             }}
             component_type={component_type}

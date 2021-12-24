@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 
 import {AppStyles, AppBrand, AppTitleBar} from "../../app/AppImports";
 import AppProjectsFrame from "../../app/AppProjectsFrame";
+import CoolNotes from "../../common/cool/CoolNotes";
 
 const SECTIONS = [
    {title: "chaotic", key: "chaotic"},
@@ -18,7 +19,9 @@ const SECTIONS = [
    {title: "written", key: "written"},
 ];
 
-const COMPONENTS = [];
+const COMPONENTS = [
+   {title: "cool notes", class_name: "CoolNotes", component_type: CoolNotes},
+];
 
 export class AdminManifest extends Component {
 

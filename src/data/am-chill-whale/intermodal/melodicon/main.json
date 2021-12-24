@@ -1,1 +1,1 @@
-{"name":"melodicon","s3_path":"intermodal/melodicon/main.json","type":"project","created":"2021-11-24T01:07:54.479Z","description":"paint with sound, sing with light"}
+{"name":"melodicon","s3_path":"intermodal/melodicon/main.json","type":"project","created":"2021-11-24T01:07:54.479Z","description":"paint with sound, sing with light","segments":[{"props":{"value":"book of light"},"type":"CoolNotes"}],"updated":"2021-12-24T15:39:55.995Z"}
