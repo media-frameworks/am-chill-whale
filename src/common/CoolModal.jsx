@@ -28,11 +28,6 @@ const FormContent = styled.div`
     padding: 0.5rem 1rem;
 `;
 
-const FormFooter = styled.div`
-    padding: 0.15rem;    
-    height: 1.6rem;
-`;
-
 export class CoolModal extends Component {
 
    static propTypes = {
