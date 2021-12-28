@@ -24,6 +24,7 @@ export class AppProjectsFrame extends Component {
 
    refresh_project_paths = (entry_key) => {
       StoreS3.list_files_async(entry_key, S3_PREFIX, data => {
+         console.log("refresh_project_paths", data)
          const project_paths = data.CommonPrefixes.map(obj => obj.Prefix.substr(S3_PREFIX.length + 1))
          this.setState({project_paths: project_paths});
       })
@@ -52,6 +53,7 @@ export class AppProjectsFrame extends Component {
       const {selected_title, selected_key, project_paths, selected_path} = this.state;
       const {sections, components, sections_title} = this.props;
       const have_selection = selected_key !== NO_SELECTION;
+      console.log("render AppProjectsFrame");
       return <AppStyles.Block>
          <SectionIndex
             index={sections}

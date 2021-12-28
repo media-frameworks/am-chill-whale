@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import {AppStyles, AppColors} from "../AppImports";
 import Utils from "../../common/Utils";
-import CoolInputText from "../../common/CoolInputText";
+import CoolInputText from "../../common/cool/CoolInputText";
 
 const EDIT_MODE_DESCRIPTION = "edit_description";
 const EDIT_MODE_PROJECT_NAME = "edit_project_name";

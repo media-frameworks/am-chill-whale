@@ -9,7 +9,7 @@ import {AppStyles, AppColors} from "../AppImports";
 import StoreS3, {S3_PREFIX} from "../../common/StoreS3";
 import Utils from "../../common/Utils";
 import {PROJECTS_TITLEBAR_HEIGHT_REM} from "./ProjectsTitleBar"
-import CoolInputText from "../../common/CoolInputText";
+import CoolInputText from "../../common/cool/CoolInputText";
 
 const ProjectBarWrapper = styled.div`
     position: fixed;

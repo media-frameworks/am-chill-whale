@@ -6,20 +6,35 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faQuestionCircle} from '@fortawesome/free-regular-svg-icons';
 
 import {AppStyles, AppColors} from "../AppImports";
-import CoolModal from "../../common/CoolModal";
+import Utils from "../../common/Utils";
 import ProjectSegment from "./ProjectSegment";
+import SegmentsMenu from "./segments/SegmentsMenu";
+import SegmentTypeModal from "./segments/SegmentTypeModal";
 
-const EMPTY_SEGMENT = {
-   props: {},
-};
+const SEGMENT_CODE_ADD_ABOVE = 1;
+const SEGMENT_CODE_ADD_BELOW = 2;
+const SEGMENT_CODE_MOVE_UP = 3;
+const SEGMENT_CODE_MOVE_DOWN = 4;
+const SEGMENT_CODE_DELETE = 5;
+const SEGMENT_CODE_ADD_RIGHT = 6;
+
+const SEGMENT_MENU = [
+   {label: "add above", code: SEGMENT_CODE_ADD_ABOVE},
+   {label: "add below", code: SEGMENT_CODE_ADD_BELOW},
+   {label: "move up", code: SEGMENT_CODE_MOVE_UP},
+   {label: "move down", code: SEGMENT_CODE_MOVE_DOWN},
+   {label: "add right", code: SEGMENT_CODE_ADD_RIGHT},
+   {type: "separator"},
+   {label: "component", submenu: []},
+   {type: "separator"},
+   {label: "delete", code: SEGMENT_CODE_DELETE},
+]
 
 const SegmentsWrapper = styled.div`
-   ${AppStyles.block}
+   ${AppStyles.inline_block}
+   ${AppStyles.align_top}
    ${AppStyles.noselect}
-   background-color: white;
    min-height: 2rem;
-   border-top: 0.15rem solid #cccccc;
-   margin-top: 0.25rem;
 `;
 
 const SpecifyType = styled.div`
@@ -36,7 +51,7 @@ const IconWrapper = styled.div`
    ${AppStyles.inline_block};
    ${AppColors.COLOR_COOL_BLUE};
    font-size: 1.125rem;
-   margin: 0;
+   padding-right: 0.25rem;
 `;
 
 const ButtonText = styled.div`
@@ -48,33 +63,21 @@ const ButtonText = styled.div`
    vertical-align: top;
 `;
 
-const ComponentSelector = styled.div`
-   ${AppStyles.inline_block};
-   ${AppStyles.uppercase};
-   ${AppStyles.pointer};
-   ${AppColors.COLOR_DEEP_BLUE};
-   border: 0.25rem double ${AppColors.HSL_COOL_BLUE};
-   padding: 0.25rem 0.5rem 0.125rem;
-   border-radius: 0.25rem;
-   font-size: 0.75rem;
-   font-weight: bold;
-   background-color: ${AppColors.HSL_LIGHT_COOL_BLUE};
-   margin: 0.125rem 0 0 0.125rem;
-   &: hover{
-      ${AppStyles.medium_box_shadow};
-      margin: 0;
-   }
+const ProjectSegmentWrapper = styled.div`
+   ${AppStyles.inline_block}
+   border-left: 0.1rem solid #cccccc;
+   margin: 0 0.125rem;
 `;
 
-const ModalHeader = styled.div`
-   ${AppStyles.block};
-   color: #444444;   
-   font-size: 1rem;
-   font-weight: bold;
-   text-align: center;
-   margin-bottom: 0.5rem;
-   padding-bottom: 0.25rem;
-   border-bottom: 0.15rem solid #cccccc;
+const MenuSegmentPairWrapper = styled.div`
+   ${AppStyles.block}
+`;
+
+const AllSegmentsBlock = styled.div`
+   ${AppStyles.block}
+   margin-top: 0.5rem;
+   padding-left: 1rem;
+   border-top: 0.1rem solid #aaaaaa;
 `;
 
 export class ProjectSegmentsFrame extends Component {
@@ -87,9 +90,8 @@ export class ProjectSegmentsFrame extends Component {
    }
 
    state = {
-      selected_index: 0,
       in_type_modal: false,
-      segment_index: -1
+      segment_index: -1,
    };
 
    componentDidUpdate(prevProps, prevState, snapshot) {
@@ -99,73 +101,168 @@ export class ProjectSegmentsFrame extends Component {
          data.segments = [];
          update_needed = true;
       }
-      if (!data.segments.length) {
-         data.segments.push(EMPTY_SEGMENT);
+      if (!data.meta) {
+         data.meta = {};
          update_needed = true;
       }
+      if (!data.segments.length) {
+         data.segments.push(this.empty_segment());
+         update_needed = true;
+      }
+      data.segments.forEach(segment => {
+         if (!segment.id) {
+            segment.id = Utils.random_id();
+            update_needed = true;
+         }
+      })
       if (update_needed) {
          on_update(data);
       }
    }
 
-   all_components = () => {
+   empty_segment = () => {
+      const EMPTY_SEGMENT = {
+         id: Utils.random_id(),
+         meta: {},
+         props: {},
+         segments: [],
+      };
+      return Object.assign({}, EMPTY_SEGMENT);
+   }
+
+   segment_split = (segment_index) => {
+      const {data, on_update} = this.props;
+      if (!data.segments[segment_index].segments) {
+         data.segments[segment_index].segments = [];
+      }
+      const empty_segment = this.empty_segment();
+      empty_segment.meta.segment_index = segment_index;
+      data.segments[segment_index].segments.push(empty_segment);
+      on_update(data);
+   }
+
+   segment_operation = (selected, segment_index, component) => {
+      const {data, on_update} = this.props;
+      const segment_data = data.segments[segment_index];
+      if (component && component.on_menu_select(selected, segment_data)) {
+         on_update(data);
+         return;
+      }
+      let temp;
+      console.log("segment_operation", selected);
+      switch (selected) {
+         case SEGMENT_CODE_ADD_ABOVE :
+            data.segments.splice(segment_index, 0, this.empty_segment());
+            on_update(data);
+            break;
+         case SEGMENT_CODE_ADD_BELOW :
+            data.segments.splice(segment_index + 1, 0, this.empty_segment());
+            on_update(data);
+            break;
+         case SEGMENT_CODE_MOVE_UP :
+            if (!segment_index) {
+               break;
+            }
+            temp = Object.assign({}, segment_data);
+            data.segments[segment_index] = data.segments[segment_index - 1];
+            data.segments[segment_index - 1] = temp;
+            on_update(data);
+            break;
+         case SEGMENT_CODE_MOVE_DOWN :
+            if (segment_index === data.segments.length - 1) {
+               break;
+            }
+            temp = Object.assign({}, segment_data);
+            data.segments[segment_index] = data.segments[segment_index + 1];
+            data.segments[segment_index + 1] = temp;
+            on_update(data);
+            break;
+         case SEGMENT_CODE_DELETE :
+            data.segments.splice(segment_index, 1);
+            on_update(data);
+            break;
+         case SEGMENT_CODE_ADD_RIGHT:
+            this.segment_split(segment_index)
+            break;
+         default:
+            break;
+      }
+   }
+
+   type_selected = (response) => {
       const {segment_index} = this.state;
-      const {data, on_update, components} = this.props;
-      const all_components = components.map((comp, index) => {
-         return <ComponentSelector
-            onClick={e => {
-               console.log("ComponentSelector data", data)
-               data.segments[segment_index].type = comp.class_name;
-               on_update(data);
-               this.setState({in_type_modal: false});
-            }}>
-            {comp.title}
-         </ComponentSelector>
-      });
-      return <AppStyles.Block>
-         <ModalHeader>select a component type</ModalHeader>
-         {all_components}
-      </AppStyles.Block>
+      const {data, on_update} = this.props;
+      if (response) {
+         console.log("type_selected", response);
+         data.segments[segment_index].type = response;
+         on_update(data);
+      }
+      this.setState({in_type_modal: false});
    }
 
    component_from_type = (type) => {
       const {components} = this.props;
+      if (!type) {
+         return false;
+      }
       const found_component = components.find(comp => comp.class_name === type);
       if (found_component) {
          return found_component.component_type;
       }
+      console.log("component_from_type can't find", type)
       return false;
    }
 
    render() {
       const {in_type_modal} = this.state;
-      const {data, on_update} = this.props;
+      const {data, on_update, components} = this.props;
       const segments = !data.segments ? '' : data.segments.map((segment_data, index) => {
-         const component_type = this.component_from_type(segment_data.type);
-         const type_button = component_type ? '' : <SpecifyType
+
+         const type_button = segment_data.type ? '' : <SpecifyType
             onClick={e => this.setState({in_type_modal: true, segment_index: index})}>
             <IconWrapper><FontAwesomeIcon icon={faQuestionCircle}/></IconWrapper>
             <ButtonText>what is it</ButtonText>
          </SpecifyType>
-         const project_segment = !component_type ? '' : <ProjectSegment
-            key={`segment_${index}_${data.updated}`}
-            component_props={segment_data.props}
-            on_update={props => {
-               data.segments[index].props = props;
-               on_update(data);
-            }}
-            component_type={component_type}
-         />
-         return <AppStyles.Block>
+
+         const component = this.component_from_type(segment_data.type)
+         const menu_options = SEGMENT_MENU.map(item => {
+            if (item.label === "component" && component && segment_data) {
+               item.submenu = component.get_menu_options(segment_data);
+            }
+            return Object.assign ({}, item);
+         })
+         const segments_menu = <SegmentsMenu
+            menu_options={menu_options}
+            on_selected={selected => this.segment_operation(selected, index, component)}/>
+
+         const project_segment = !segment_data.type ? '' : <ProjectSegmentWrapper>
+            <ProjectSegment
+               segment_data={segment_data}
+               on_update_props={props => {
+                  Object.assign(data.segments[index].props, props);
+                  on_update(data);
+               }}
+               on_update_segment_list={segments => {
+                  Object.assign(data.segments[index].segments, segments);
+                  on_update(data);
+               }}
+               components={components}/>
+         </ProjectSegmentWrapper>
+
+         return <MenuSegmentPairWrapper
+            key={`segment_${segment_data.id}`}>
+            {segments_menu}
             {type_button}
             {project_segment}
-         </AppStyles.Block>
+         </MenuSegmentPairWrapper>
       });
       return <SegmentsWrapper>
-         {segments}
-         {in_type_modal && <CoolModal
-            contents={this.all_components()}
-            response={result => this.setState({in_type_modal: false})}
+         <AllSegmentsBlock>
+            {segments}
+         </AllSegmentsBlock>
+         {in_type_modal && <SegmentTypeModal
+            components={components}
+            on_response={response => this.type_selected(response)}
          />}
       </SegmentsWrapper>
    }

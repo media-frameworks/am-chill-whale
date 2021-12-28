@@ -32,6 +32,10 @@ const DeleteItem = styled.div`
     }
 `;
 
+const MetaWrapper = styled(AppStyles.Block)`
+   margin-bottom: 0.25rem;
+`;
+
 export class ProjectBlock extends Component {
 
    static propTypes = {
@@ -42,18 +46,25 @@ export class ProjectBlock extends Component {
    }
 
    state = {
-      data: {}
+      data: {},
+      needs_update: true
    };
 
    load_data = () => {
       const {project_path} = this.props;
       StoreS3.get_file_async(`${project_path}main.json`, S3_PREFIX, data => {
+         console.log("loaded data", project_path);
          this.setState({data: JSON.parse(data)});
       });
    }
 
-   componentDidUpdate() {
-      this.load_data();
+   componentDidUpdate(prevProps, prevState, snapshot) {
+      const {data, needs_update} = this.state;
+      if (needs_update) {
+         console.log("loading from componentDidUpdate", prevState.data, data);
+         this.load_data();
+         this.setState({needs_update: false});
+      }
    }
 
    componentDidMount() {
@@ -63,8 +74,8 @@ export class ProjectBlock extends Component {
    update_data = (data) => {
       data["updated"] = Utils.now_string();
       StoreS3.put_file_async(data.s3_path, JSON.stringify(data), S3_PREFIX, result => {
-         console.log("update_data", result, data);
-         this.setState({data: data});
+         console.log("updated data", result, data);
+         this.setState({data: data, needs_update: true});
       })
    }
 
@@ -82,20 +93,22 @@ export class ProjectBlock extends Component {
       const delete_item = !is_expanded ? '' : <DeleteItem
          onClick={e => this.delete_project(project_path)}>delete</DeleteItem>
       return <ProjectWrapper>
-         <AppStyles.InlineBlock>
+         <MetaWrapper>
             <ProjectMeta
                data={data}
                is_expanded={is_expanded}
                on_update={data => this.update_data(data)}
             />
-         </AppStyles.InlineBlock>
+         </MetaWrapper>
          {delete_item}
-         {is_expanded && <ProjectSegmentsFrame
-            data={data}
-            components={components}
-            is_expanded={is_expanded}
-            on_update={data => this.update_data(data)}
-         />}
+         {is_expanded && <AppStyles.Block>
+            <ProjectSegmentsFrame
+               data={data}
+               components={components}
+               is_expanded={is_expanded}
+               on_update={data => this.update_data(data)}
+            />
+         </AppStyles.Block>}
       </ProjectWrapper>;
    }
 }
