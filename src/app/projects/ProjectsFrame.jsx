@@ -17,6 +17,7 @@ const FrameWrapper = styled.div`
     bottom: 0;
     padding: 0.125rem 1rem 0;
     background-color: #dddddd;
+    overflow-y: auto;
 `;
 
 const AllProjects = styled.div`

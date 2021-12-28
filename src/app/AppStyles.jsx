@@ -49,6 +49,11 @@ export class AppStyles {
     static absolute = css`
         position: absolute;
     `;
+
+    static relative = css`
+        position: relative;
+    `;
+
     static fixed = css`
         position: fixed;
     `;

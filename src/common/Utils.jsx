@@ -43,6 +43,10 @@ export class Utils {
         const d = new Date();
         return d.toISOString();
     }
+
+    static random_id() {
+        return 'id_' + Math.floor(Math.random() * 10000000);
+    }
 }
 
 export default Utils;

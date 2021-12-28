@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
-import {AppStyles} from "../app/AppImports";
+import {AppStyles} from "../../app/AppImports";
 
 export class CoolInputText extends Component {
 
