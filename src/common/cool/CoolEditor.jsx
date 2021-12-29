@@ -1,16 +1,29 @@
 import React, {Component} from 'react';
 import PropTypes from 'introspective-prop-types'
-// import styled from "styled-components";
+import styled from "styled-components";
+
+import {undo_icon} from "./CoolIcons"
 
 import {Editor} from 'react-draft-wysiwyg';
-import { EditorState, convertToRaw } from 'draft-js';
+import {EditorState, ContentState, convertFromHTML} from 'draft-js';
+import {stateToHTML} from 'draft-js-export-html';
+
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './cool.css';
+import {AppStyles, AppColors} from "../../app/AppImports";
+
+const IconWrapper = styled.div`
+    ${AppStyles.inline};
+    ${AppColors.COLOR_COOL_BLUE};
+    height: 1.5rem;
+    vertical-align: middle;
+`;
 
 export class CoolEditor extends Component {
 
    static propTypes = {
-      value: PropTypes.string,
+      html: PropTypes.string.isRequired,
+      on_update: PropTypes.func.isRequired,
    }
 
    static defaultProps = {
@@ -18,20 +31,55 @@ export class CoolEditor extends Component {
    }
 
    state = {
-      editorState: EditorState.createEmpty(),
+      editorState: null,
    };
 
-   onEditorStateChange: Function = (editorState) => {
-      console.log("onEditorStateChange",editorState)
+   componentDidMount() {
+      const {html} = this.props;
+
+      const blocksFromHTML = convertFromHTML(html);
+      const content_state = ContentState.createFromBlockArray(
+         blocksFromHTML.contentBlocks,
+         blocksFromHTML.entityMap,
+      );
+      const editorState = EditorState.createWithContent(content_state);
+      console.log("componentDidMount createWithContent returns", editorState);
+
+      const exported = stateToHTML(content_state);
+      console.log("componentDidMount exported", exported);
+
+      this.setState({editorState: editorState});
+   }
+
+   componentDidUpdate(prevProps, prevState, snapshot) {
+      const {editorState} = this.state;
+      const contentState = editorState.getCurrentContent();
+      console.log("componentDidUpdate content", contentState);
+
+      const exported = stateToHTML(contentState);
+      console.log("componentDidUpdate called", exported)
+   }
+
+   onEditorStateChange = (editorState) => {
+      const {on_update} = this.props;
+      console.log("onEditorStateChange editorState", editorState)
       this.setState({
          editorState: editorState
       });
+
+      const contentState = editorState.getCurrentContent();
+      console.log("onEditorStateChange content", contentState);
+
+      const exported = stateToHTML(contentState);
+      console.log("onEditorStateChange exported", exported);
+
+      on_update(exported);
    };
 
    render() {
-      const { editorState } = this.state;
+      const {editorState} = this.state;
       const toolbar = {
-         options: ['inline', 'blockType', 'fontSize'],
+         options: ['inline', 'blockType', 'colorPicker', 'history'],
          inline: {
             options: ['bold', 'italic', 'underline', 'monospace'],
             bold: {className: "toolbar-element"},
@@ -40,12 +88,12 @@ export class CoolEditor extends Component {
             monospace: {className: "toolbar-element"},
          },
          blockType: {className: "toolbar-element"},
-         fontSize: {className: "toolbar-element"},
-         link: {
+         colorPicker: {className: "toolbar-element"},
+         history: {
             className: "toolbar-element",
-            link: {className: "toolbar-links"},
-            unlink: {className: "toolbar-links"},
-         }
+            undo: {className: "history-button"},
+            redo: {className: "history-button"},
+         },
       };
       const editor_style = {
          margin: 0,
@@ -53,12 +101,15 @@ export class CoolEditor extends Component {
          fontSize: "1rem",
          lineHeight: 0
       };
+      const editor_state = editorState ? editorState : EditorState.createEmpty()
       return <Editor
-         editorState={editorState}
+         editorState={editor_state}
          toolbarClassName={"editor-toolbar"}
          editorStyle={editor_style}
          toolbar={toolbar}
-         value={"test test"}
+         onEditorStateChange={editorState => {
+            this.onEditorStateChange(editorState);
+         }}
       />
    }
 }

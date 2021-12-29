@@ -54,11 +54,8 @@ export class ProjectSegment extends Component {
 
    marshal_component = (component_props) => {
       const {component_type} = this.state;
-      if (!component_type) {
-         return
-      }
       const {on_update_props} = this.props;
-      if (!component_props) {
+      if (!component_type || !component_props) {
          return
       }
       const intf = ProjectSegment.query_interface(component_type);

@@ -4,15 +4,17 @@ import styled from "styled-components";
 
 import {AppStyles} from "../../app/AppImports";
 import CoolEditor from './CoolEditor';
+import './cool.css';
 
 const COOLNOTES_CODE_FANCY_EDIT = 10001;
 const COOLNOTES_CODE_REGULAR_EDIT = 10002;
 
-const RegularText = styled.span`
+const RegularText = styled.div`
    ${AppStyles.pointer};
    color: #444444;   
    font-size: 1rem;
    padding: 0 0.25rem;
+   margin: 0;
 `;
 
 const PromptText = styled.span`
@@ -119,16 +121,24 @@ export class CoolNotes extends Component {
       this.setState({edit_mode: true})
    }
 
+   process_inner_html = (value) => {
+      const v = typeof value === 'object' ? '***' : value;
+      return v.replace('<p>', '').replace('</p>', '<br />')
+   }
+
    render() {
       const {input_ref, current_value, edit_mode} = this.state;
-      const {placeholder, style_extra, editor_type, value} = this.props;
+      const {placeholder, style_extra, editor_type, value, on_update_props} = this.props;
       if (!edit_mode) {
-         return value ? <RegularText onClick={e => this.go_to_edit()}>{value}</RegularText> :
+         return value ?
+            <RegularText
+               onClick={e => this.go_to_edit()}
+               dangerouslySetInnerHTML={{__html: this.process_inner_html(value)}}/> :
             <PromptText onClick={e => this.go_to_edit()}>click to begin</PromptText>
       }
       style_extra["minHeight"] = "1.125rem";
       switch (editor_type) {
-         case "regular" : {
+         case "regular" :
             return <AppStyles.InputTextArea
                ref={input_ref}
                autoFocus
@@ -138,10 +148,16 @@ export class CoolNotes extends Component {
                rows={"auto"}
                cols={current_value.length + 5}
                onChange={e => this.setState({current_value: e.target.value})}
-               placeholder={placeholder}/>
-         }
+               placeholder={placeholder}
+            />
+
          case "fancy":
-            return <CoolEditor />
+            return <CoolEditor
+               html={current_value}
+               on_update={html => {
+                  on_update_props({value: html})
+               }}
+            />
 
          default:
             return [];

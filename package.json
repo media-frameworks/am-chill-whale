@@ -11,6 +11,8 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "aws-sdk": "^2.1034.0",
+    "draft-js-export-html": "^1.4.1",
+    "draft-js-import-html": "^1.4.1",
     "history": "^5.1.0",
     "introspective-prop-types": "^0.0.5",
     "javascript-time-ago": "^2.3.10",
