@@ -54,7 +54,12 @@ export class ProjectBlock extends Component {
       const {project_path} = this.props;
       StoreS3.get_file_async(`${project_path}main.json`, S3_PREFIX, data => {
          console.log("loaded data", project_path);
-         this.setState({data: JSON.parse(data)});
+         if (typeof data !== 'string') {
+            console.log("get_file_async error", data)
+         }
+         else {
+            this.setState({data: JSON.parse(data)});
+         }
       });
    }
 
