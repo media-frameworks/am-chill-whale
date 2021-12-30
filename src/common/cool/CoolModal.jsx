@@ -19,13 +19,15 @@ const FormContainer = styled.div`
     border-radius: 0.5rem;
     border: 0.15rem solid #aaaaaa;
     box-shadow: 0.5rem 0.5rem 1rem rgba(0,0,0,25%);
-    width: 50%;   
+    min-width: 50%;   
+    max-width: 75%;   
     background-color: white; 
 `;
 
 const FormContent = styled.div`
     min-height: 5rem;
-    padding: 0.5rem 1rem;
+    max-height: 75vh;
+    padding: 0.5rem 1rem 1.5rem;
 `;
 
 export class CoolModal extends Component {

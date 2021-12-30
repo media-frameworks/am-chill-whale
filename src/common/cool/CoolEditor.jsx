@@ -1,8 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'introspective-prop-types'
-import styled from "styled-components";
-
-import {undo_icon} from "./CoolIcons"
+// import styled from "styled-components";
 
 import {Editor} from 'react-draft-wysiwyg';
 import {EditorState, ContentState, convertFromHTML} from 'draft-js';
@@ -10,14 +8,7 @@ import {stateToHTML} from 'draft-js-export-html';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './cool.css';
-import {AppStyles, AppColors} from "../../app/AppImports";
-
-const IconWrapper = styled.div`
-    ${AppStyles.inline};
-    ${AppColors.COLOR_COOL_BLUE};
-    height: 1.5rem;
-    vertical-align: middle;
-`;
+// import {AppStyles, AppColors} from "../../app/AppImports";
 
 export class CoolEditor extends Component {
 

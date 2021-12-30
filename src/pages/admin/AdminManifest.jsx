@@ -3,7 +3,9 @@ import PropTypes from 'prop-types';
 
 import {AppStyles, AppBrand, AppTitleBar} from "../../app/AppImports";
 import AppProjectsFrame from "../../app/AppProjectsFrame";
+
 import CoolNotes from "../../common/cool/CoolNotes";
+import MediaVideo from "../../common/media/MediaVideo";
 
 const SECTIONS = [
    {title: "chaotic", key: "chaotic"},
@@ -21,6 +23,7 @@ const SECTIONS = [
 
 const COMPONENTS = [
    {title: "cool notes", class_name: "CoolNotes", component_type: CoolNotes},
+   {title: "video piece", class_name: "MediaVideo", component_type: MediaVideo},
 ];
 
 export class AdminManifest extends Component {
