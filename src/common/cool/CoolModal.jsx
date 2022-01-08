@@ -3,7 +3,7 @@ import styled from "styled-components";
 import PropTypes from 'prop-types';
 
 const FormField = styled.div`
-    position: absolute;
+    position: fixed;
     z-Index: 200;
     padding-top: 8%;
     left: 0;
@@ -35,6 +35,11 @@ export class CoolModal extends Component {
    static propTypes = {
       contents: PropTypes.element.isRequired,
       response: PropTypes.func.isRequired,
+      width: PropTypes.string,
+   }
+
+   static defaultProps = {
+      width: "40%"
    }
 
    state = {
@@ -77,8 +82,10 @@ export class CoolModal extends Component {
 
    render() {
       const {modal_ref} = this.state;
+      const {width} = this.props;
+      const style_extra = {width: width};
       return <FormField>
-         <FormContainer ref={modal_ref}>
+         <FormContainer style={style_extra} ref={modal_ref}>
             <FormContent>
                {this.props.contents}
             </FormContent>

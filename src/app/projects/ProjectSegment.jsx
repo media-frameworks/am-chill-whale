@@ -3,6 +3,9 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCaretRight, faCaretLeft} from '@fortawesome/free-solid-svg-icons'
+
 import {AppStyles} from "../AppImports";
 import ProjectSegmentsFrame from "./ProjectSegmentsFrame";
 
@@ -13,6 +16,14 @@ const ProjectBlockWrapper = styled.div`
 const ComponentWrapper = styled.div`
    ${AppStyles.inline_block}
    ${AppStyles.align_top}
+`;
+
+const ExpanderWrapper = styled.div`
+   ${AppStyles.inline_block}
+   ${AppStyles.pointer}
+   padding-top: 0.025rem;
+   margin-left: 0.25rem;
+   color: #aaaaaa;
 `;
 
 export class ProjectSegment extends Component {
@@ -26,7 +37,7 @@ export class ProjectSegment extends Component {
 
    state = {
       component: null,
-      component_type: null
+      component_type: null,
    };
 
    componentDidMount() {
@@ -93,9 +104,16 @@ export class ProjectSegment extends Component {
       on_update_segment_list(segment_data.segments)
    }
 
+   on_toggle_collapse = () => {
+      const {segment_data, on_update_props} = this.props;
+      segment_data.props.collapsed = !segment_data.props.collapsed;
+      on_update_props(segment_data.props);
+   }
+
    render() {
       const {component} = this.state;
       const {segment_data, components} = this.props;
+      const collapsed = segment_data.props.collapsed;
       const first_block = <ComponentWrapper>
          {component}
       </ComponentWrapper>;
@@ -103,13 +121,18 @@ export class ProjectSegment extends Component {
          return <ProjectSegmentsFrame
             data={sub_segment}
             on_update={data => this.update_sub_segment(data, index)}
-            is_expanded={true}
             components={components}
          />
       });
+      const expander_icon = <FontAwesomeIcon icon={collapsed ? faCaretRight :faCaretLeft}/>;
+      const expander = segment_data.segments && !segment_data.segments.length ? '' : <ExpanderWrapper
+         onClick={e => this.on_toggle_collapse()}>
+         {expander_icon}
+      </ExpanderWrapper>
       return <ProjectBlockWrapper>
          {first_block}
-         {sub_blocks}
+         {expander}
+         {!collapsed && sub_blocks}
       </ProjectBlockWrapper>
    }
 

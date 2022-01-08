@@ -3,18 +3,13 @@ import PropTypes from 'introspective-prop-types'
 import styled from "styled-components";
 
 import {AppStyles, AppColors} from "../../app/AppImports";
-import vimeo_auth from "../../config/vimeo.json";
 import CoolModal from "../../common/cool/CoolModal";
 import MediaEntry from "./MediaEntry";
+import {check_vimeo_auth} from "./VimeoAuth";
 
-var Vimeo = require('vimeo').Vimeo;
+const MEDIA_VIDEO_EDIT_ENTRY = 10001;
 
-const MEDIA_VIDEO_GO_TO_SOURCE = 10001;
-
-var vimeo_client = new Vimeo(
-   vimeo_auth.VIMEO_USER_ID,
-   vimeo_auth.VIMEO_CLIENT_SECRET,
-   vimeo_auth.VIMEO_ACCESS_TOKEN);
+const vimeo_client = check_vimeo_auth();
 
 const PromptText = styled.span`
    ${AppStyles.pointer};
@@ -58,14 +53,19 @@ export class MediaVideo extends Component {
 
    static propTypes = {
       vimeo_id: PropTypes.string.required,
+      description: PropTypes.string,
+      pictures: PropTypes.array,
       on_update_props: PropTypes.func.isRequired,
    }
 
    static defaultProps = {
-      vimeo_id: 0
+      vimeo_id: 0,
+      description: null,
+      pictures: [],
    }
 
    static vimeo_videos = [];
+   static loading_vimeo_videos = true;
 
    state = {
       in_modal_select: false,
@@ -74,12 +74,18 @@ export class MediaVideo extends Component {
    };
 
    componentDidMount() {
+      const {vimeo_id} = this.props;
+      if (!vimeo_id) {
+         this.setState({in_modal_select: true});
+      }
       const path = `/users/17538072/videos?per_page=50`;
       if (!MediaVideo.vimeo_videos.length) {
+         MediaVideo.loading_vimeo_videos = true;
          let vimeo_videos = [];
          this.load_all_videos(path, vimeo_videos)
       } else {
          this.setState({video_load_progress_pct: 100})
+         MediaVideo.loading_vimeo_videos = false;
       }
    }
 
@@ -88,7 +94,7 @@ export class MediaVideo extends Component {
       vimeo_client.request({path: uri}, (error, body, status_code, headers) => {
          vimeo_videos = vimeo_videos.concat(body.data)
          MediaVideo.vimeo_videos = vimeo_videos;
-         if (body.paging.next) {
+         if (body.paging && body.paging.next) {
             this.setState({video_load_progress_pct: Math.floor(vimeo_videos.length * 100 / body.total)})
             this.load_all_videos(body.paging.next, vimeo_videos)
          } else {
@@ -102,15 +108,16 @@ export class MediaVideo extends Component {
          return [];
       }
       return [
-         {label: "go to source", code: MEDIA_VIDEO_GO_TO_SOURCE},
+         {label: "got to vimeo", code: MEDIA_VIDEO_EDIT_ENTRY},
       ];
    }
 
    static on_menu_select = (code, segment_data) => {
       console.log("on_menu_select", code)
       switch (code) {
-         case MEDIA_VIDEO_GO_TO_SOURCE:
-            console.log("MEDIA_VIDEO_GO_TO_SOURCE")
+         case MEDIA_VIDEO_EDIT_ENTRY:
+            const url = `https://vimeo.com/manage/${segment_data.props.vimeo_id}/advanced`;
+            window.open(url, "_blank") || window.location.replace(url);
             return true;
          default:
             return false;
@@ -131,7 +138,7 @@ export class MediaVideo extends Component {
       const curent_year = new Date().getFullYear();
       let all_years = [];
       for (let year = 2000; year <= curent_year; year++) {
-         const videos_for_year = MediaVideo.vimeo_videos.filter(video => video.name.indexOf(`(${year})`) !== -1);
+         const videos_for_year = MediaVideo.vimeo_videos.filter(video => video && video.name.indexOf(`(${year})`) !== -1);
          if (videos_for_year.length) {
             const videos = videos_for_year
                .sort((a, b) => a.name > b.name ? 1 : -1)
@@ -157,7 +164,7 @@ export class MediaVideo extends Component {
 
    render() {
       const {in_modal_select, video_load_progress_pct} = this.state;
-      const {vimeo_id, on_update_props} = this.props;
+      const {vimeo_id, description, pictures, on_update_props} = this.props;
       const video_select_prompt = vimeo_id > 0 ? '' :
          <PromptText onClick={e => this.setState({in_modal_select: true})}>select video</PromptText>
       const select_modal = !in_modal_select ? '' : <CoolModal
@@ -167,8 +174,12 @@ export class MediaVideo extends Component {
             on_update_props({vimeo_id: vimeo_id})
          }}
       />
-      console.log("vimeo_id",vimeo_id)
-      const video_entry = <MediaEntry vimeo_id={vimeo_id} />
+      const video_entry = <MediaEntry
+         vimeo_id={vimeo_id}
+         description={description}
+         pictures={pictures}
+         on_update_props={props => on_update_props(props)}
+      />
       return <AppStyles.Block>
          {video_select_prompt}
          {select_modal}

@@ -35,6 +35,7 @@ const SegmentsWrapper = styled.div`
    ${AppStyles.align_top}
    ${AppStyles.noselect}
    min-height: 2rem;
+   margin-bottom: 0.25rem;
 `;
 
 const SpecifyType = styled.div`
@@ -85,7 +86,6 @@ export class ProjectSegmentsFrame extends Component {
    static propTypes = {
       data: PropTypes.object.isRequired,
       on_update: PropTypes.func.isRequired,
-      is_expanded: PropTypes.bool.isRequired,
       components: PropTypes.array.isRequired,
    }
 

@@ -19,6 +19,7 @@ const DropdownContainer = styled.div`
     box-shadow: 0.5rem 0.5rem 1rem rgba(0,0,0,20%);
     border-radius: 0.25rem;
     margin-left: 0.25rem;
+    background-color: #f8f8f8;
 `;
 
 const DropdownElement = styled.div`
@@ -26,7 +27,6 @@ const DropdownElement = styled.div`
     padding: 0.125rem 0.5rem;
     font-size: 0.85rem;
     color: ${ITEM_COLOR};
-    background-color: #eeeeee;
     &: hover {
         color: ${ITEM_HILIGHT_COLOR};
         font-weight: bold;

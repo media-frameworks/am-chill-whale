@@ -116,8 +116,13 @@ export class ThreeDFluidMotion extends Component {
       });
    }
 
-   static query_interface = () => {
-      return {};
+   static get_menu_options = (segment_data) => {
+      if (!segment_data) {
+         return [];
+      }
+      return [
+         {label: "go to there", code: 1   },
+      ];
    }
 
    set_slider_value = (index, value) => {
