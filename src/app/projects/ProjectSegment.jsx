@@ -69,8 +69,8 @@ export class ProjectSegment extends Component {
       if (!component_type || !component_props) {
          return
       }
-      const intf = ProjectSegment.query_interface(component_type);
       let props = {on_update_props: on_update_props}
+      const intf = ProjectSegment.query_interface(component_type, props);
       intf.forEach(i => {
          if (component_props[i.name]) {
             props[i.name] = component_props[i.name];
@@ -81,9 +81,12 @@ export class ProjectSegment extends Component {
       })
    }
 
-   static query_interface = (component_type) => {
-      const component = React.createElement(component_type)
+   static query_interface = (component_type, props) => {
+      const component = React.createElement(component_type, props)
       const {propTypes} = component.type;
+      if (!propTypes) {
+         return [];
+      }
       const prop_keys = Object.keys(propTypes);
       return prop_keys.map(key => {
          const prop_meta = {
@@ -124,7 +127,7 @@ export class ProjectSegment extends Component {
             components={components}
          />
       });
-      const expander_icon = <FontAwesomeIcon icon={collapsed ? faCaretRight :faCaretLeft}/>;
+      const expander_icon = <FontAwesomeIcon icon={collapsed ? faCaretRight : faCaretLeft}/>;
       const expander = segment_data.segments && !segment_data.segments.length ? '' : <ExpanderWrapper
          onClick={e => this.on_toggle_collapse()}>
          {expander_icon}
