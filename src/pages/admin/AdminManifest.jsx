@@ -7,6 +7,7 @@ import AppProjectsFrame from "../../app/AppProjectsFrame";
 import CoolNotes from "../../common/cool/CoolNotes";
 import MediaVideo from "../../common/media/MediaVideo";
 import MediaImage from "../../common/media/MediaImage";
+import ImageRover from "../../common/media/image/ImageRover";
 
 const SECTIONS = [
    {title: "chaotic", key: "chaotic"},
@@ -26,6 +27,7 @@ const COMPONENTS = [
    {title: "cool notes", class_name: "CoolNotes", component_type: CoolNotes},
    {title: "cool video", class_name: "MediaVideo", component_type: MediaVideo},
    {title: "cool image", class_name: "MediaImage", component_type: MediaImage},
+   {title: "image rover", class_name: "ImageRover", component_type: ImageRover},
 ];
 
 export class AdminManifest extends Component {

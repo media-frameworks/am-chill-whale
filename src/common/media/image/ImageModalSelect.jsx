@@ -27,7 +27,7 @@ const IconWrapper = styled(AppStyles.InlineBlock)`
    margin-top: 0.0625rem;
 `;
 
-export class ModalImageSelect extends Component {
+export class ImageModalSelect extends Component {
 
    static propTypes = {
       response: PropTypes.func.isRequired,
@@ -99,4 +99,4 @@ export class ModalImageSelect extends Component {
    }
 }
 
-export default ModalImageSelect;
+export default ImageModalSelect;

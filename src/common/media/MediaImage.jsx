@@ -3,7 +3,7 @@ import PropTypes from 'introspective-prop-types'
 import styled from "styled-components";
 
 import {AppStyles} from "../../app/AppImports";
-import ModalImageSelect from "./modal/ModalImageSelect";
+import ImageModalSelect from "./image/ImageModalSelect";
 
 const MEDIA_IMAGE_EDIT_ENTRY = 10001;
 
@@ -18,13 +18,13 @@ const PromptText = styled.span`
 export class MediaImage extends Component {
 
    static propTypes = {
-      image_id: PropTypes.string.required,
+      image_id: PropTypes.string.isRequired,
       caption: PropTypes.string.isRequired,
       on_update_props: PropTypes.func.isRequired,
    }
 
    static defaultProps = {
-      image_id: 0,
+      image_id: '',
       caption: '',
    }
 
@@ -48,7 +48,7 @@ export class MediaImage extends Component {
    initialize_image = () => {
       const {image_id} = this.props;
       if (image_id) {
-         const image_data = ModalImageSelect.get_image_data(image_id);
+         const image_data = ImageModalSelect.get_image_data(image_id);
          this.setState({image_data: image_data});
       }
    }
@@ -85,7 +85,7 @@ export class MediaImage extends Component {
       const have_image = image_id !== 0;
       const image_select_prompt = have_image ? '' : <PromptText
          onClick={e => this.setState({in_modal_select: true})}>select image</PromptText>;
-      const select_modal = !in_modal_select ? '' : <ModalImageSelect
+      const select_modal = !in_modal_select ? '' : <ImageModalSelect
          response={image_data => this.select_image(image_data)} />
       const image = !image_data.secure_url ? '' : <img
          src={image_data.secure_url} width={"150px"} />
