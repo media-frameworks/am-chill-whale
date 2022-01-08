@@ -8,6 +8,7 @@ import './cool.css';
 
 const COOLNOTES_CODE_FANCY_EDIT = 10001;
 const COOLNOTES_CODE_REGULAR_EDIT = 10002;
+const COOLNOTES_CODE_SCRUB_MARKOUT = 10003;
 
 const RegularText = styled.div`
    ${AppStyles.pointer};
@@ -15,6 +16,7 @@ const RegularText = styled.div`
    font-size: 1rem;
    padding: 0 0.25rem;
    margin: 0;
+   max-width: 28rem;
 `;
 
 const PromptText = styled.span`
@@ -59,6 +61,7 @@ export class CoolNotes extends Component {
          {label: "fancy edit", code: COOLNOTES_CODE_FANCY_EDIT};
       return [
          fancy_edit,
+         {label: "scrub mark-out", code: COOLNOTES_CODE_SCRUB_MARKOUT},
       ];
    }
 
@@ -70,6 +73,20 @@ export class CoolNotes extends Component {
             return true;
          case COOLNOTES_CODE_REGULAR_EDIT:
             segment_data.props.editor_type = 'regular';
+            return true;
+         case COOLNOTES_CODE_SCRUB_MARKOUT:
+            segment_data.props.value = segment_data.props.value
+               .split('~~')
+               .map((part, index) => {
+                  if (index % 2 === 0) {
+                     return part;
+                  }
+                  return part.split(':').shift()
+               })
+               .join('')
+               .replace("**", "<b>")
+               .replace("**", "</b>");
+            console.log("COOLNOTES_CODE_SCRUB_MARKOUT", segment_data.props.value);
             return true;
          default:
             return false;
@@ -137,6 +154,7 @@ export class CoolNotes extends Component {
             <PromptText onClick={e => this.go_to_edit()}>click to begin</PromptText>
       }
       style_extra["minHeight"] = "1.125rem";
+      style_extra["width"] = "20rem";
       switch (editor_type) {
          case "regular" :
             return <AppStyles.InputTextArea

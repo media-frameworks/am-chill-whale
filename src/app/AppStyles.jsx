@@ -34,6 +34,10 @@ export class AppStyles {
         text-decoration: underline;
     `;
 
+    static centered = css`
+        text-align: center;
+    `;
+
     static uppercase = css`
         text-transform: uppercase;
     `;

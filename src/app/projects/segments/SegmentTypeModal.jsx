@@ -27,11 +27,7 @@ const ComponentSelector = styled.div`
    font-size: 0.75rem;
    font-weight: bold;
    background-color: ${AppColors.HSL_LIGHT_COOL_BLUE};
-   margin: 0.125rem 0 0 0.125rem;
-   &: hover{
-      ${AppStyles.medium_box_shadow};
-      margin: 0;
-   }
+   margin: 0.125rem 0.5rem 0 0.125rem;
 `;
 
 export class SegmentTypeModal extends Component {

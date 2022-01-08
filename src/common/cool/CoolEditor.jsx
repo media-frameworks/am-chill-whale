@@ -87,10 +87,11 @@ export class CoolEditor extends Component {
          },
       };
       const editor_style = {
-         margin: 0,
+         margin: "0 0 0 0",
          paddingLeft: "0.25rem",
          fontSize: "1rem",
-         lineHeight: 0
+         lineHeight: "1rem",
+         width: "40rem"
       };
       const editor_state = editorState ? editorState : EditorState.createEmpty()
       return <Editor

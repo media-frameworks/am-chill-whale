@@ -11,6 +11,7 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "aws-sdk": "^2.1034.0",
+    "cloudinary-react": "^1.7.0",
     "draft-js-export-html": "^1.4.1",
     "draft-js-import-html": "^1.4.1",
     "history": "^5.1.0",
