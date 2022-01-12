@@ -116,6 +116,7 @@ export class ProjectSegmentsFrame extends Component {
          }
       })
       if (update_needed) {
+         console.log("ProjectSegmentsFrame update_needed",data)
          on_update(data);
       }
    }
@@ -144,7 +145,8 @@ export class ProjectSegmentsFrame extends Component {
    segment_operation = (selected, segment_index, component) => {
       const {data, on_update} = this.props;
       const segment_data = data.segments[segment_index];
-      if (component && component.on_menu_select(selected, segment_data)) {
+      const ref = ProjectSegment.segment_ref_map[segment_data.id];
+      if (component && component.on_menu_select(selected, segment_data, ref)) {
          on_update(data);
          return;
       }

@@ -97,7 +97,7 @@ export class ProjectBlock extends Component {
       const {is_expanded, project_path, components} = this.props;
       const delete_item = !is_expanded ? '' : <DeleteItem
          onClick={e => this.delete_project(project_path)}>delete</DeleteItem>
-      return <ProjectWrapper>
+      return <ProjectWrapper key={project_path}>
          <MetaWrapper>
             <ProjectMeta
                data={data}
