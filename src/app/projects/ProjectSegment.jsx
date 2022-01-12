@@ -63,9 +63,11 @@ export class ProjectSegment extends Component {
       return false;
    }
 
+   static segment_ref_map = {};
+
    marshal_component = (component_props) => {
       const {component_type} = this.state;
-      const {on_update_props} = this.props;
+      const {segment_data, on_update_props} = this.props;
       if (!component_type || !component_props) {
          return
       }
@@ -76,8 +78,13 @@ export class ProjectSegment extends Component {
             props[i.name] = component_props[i.name];
          }
       });
+      let ref = ProjectSegment.segment_ref_map[segment_data.id];
+      if (!ref) {
+         ref = React.createRef();
+         ProjectSegment.segment_ref_map[segment_data.id] = ref;
+      }
       this.setState({
-         component: React.createElement(component_type, props),
+         component: React.createElement(component_type, { ...props, ref: ref }),
       })
    }
 

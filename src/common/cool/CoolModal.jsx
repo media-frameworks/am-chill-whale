@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 const FormField = styled.div`
     position: fixed;
     z-Index: 200;
-    padding-top: 8%;
+    padding-top: 5%;
     left: 0;
     top: 0;
     width: 100%;
@@ -57,6 +57,9 @@ export class CoolModal extends Component {
       const {modal_ref} = this.state;
       const {response} = this.props;
       if (!modal_ref.current) {
+         return;
+      }
+      if (!evt.clientX && !evt.clientY) {
          return;
       }
       const bounds = modal_ref.current.getBoundingClientRect();

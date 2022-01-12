@@ -7,6 +7,7 @@ import {faPlusSquare, faMinusSquare} from '@fortawesome/free-regular-svg-icons';
 
 import {AppStyles, AppColors} from "../../../app/AppImports";
 import CoolModal from "../../../common/cool/CoolModal";
+import ImageRender from "./ImageRender";
 import all_images from "../../../data/fracto_cloudinary.json";
 
 const PAGE_SIZE = 50;
@@ -44,6 +45,9 @@ export class ImageModalSelect extends Component {
    };
 
    static get_image_data = (filename) => {
+      if (!filename) {
+         return {};
+      }
       return all_images.resources.find(r => r.filename === filename);
    }
 
@@ -81,7 +85,7 @@ export class ImageModalSelect extends Component {
             return <AppStyles.InlineBlock
                onClick={e => response(r)}>
                <AppStyles.Block>
-                  <img src={r.secure_url} width={"150px"}/>
+                  <ImageRender image_id={r.filename} width_px={"150"}/>
                </AppStyles.Block>
                <AppStyles.Block>
                   {r.filename}
