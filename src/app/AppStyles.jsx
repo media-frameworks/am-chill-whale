@@ -26,6 +26,10 @@ export class AppStyles {
         vertical-align: top;
     `;
 
+    static align_middle = css`
+        vertical-align: middle;
+    `;
+
     static inline_block = css`
         display: inline-block;
     `;

@@ -9,6 +9,12 @@ import RoverDesign from "./rover/RoverDesign";
 
 const MEDIA_IMAGE_ROVER_DESIGN = 10001;
 
+const FIRST_STEP = {
+   center_x: 0.5,
+   center_y: 0.5,
+   width: 0.95
+};
+
 const PromptText = styled.span`
    ${AppStyles.pointer};
    color: #aaaaaa;   
@@ -39,16 +45,21 @@ export class ImageRover extends Component {
    };
 
    componentDidMount() {
-      const {image_id} = this.props;
+      const {image_id, steps_list, on_update_props} = this.props;
       const image_data = ImageModalSelect.get_image_data(image_id);
+      if (!steps_list.length) {
+         steps_list.push(FIRST_STEP);
+         on_update_props({steps_list: steps_list})
+      }
       this.setState({image_data: image_data})
    }
 
    componentDidUpdate(prevProps, prevState, snapshot) {
       const {image_data} = this.state;
       const {image_id} = this.props;
-      if (!image_data.filename) {
-         ImageModalSelect.get_image_data(image_id)
+      if (!image_data.filename && image_id !== '') {
+         const image_data = ImageModalSelect.get_image_data(image_id);
+         this.setState({image_data: image_data})
       }
    }
 

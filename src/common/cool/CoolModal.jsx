@@ -10,12 +10,12 @@ const FormField = styled.div`
     top: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0,0,0,20%);
+    background: rgba(0,0,0,35%);
 `;
 
 const FormContainer = styled.div`
     margin: auto;
-    overflow: auto;
+    overflow: hidden;
     border-radius: 0.5rem;
     border: 0.15rem solid #aaaaaa;
     box-shadow: 0.5rem 0.5rem 1rem rgba(0,0,0,25%);
