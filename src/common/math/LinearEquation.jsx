@@ -2,6 +2,32 @@
 
 export class LinearEquation {
 
+   static get_standard_matrix = (point_count) => {
+      let first_row = [1];
+      let second_row = [1];
+      for (let i = 0; i < point_count - 1; i++) {
+         first_row.unshift(0);
+         second_row.push(1);
+      }
+      let poly_matrix = [first_row, second_row];
+      for (let factor = 2; factor < point_count; factor++) {
+         let value = 1;
+         let row_values = [1];
+         for (let col = 0; col < point_count - 1; col++) {
+            value *= factor;
+            row_values.unshift(value);
+         }
+         poly_matrix.push(row_values);
+      }
+      console.log("poly_matrix", poly_matrix)
+      return poly_matrix;
+   }
+
+   static solve_standard_polynolial = (constants) => {
+      const poly_matrix = LinearEquation.get_standard_matrix(constants.length);
+      return LinearEquation.solve(poly_matrix, constants);
+   }
+
    static solve = (matrix, constants) => {
       const det = LinearEquation.determinant(matrix)
       if (!det) {

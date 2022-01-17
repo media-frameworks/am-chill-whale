@@ -10,6 +10,10 @@ export class ImageRender extends Component {
    static propTypes = {
       image_id: PropTypes.string.isRequired,
       width_px: PropTypes.number.isRequired,
+      image_ref: PropTypes.oneOfType([
+         PropTypes.func,
+         PropTypes.shape({current: PropTypes.instanceOf(Element)})
+      ]).isRequired,
    }
 
    state = {
@@ -24,11 +28,12 @@ export class ImageRender extends Component {
 
    render() {
       const {image_data} = this.state;
-      const {width_px} = this.props;
+      const {width_px, image_ref} = this.props;
       if (!image_data.secure_url) {
          return []
       }
       return <img
+         ref={image_ref}
          key={`render_${image_data.filename}`}
          src={image_data.secure_url}
          alt={"am-chill-whale all rights reserved"}

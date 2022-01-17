@@ -170,27 +170,6 @@ export class ThreeDFluidMotion extends Component {
       ctx.stroke(region);
    }
 
-   set_poly_matrix = (point_count) => {
-      let first_row = [1];
-      let second_row = [1];
-      for (let i = 0; i < point_count - 1; i++) {
-         first_row.unshift(0);
-         second_row.push(1);
-      }
-      let poly_matrix = [first_row, second_row];
-      for (let factor = 2; factor < point_count; factor++) {
-         let value = 1;
-         let row_values = [1];
-         for (let col = 0; col < point_count - 1; col++) {
-            value *= factor;
-            row_values.unshift(value);
-         }
-         poly_matrix.push(row_values);
-      }
-      console.log("poly_matrix", poly_matrix)
-      return poly_matrix;
-   }
-
    change_point_count = (point_count) => {
       if (point_count < MIN_POINT_COUNT || point_count > MAX_POINT_COUNT) {
          return;
@@ -201,7 +180,7 @@ export class ThreeDFluidMotion extends Component {
          inputs.push(0.5);
          cofficients.push(0.0);
       }
-      const poly_matrix = this.set_poly_matrix(point_count);
+      const poly_matrix = LinearEquation.get_standard_matrix(point_count);
       this.setState({
          point_count: point_count,
          inputs: inputs,
