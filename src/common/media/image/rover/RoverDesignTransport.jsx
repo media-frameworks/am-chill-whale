@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'introspective-prop-types'
-import styled from "styled-components";
+// import styled from "styled-components";
 
-import {AppStyles} from "../../../../app/AppImports";
+// import {AppStyles} from "../../../../app/AppImports";
 import CoolSlider from "../../../cool/CoolSlider";
 
 export class RoverDesignTransport extends Component {

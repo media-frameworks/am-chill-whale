@@ -71,6 +71,21 @@ export class LinearEquation {
       return sum;
    }
 
+   static render_value = (poly_values, t) => {
+      const point_count = poly_values.length;
+      let t_powers = [1, t];
+      let t_power_value = t;
+      for (let i = 2; i < point_count; i++) {
+         t_power_value *= t;
+         t_powers.push(t_power_value);
+      }
+      let value = 0;
+      for (let i = 0; i < point_count; i++) {
+         value += poly_values[i] * t_powers[point_count - i - 1];
+      }
+      return value;
+   }
+
 }
 
 export default LinearEquation;

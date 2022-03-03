@@ -8,7 +8,11 @@ import {faPlusSquare, faMinusSquare} from '@fortawesome/free-regular-svg-icons';
 import {AppStyles, AppColors} from "../../../app/AppImports";
 import CoolModal from "../../../common/cool/CoolModal";
 import ImageRender from "./ImageRender";
-import all_images from "../../../data/fracto_cloudinary.json";
+
+import logistic_images from "../../../data/logistic.json";
+import moire_images from "../../../data/moire.json";
+import inner_fracto_images from "../../../data/inner-fracto.json";
+import outer_fracto_images from "../../../data/outer-fracto.json";
 
 const PAGE_SIZE = 50;
 
@@ -28,6 +32,11 @@ const IconWrapper = styled(AppStyles.InlineBlock)`
    margin-top: 0.0625rem;
 `;
 
+const SelectImagesWrapper = styled(AppStyles.Block)`
+   overflow-y: scroll;
+   height: 40rem;
+`;
+
 export class ImageModalSelect extends Component {
 
    static propTypes = {
@@ -42,17 +51,30 @@ export class ImageModalSelect extends Component {
    state = {
       in_modal_select: false,
       page_no: 0,
+      all_images: outer_fracto_images,
    };
+
+   static image_map = {};
 
    static get_image_data = (filename) => {
       if (!filename) {
          return {};
       }
-      return all_images.resources.find(r => r.filename === filename);
+      if (Object.keys(ImageModalSelect.image_map).length === 0) {
+         logistic_images.resources.forEach(data => ImageModalSelect.image_map[data.filename] = data);
+         moire_images.resources.forEach(data => ImageModalSelect.image_map[data.filename] = data);
+         inner_fracto_images.resources.forEach(data => ImageModalSelect.image_map[data.filename] = data);
+         outer_fracto_images.resources.forEach(data => ImageModalSelect.image_map[data.filename] = data);
+         console.log(ImageModalSelect.image_map);
+      }
+      if (!ImageModalSelect.image_map[filename]) {
+         return {};
+      }
+      return ImageModalSelect.image_map[filename];
    }
 
    render_nav_bar = () => {
-      const {page_no} = this.state;
+      const {page_no, all_images} = this.state;
       const total_pages = 1 + Math.floor(all_images.resources.length / PAGE_SIZE);
       const page_info = `${page_no + 1} of ${total_pages}`;
       const minus_enabled = page_no > 0;
@@ -74,15 +96,16 @@ export class ImageModalSelect extends Component {
    }
 
    render() {
-      const {page_no} = this.state;
+      const {page_no, all_images} = this.state;
       const {response} = this.props;
       const start = page_no * PAGE_SIZE;
       const end = start + PAGE_SIZE;
-      const contents = all_images.resources
+      const images = all_images.resources
          .sort((a, b) => a.filename > b.filename ? -1 : 1)
          .slice(start, end)
          .map(r => {
             return <AppStyles.InlineBlock
+               key={`select_${r.filename}`}
                onClick={e => response(r)}>
                <AppStyles.Block>
                   <ImageRender image_id={r.filename} width_px={"150"}/>
@@ -93,6 +116,7 @@ export class ImageModalSelect extends Component {
             </AppStyles.InlineBlock>
          });
       const nav_bar = this.render_nav_bar();
+      const contents = <SelectImagesWrapper key={`page_no_${page_no}`}>{images}</SelectImagesWrapper>
       return <CoolModal
          contents={[nav_bar, contents]}
          response={image_id => {

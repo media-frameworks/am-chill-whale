@@ -9,12 +9,11 @@ import CoolModal from "../../../cool/CoolModal";
 import RoverDesignSteps from "./RoverDesignSteps";
 import RoverDesignPreview from "./RoverDesignPreview";
 import RoverDesignTransport from "./RoverDesignTransport";
-
-const PHI = (1 + Math.sqrt(5.0)) / 2.0;
+import LinearEquation from "../../../math/LinearEquation";
+import {PHI} from "../../../math/constants.js"
 
 const DESIGNER_IMAGE_WIDTH_PX = 640;
 export const DESIGNER_META_WIDTH_PX = DESIGNER_IMAGE_WIDTH_PX * (PHI - 1.0);
-const DESIGNER_MODAL_WIDTH = DESIGNER_IMAGE_WIDTH_PX * PHI + 40;
 
 export const ROVER_ASPECT_RATIOS = [
    {label: '1:1', value: 1, help: 'Square'},
@@ -81,14 +80,16 @@ export class RoverDesign extends Component {
       image_ref: React.createRef(),
       selected_step_index: 0,
       shuttle_position: 0,
+      preview_values: {}
    };
 
    componentDidMount() {
-      const {image_id} = this.props;
+      const {image_id, steps_list} = this.props;
       const image_data = ImageModalSelect.get_image_data(image_id);
       if (image_data.filename) {
          this.setState({image_data: image_data});
       }
+      this.setState({preview_values: steps_list[0]});
    }
 
    meta_data = () => {
@@ -158,8 +159,31 @@ export class RoverDesign extends Component {
       return step_frames;
    }
 
+   shuttle_position_changed = (position) => {
+      const {steps_list} = this.props;
+      const step_values = {
+         center_x: steps_list.map(step => step.center_x),
+         center_y: steps_list.map(step => step.center_y),
+         width: steps_list.map(step => step.width),
+      }
+      const center_x_poly = LinearEquation.solve_standard_polynolial(step_values.center_x);
+      const center_y_poly = LinearEquation.solve_standard_polynolial(step_values.center_y);
+      const width_poly = LinearEquation.solve_standard_polynolial(step_values.width);
+
+      const preview_values = {
+         center_x: LinearEquation.render_value(center_x_poly, position),
+         center_y: LinearEquation.render_value(center_y_poly, position),
+         width: LinearEquation.render_value(width_poly, position),
+      };
+
+      this.setState({
+         shuttle_position: position,
+         preview_values: preview_values
+      })
+   }
+
    designer_contents = () => {
-      const {selected_step_index, image_ref, shuttle_position} = this.state;
+      const {selected_step_index, image_ref, shuttle_position, preview_values} = this.state;
       const {image_id, steps_list, aspect_ratio, on_update_props} = this.props;
       const sections = [
          {title: "file", rendered: this.meta_data()},
@@ -172,7 +196,8 @@ export class RoverDesign extends Component {
                on_update_props={on_update_props}
                on_selected={step_index => this.setState({
                   selected_step_index: step_index,
-                  shuttle_position: step_index
+                  shuttle_position: step_index,
+                  preview_values: steps_list[step_index]
                })}
             />
          },
@@ -180,9 +205,9 @@ export class RoverDesign extends Component {
             title: "preview",
             rendered: <RoverDesignPreview
                image_id={image_id}
-               image_ref={image_ref}
-               step_values={steps_list[selected_step_index]}
-               aspect_ratio={aspect_ratio}/>
+               step_values={preview_values}
+               aspect_ratio={aspect_ratio}
+               preview_height_px={200}/>
          },
       ];
       const all_sections = sections.map((section, section_index) => {
@@ -192,6 +217,11 @@ export class RoverDesign extends Component {
          ]
       });
       return [
+         <RoverDesignTransport
+            steps_list={steps_list}
+            shuttle_position={shuttle_position}
+            on_position_change={position => this.shuttle_position_changed(position)}
+         />,
          <AppStyles.Block>
             <AppStyles.InlineBlock>
                <ImageRender
@@ -203,11 +233,6 @@ export class RoverDesign extends Component {
                {all_sections}
             </AppStyles.InlineBlock>`
          </AppStyles.Block>,
-         <RoverDesignTransport
-            steps_list={steps_list}
-            shuttle_position={shuttle_position}
-            on_position_change={position => this.setState({shuttle_position: position})}
-         />,
          this.render_frames()
       ]
    }
@@ -217,7 +242,8 @@ export class RoverDesign extends Component {
       const designer_contents = this.designer_contents();
       return <CoolModal
          key={`CoolModal_${image_id}`}
-         width={`${DESIGNER_MODAL_WIDTH}px`} contents={designer_contents}
+         width={"95%"}
+         contents={designer_contents}
          response={r => on_response_modal(r)}/>
    }
 }

@@ -6,8 +6,10 @@ import {AppStyles} from "../../../app/AppImports";
 import ImageModalSelect from "./ImageModalSelect";
 import ImageRender from "./ImageRender";
 import RoverDesign from "./rover/RoverDesign";
+import RoverRender from "./rover/RoverRender";
 
 const MEDIA_IMAGE_ROVER_DESIGN = 10001;
+const MEDIA_IMAGE_ROVER_RENDER = 10002;
 
 const FIRST_STEP = {
    center_x: 0.5,
@@ -41,6 +43,7 @@ export class ImageRover extends Component {
    state = {
       in_image_select: false,
       in_path_design: false,
+      in_path_render: false,
       image_data: {}
    };
 
@@ -57,9 +60,11 @@ export class ImageRover extends Component {
    componentDidUpdate(prevProps, prevState, snapshot) {
       const {image_data} = this.state;
       const {image_id} = this.props;
-      if (!image_data.filename && image_id !== '') {
-         const image_data = ImageModalSelect.get_image_data(image_id);
-         this.setState({image_data: image_data})
+      if (image_data && !image_data.filename && image_id !== '') {
+         const data = ImageModalSelect.get_image_data(image_id);
+         if (data && data.filename) {
+            this.setState({image_data: data})
+         }
       }
    }
 
@@ -68,7 +73,8 @@ export class ImageRover extends Component {
          return [];
       }
       return [
-         {label: "design route", code: MEDIA_IMAGE_ROVER_DESIGN},
+         {label: "design", code: MEDIA_IMAGE_ROVER_DESIGN},
+         {label: "render", code: MEDIA_IMAGE_ROVER_RENDER},
       ];
    }
 
@@ -79,9 +85,14 @@ export class ImageRover extends Component {
       switch (code) {
          case MEDIA_IMAGE_ROVER_DESIGN:
             console.log("MEDIA_IMAGE_ROVER_DESIGN", segment_data)
-            const instance = ref.current;
-            if (instance) {
-               instance.setState({in_path_design: true})
+            if (ref.current) {
+               ref.current.setState({in_path_design: true})
+            }
+            return true;
+         case MEDIA_IMAGE_ROVER_RENDER:
+            console.log("MEDIA_IMAGE_ROVER_RENDER", segment_data)
+            if (ref.current) {
+               ref.current.setState({in_path_render: true})
             }
             return true;
          default:
@@ -96,7 +107,7 @@ export class ImageRover extends Component {
    }
 
    render() {
-      const {in_image_select, in_path_design} = this.state;
+      const {in_image_select, in_path_design, in_path_render} = this.state;
       const {image_id, steps_list, aspect_ratio, on_update_props} = this.props;
       const prompt = image_id ? '' : <PromptText
          key={"rover_initial_prompt"}
@@ -113,6 +124,12 @@ export class ImageRover extends Component {
          aspect_ratio={aspect_ratio}
          on_update_props={on_update_props}
          on_response_modal={r => this.setState({in_path_design: false})}/>
+      const renderer = !in_path_render ? '' : <RoverRender
+         key={`RoverRender${image_id}`}
+         image_id={image_id}
+         steps_list={steps_list}
+         aspect_ratio={aspect_ratio}
+         on_response_modal={r => this.setState({in_path_render: false})}/>
       const image = !image_id ? '' : <ImageRender
          key={`ImageRender_${image_id}`}
          image_id={image_id}
@@ -121,6 +138,7 @@ export class ImageRover extends Component {
          prompt,
          rover_select_image,
          designer,
+         renderer,
          image
       ];
    }
