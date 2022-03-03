@@ -26,3 +26,10 @@ yarn-debug.log*
 yarn-error.log*
 
 /src/config
+
+/src/data/fracto/_obs
+/src/data/fracto/archive
+/src/data/fracto/data_csv
+/src/data/fracto/points
+/src/data/fracto/tmp
+

@@ -1,11 +1,18 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import styled, {css} from "styled-components";
 
 import {AppStyles} from "./AppImports";
 import SectionIndex, {NO_SELECTION} from "../common/SectionIndex";
 import ProjectsTitleBar from "./projects/ProjectsTitleBar";
 import ProjectsFrame from "./projects/ProjectsFrame";
 import StoreS3, {S3_PREFIX} from "../common/StoreS3";
+
+const SubEntry = styled.div`
+    ${AppStyles.block}
+    ${AppStyles.ellipsis}
+    margin-left: 1.25rem;
+`;
 
 export class AppProjectsFrame extends Component {
 
@@ -49,6 +56,29 @@ export class AppProjectsFrame extends Component {
       }
    }
 
+   list_selected_paths = () => {
+      const {project_paths, selected_path} = this.state;
+      return project_paths.sort((a, b) => a > b ? 1 : -1)
+         .map(path => {
+            const project_ref = React.createRef();
+            StoreS3.get_file_async(`${path}main.json`, S3_PREFIX, data => {
+               const json = JSON.parse(data);
+               const interval = setInterval(() => {
+                  if (project_ref.current) {
+                     project_ref.current.innerText = json.name;
+                     clearInterval(interval)
+                  }
+               }, 100);
+            });
+            const style = {fontWeight: 'bold', color: '#333333'}
+            return <SubEntry
+               style={path === selected_path ? style : {}}
+               key={`subentry_${path}`}
+               onClick={e => this.setState({selected_path: path})}
+               ref={project_ref}>...</SubEntry>
+         });
+   }
+
    render() {
       const {selected_title, selected_key, project_paths, selected_path} = this.state;
       const {sections, components, sections_title} = this.props;
@@ -59,10 +89,8 @@ export class AppProjectsFrame extends Component {
             index={sections}
             title={sections_title}
             selected_index={selected_title}
-            index_paths={project_paths}
-            selected_path={selected_path}
             on_select_index={title => this.selectEntry(title)}
-            on_select_path={path => this.setState({selected_path: path})}
+            selected_content={this.list_selected_paths()}
          />
          {have_selection && <ProjectsTitleBar
             title={selected_title}

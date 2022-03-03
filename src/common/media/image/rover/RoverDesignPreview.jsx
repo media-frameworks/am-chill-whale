@@ -4,9 +4,6 @@ import styled from "styled-components";
 
 import {AppStyles} from "../../../../app/AppImports";
 import ImageModalSelect from "./../ImageModalSelect";
-import {DESIGNER_META_WIDTH_PX} from "./RoverDesign"
-
-const MAX_CANVAS_HEIGHT = 200;
 
 const CanvasField = styled.canvas`
     ${AppStyles.block}    
@@ -20,15 +17,13 @@ export class RoverDesignPreview extends Component {
       image_id: PropTypes.string.isRequired,
       aspect_ratio: PropTypes.number.isRequired,
       step_values: PropTypes.object.isRequired,
-      image_ref: PropTypes.oneOfType([
-         PropTypes.func,
-         PropTypes.shape({current: PropTypes.instanceOf(Element)})
-      ]).isRequired,
+      preview_height_px: PropTypes.number.isRequired,
    }
 
    state = {
       canvas_ref: React.createRef(),
       image_data: {},
+      image_bitmap: null
    };
 
    componentDidMount() {
@@ -36,38 +31,45 @@ export class RoverDesignPreview extends Component {
       const image_data = ImageModalSelect.get_image_data(image_id);
       if (image_data.filename) {
          this.setState({image_data: image_data});
+         this.load_image(image_data.secure_url)
       }
       const {canvas_ref} = this.state;
       const canvas = canvas_ref.current;
       if (canvas) {
          const ctx = canvas.getContext('2d');
-         this.setState({
-            ctx: ctx,
-         });
+         this.setState({ctx: ctx,});
       }
    }
 
+   load_image = (url) => {
+      fetch(url)
+         .then(response => response.blob())
+         .then((blob) => {
+            createImageBitmap(blob).then(result => {
+               this.setState({image_bitmap: result})
+            }, (err) => {
+               console.log("err", err)
+            });
+         });
+   }
+
    render() {
-      const {canvas_ref, image_data, ctx} = this.state;
-      const {aspect_ratio, image_ref, step_values} = this.props;
-      let width_px = DESIGNER_META_WIDTH_PX - 50;
-      let height_px = width_px / aspect_ratio;
-      if (height_px > MAX_CANVAS_HEIGHT) {
-         height_px = MAX_CANVAS_HEIGHT;
-         width_px = height_px * aspect_ratio;
-      }
+      const {canvas_ref, image_data, ctx, image_bitmap} = this.state;
+      const {aspect_ratio, step_values, preview_height_px} = this.props;
+      let height_px = preview_height_px;
+      let width_px = height_px * aspect_ratio;
       const canvas_style = {
          width: `${width_px}px`,
          height: `${height_px}px`
       }
-      if (image_ref.current && ctx) {
+      if (image_bitmap && ctx) {
          console.log("step_values", step_values);
          const center_x = image_data.width * step_values.center_x;
          const center_y = image_data.height * step_values.center_y;
          const width = image_data.width * step_values.width;
          const height = width / aspect_ratio;
          ctx.drawImage(
-            image_ref.current, //image,
+            image_bitmap, //image,
             center_x - width / 2, // sx,
             center_y - height / 2, // sy,
             width, // sWidth,

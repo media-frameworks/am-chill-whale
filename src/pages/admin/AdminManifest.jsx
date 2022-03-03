@@ -8,6 +8,7 @@ import CoolNotes from "../../common/cool/CoolNotes";
 import MediaVideo from "../../common/media/MediaVideo";
 import MediaImage from "../../common/media/MediaImage";
 import ImageRover from "../../common/media/image/ImageRover";
+import FractoPanes from "./fracto/FractoPanes";
 
 const SECTIONS = [
    {title: "chaotic", key: "chaotic"},
@@ -28,6 +29,7 @@ const COMPONENTS = [
    {title: "cool video", class_name: "MediaVideo", component_type: MediaVideo},
    {title: "cool image", class_name: "MediaImage", component_type: MediaImage},
    {title: "image rover", class_name: "ImageRover", component_type: ImageRover},
+   {title: "fracto panes", class_name: "FractoPanes", component_type: FractoPanes},
 ];
 
 export class AdminManifest extends Component {

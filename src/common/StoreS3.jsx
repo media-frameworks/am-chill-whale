@@ -80,6 +80,28 @@ export class StoreS3 {
       })
    }
 
+   static image_cache = {};
+
+   static load_image_async = (name, prefix, cb) => {
+      if (StoreS3.image_cache[name]) {
+         cb(StoreS3.image_cache[name]);
+         return;
+      }
+      const full_key = `${prefix}${name}`
+      const params = {
+         Bucket: "mikehallstudio",
+         Key: full_key
+      };
+      s3.getObject(params, (err, data) => {
+         // console.log("data",data);
+         var image = new Image();
+         let image_data = new Buffer(data.Body).toString('base64');
+         image.src = "data:" + data.ContentType + ";base64," + image_data;
+         StoreS3.image_cache[name] = image;
+         cb(image);
+      });
+   }
+
    static async get_json_file(file_path, prefix = "manifest") {
       const div_item = await StoreS3.get_file(file_path, prefix).catch(e => {
          console.log("error loading file", file_path);

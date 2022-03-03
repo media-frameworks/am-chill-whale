@@ -29,7 +29,7 @@ export class ImageRender extends Component {
    render() {
       const {image_data} = this.state;
       const {width_px, image_ref} = this.props;
-      if (!image_data.secure_url) {
+      if (!image_data || !image_data.secure_url) {
          return []
       }
       return <img
