@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-<<<<<<< HEAD
 import styled from "styled-components";
 
 import {AppStyles} from "../../../app/AppImports";
@@ -15,35 +14,19 @@ const TileBox = styled.div`
    border: 0.125rem solid red;
    pointer-events: none;
 `;
-=======
-// import styled from "styled-components";
-
-import {AppStyles} from "../../../app/AppImports";
-import FractoImage from "./FractoImage";
-import {PHI} from "../../../common/math/constants";
-
-const RE_SCOPE_FACTOR = PHI;
-const UPDATE_DELAY = 250;
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
 
 export class FractoRender extends Component {
 
    static propTypes = {
       width_px: PropTypes.number.isRequired,
-<<<<<<< HEAD
       on_param_change: PropTypes.func.isRequired,
       aspect_ratio: PropTypes.number,
       initial_params: PropTypes.object,
       tile_outline: PropTypes.object,
-=======
-      aspect_ratio: PropTypes.number,
-      on_param_change: PropTypes.func.isRequired,
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
    }
 
    static defaultProps = {
       aspect_ratio: 1,
-<<<<<<< HEAD
       initial_params: {
          scope: DEFAULT_SCOPE,
          focal_point: DEFAULT_FOCAL_POINT
@@ -78,31 +61,11 @@ export class FractoRender extends Component {
    state = {
       focal_point: DEFAULT_FOCAL_POINT,
       scope: DEFAULT_SCOPE,
-=======
-   };
-
-   componentDidMount() {
-      const {scope, focal_point} = this.state;
-      const {on_param_change} = this.props;
-      on_param_change({
-         scope: scope,
-         focal_point: focal_point
-      });
-   }
-
-   state = {
-      focal_point: {x: -0.75, y: 0.0},
-      scope: 4,
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       fracto_ref: React.createRef(),
       in_update: true
    };
 
-<<<<<<< HEAD
    static get_offset = (el) => {
-=======
-   get_offset = (el) => {
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       var _x = 0;
       var _y = 0;
       while (el && !isNaN(el.offsetLeft) && !isNaN(el.offsetTop)) {
@@ -117,19 +80,11 @@ export class FractoRender extends Component {
       const {aspect_ratio, on_param_change} = this.props;
       const {focal_point, scope, fracto_ref, in_update} = this.state;
       if (in_update) {
-<<<<<<< HEAD
          console.log("re_position returning during update");
          return;
       }
       const image_bounds = fracto_ref.current.getBoundingClientRect();
       const image_offset = FractoRender.get_offset(e.target)
-=======
-         console.log("re_scope returning during update");
-         return;
-      }
-      const image_bounds = fracto_ref.current.getBoundingClientRect();
-      const image_offset = this.get_offset(e.target)
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       if (e.clientX < image_offset.left) {
          return;
       }
@@ -186,11 +141,7 @@ export class FractoRender extends Component {
 
    render() {
       const {focal_point, scope, fracto_ref, in_update} = this.state;
-<<<<<<< HEAD
       const {width_px, aspect_ratio, tile_outline} = this.props;
-=======
-      const {width_px, aspect_ratio} = this.props;
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       return <AppStyles.Block
          ref={fracto_ref}>
          <FractoImage
@@ -206,10 +157,7 @@ export class FractoRender extends Component {
             focal_point={focal_point}
             scope={scope}
          />
-<<<<<<< HEAD
          <TileBox style={tile_outline}/>
-=======
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       </AppStyles.Block>
    }
 
