@@ -17,7 +17,7 @@ export class FractonePageBuild extends Component {
    state = {};
 
    render () {
-      return <TitleWrapper>Build Instruments</TitleWrapper>
+      return <TitleWrapper>Build Instruments OK</TitleWrapper>
    }
 }
 
