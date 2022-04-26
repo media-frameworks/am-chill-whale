@@ -13,7 +13,9 @@ function handle_file($file_path)
     if ($handle) {
         $line = fgets($handle); // header
         $lines_processed = 0;
+        $lines_skipped = 0;
         $file_handles = [];
+        $all_points = [];
         while (($line = fgets($handle)) !== false) {
             $line = str_replace("\n", "", $line);
             $parts = explode(',', $line);
@@ -24,6 +26,13 @@ function handle_file($file_path)
 
             $x = $parts[3];
             $y = $parts[4];
+            $point_index = "[$x,$y]";
+            if (isset($all_points[$point_index])) {
+                $lines_skipped++;
+                continue;
+            }
+            $all_points[$point_index] = true;
+
             $iterations = $parts[6];
 
             $x_dir_path = __DIR__ . "/points/[$x]";
@@ -42,8 +51,8 @@ function handle_file($file_path)
             fclose($h);
         }
 
-        if ($lines_processed) {
-            echo(" $lines_processed");
+        if ($lines_processed || $lines_skipped) {
+            echo(" $lines_processed processed, $lines_skipped skipped");
         }
         echo("\n");
         fclose($handle);

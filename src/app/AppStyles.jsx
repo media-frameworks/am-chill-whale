@@ -30,6 +30,14 @@ export class AppStyles {
         vertical-align: middle;
     `;
 
+    static align_left = css`
+        text-align: left;
+    `;
+
+    static align_right = css`
+        text-align: right;
+    `;
+
     static inline_block = css`
         display: inline-block;
     `;

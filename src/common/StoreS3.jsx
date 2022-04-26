@@ -28,6 +28,10 @@ export class StoreS3 {
 
    static put_file_async = (name, data, prefix = S3_PREFIX, cb) => {
       const full_key = `${prefix}/${name}`
+      if (!data) {
+         cb (false);
+         return;
+      }
       const params = {
          Bucket: "mikehallstudio",
          Key: full_key,
@@ -70,17 +74,21 @@ export class StoreS3 {
          Key: full_key
       };
       s3.getObject(params, (err, data) => {
-         const str_data = data.Body.toString('utf-8');
          if (err) {
-            console.error("S3.getObject error", err);
-            cb(err)
+            console.error("S3.getObject error", params);
+            cb(false)
          } else {
+            const str_data = data.Body.toString('utf-8');
             cb(str_data)
          }
       })
    }
 
    static image_cache = {};
+
+   static remove_from_cache = (name) => {
+      delete StoreS3.image_cache[name];
+   }
 
    static load_image_async = (name, prefix, cb) => {
       if (StoreS3.image_cache[name]) {
@@ -90,16 +98,26 @@ export class StoreS3 {
       const full_key = `${prefix}${name}`
       const params = {
          Bucket: "mikehallstudio",
-         Key: full_key
+         Key: full_key,
       };
-      s3.getObject(params, (err, data) => {
-         // console.log("data",data);
-         var image = new Image();
-         let image_data = new Buffer(data.Body).toString('base64');
-         image.src = "data:" + data.ContentType + ";base64," + image_data;
-         StoreS3.image_cache[name] = image;
-         cb(image);
-      });
+      try {
+         // console.log(full_key)
+         s3.getObject(params, (err, data) => {
+            var image = new Image();
+            if (!data || err) {
+               console.log("error error", err);
+               cb(image);
+            }
+            else {
+               let image_data = new Buffer(data.Body).toString('base64');
+               image.src = "data:" + data.ContentType + ";base64," + image_data;
+               StoreS3.image_cache[name] = image;
+               cb(image);
+            }
+         });
+      } catch (error) {
+         console.log("exception thrown", error);
+      }
    }
 
    static async get_json_file(file_path, prefix = "manifest") {
@@ -132,6 +150,13 @@ export class StoreS3 {
          }
       }
       return file_set;
+   }
+
+   static get_signed_url = (url) => {
+      const params = {Bucket: 'bucket', Key: 'key', Expires: 3600};
+      const signed_url = s3.getSignedUrl('getObject', params);
+      console.log('get_signed_url', signed_url); // expires in 1 hour
+      return signed_url;
    }
 
 }

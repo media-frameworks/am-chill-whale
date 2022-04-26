@@ -61,7 +61,7 @@ export class FractoCalc extends Component {
 
    cache_file = (init_code, seed_x, seed_y, frame_width, level_depth, max_iterations) => {
       const cache = Object.assign({}, {});
-      const root_node = this.calc(seed_x, seed_y, max_iterations);
+      const root_node = FractoCalc.calc(seed_x, seed_y, max_iterations);
       cache[init_code] = Object.assign({code: init_code, width: frame_width}, root_node);
       this.fill_frame(cache, init_code, seed_x, seed_y, frame_width, level_depth, max_iterations);
       const cache_array = Object.keys(cache)
@@ -77,8 +77,8 @@ export class FractoCalc extends Component {
                if (a.y > b.y) {
                   return -1;
                }
-               return 1;
             }
+            return 1;
          });
 
       let in_set = false;
@@ -105,7 +105,7 @@ export class FractoCalc extends Component {
    expand_nodes = (nodes) => {
       const {max_iterations} = this.props;
       nodes.forEach(node => {
-         const node_result = this.calc(node.x, node.y, max_iterations * 10);
+         FractoCalc.calc(node.x, node.y, max_iterations * 10);
       });
    }
 
@@ -118,25 +118,25 @@ export class FractoCalc extends Component {
 
       const code_00 = code.split(',').map((part, index) => `${part}0`).join(',')
       if (!cache[code_00]) {
-         const node_00 = this.calc(x, y, max_iterations);
+         const node_00 = FractoCalc.calc(x, y, max_iterations);
          cache[code_00] = Object.assign({code: code_00, width: width_by_2}, node_00);
       }
 
       const code_01 = code.split(',').map((part, index) => `${part}${index}`).join(',')
       if (!cache[code_01]) {
-         const node_01 = this.calc(x + width_by_2, y, max_iterations);
+         const node_01 = FractoCalc.calc(x + width_by_2, y, max_iterations);
          cache[code_01] = Object.assign({code: code_01, width: width_by_2}, node_01);
       }
 
       const code_10 = code.split(',').map((part, index) => `${part}${1 - index}`).join(',')
       if (!cache[code_10]) {
-         const node_10 = this.calc(x, y - width_by_2, max_iterations);
+         const node_10 = FractoCalc.calc(x, y - width_by_2, max_iterations);
          cache[code_10] = Object.assign({code: code_10, width: width_by_2}, node_10);
       }
 
       const code_11 = code.split(',').map((part, index) => `${part}1`).join(',')
       if (!cache[code_11]) {
-         const node_11 = this.calc(x + width_by_2, y - width_by_2, max_iterations);
+         const node_11 = FractoCalc.calc(x + width_by_2, y - width_by_2, max_iterations);
          cache[code_11] = Object.assign({code: code_11, width: width_by_2}, node_11);
       }
 
@@ -151,7 +151,7 @@ export class FractoCalc extends Component {
       this.fill_frame(cache, code_11, x + width_by_2, y - width_by_2, width_by_2, new_depth, max_iterations);
    }
 
-   calc = (x0, y0, max_iteration) => {
+   static calc = (x0, y0, max_iteration) => {
       let x = 0;
       let y = 0;
       let iteration = 0;

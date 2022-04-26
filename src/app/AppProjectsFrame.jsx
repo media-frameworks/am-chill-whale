@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import styled, {css} from "styled-components";
+import styled from "styled-components";
 
 import {AppStyles} from "./AppImports";
 import SectionIndex, {NO_SELECTION} from "../common/SectionIndex";
