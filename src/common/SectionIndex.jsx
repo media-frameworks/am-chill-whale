@@ -7,6 +7,10 @@ import {faAngleRight} from '@fortawesome/free-solid-svg-icons'
 import {faAngleDown} from '@fortawesome/free-solid-svg-icons'
 
 import {AppStyles} from "../app/AppImports";
+<<<<<<< HEAD
+=======
+import StoreS3, {S3_PREFIX} from "./StoreS3";
+>>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
 
 export const NO_SELECTION = "None";
 export const SECTION_WIDTH_PCT = 15;

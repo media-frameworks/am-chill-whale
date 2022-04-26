@@ -1,6 +1,10 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+<<<<<<< HEAD
 import styled from "styled-components";
+=======
+import styled, {css} from "styled-components";
+>>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
 
 import {AppStyles} from "./AppImports";
 import SectionIndex, {NO_SELECTION} from "../common/SectionIndex";

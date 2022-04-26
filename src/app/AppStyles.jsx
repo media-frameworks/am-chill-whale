@@ -30,6 +30,7 @@ export class AppStyles {
         vertical-align: middle;
     `;
 
+<<<<<<< HEAD
     static align_left = css`
         text-align: left;
     `;
@@ -38,6 +39,8 @@ export class AppStyles {
         text-align: right;
     `;
 
+=======
+>>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
     static inline_block = css`
         display: inline-block;
     `;

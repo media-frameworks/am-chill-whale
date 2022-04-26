@@ -27,12 +27,19 @@
     "react-slider": "^1.3.1",
     "react-time-ago": "^7.1.3",
     "styled-components": "^5.3.3",
+<<<<<<< HEAD
     "tone": "^14.7.77",
+=======
+>>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
     "vimeo": "^2.1.1",
     "web-vitals": "^1.1.2"
   },
   "scripts": {
+<<<<<<< HEAD
     "start": "react-scripts --openssl-legacy-provider start",
+=======
+    "start": "react-scripts start",
+>>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
