@@ -32,6 +32,7 @@ yarn-error.log*
 /src/data/fracto/data_csv
 /src/data/fracto/points
 /src/data/fracto/tiles
+/src/data/fracto/json
 /src/data/fracto/tmp
 /src/data/fracto/index_gen
 /src/data/fracto/cluster
