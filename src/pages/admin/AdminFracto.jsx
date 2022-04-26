@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-<<<<<<< HEAD
 import {AppStyles, AppBrand, AppTitleBar, AppColors} from "../../app/AppImports";
 import SectionIndex, {SECTION_WIDTH_PCT} from "../../common/SectionIndex";
 
@@ -19,14 +18,6 @@ const FRACTONE_PAGE_LOAD_AND_TEST = "load_and_test";
 const FRACTONE_PAGE_GO_LIVE = "go_live";
 const FRACTONE_PAGE_BUILD_INSTRUMENTS = "build_instruments";
 const FRACTONE_PAGE_LEGACY = "legacy";
-=======
-import {AppStyles, AppBrand, AppTitleBar} from "../../app/AppImports";
-import SectionIndex, {SECTION_WIDTH_PCT, NO_SELECTION} from "../../common/SectionIndex";
-
-import FractoRender from "./fracto/FractoRender";
-import FractoDefine from "./fracto/FractoDefine";
-import {ONE_BY_PHI} from "../../common/math/constants.js";
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
 
 const ContentWrapper = styled(AppStyles.Block)`
     ${AppStyles.fixed}
@@ -40,7 +31,6 @@ const SelectedContentWrapper = styled(AppStyles.Block)`
     margin-left: 1.25rem;
 `;
 
-<<<<<<< HEAD
 const AspectLink = styled(AppStyles.Block)`
    ${AppStyles.italic}
    ${AppStyles.uppercase}
@@ -58,11 +48,6 @@ const SECTIONS = [
    {title: "capture", key: "capture"},
    {title: "tessellate", key: "tessellate"},
    {title: "fractone", key: "fractone"},
-=======
-const SECTIONS = [
-   {title: "explore", key: "explore"},
-   {title: "define", key: "define"},
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
 ];
 
 export class AdminFracto extends Component {
@@ -77,7 +62,6 @@ export class AdminFracto extends Component {
       admin_back_ref: React.createRef(),
       fracto_ref: React.createRef(),
       content_wrapper_rect: {},
-<<<<<<< HEAD
       fracto_values: {},
       fractone: {
          selected_page: FRACTONE_PAGE_BUILD_INSTRUMENTS
@@ -86,13 +70,6 @@ export class AdminFracto extends Component {
 
    componentDidMount() {
       const {admin_back_ref} = this.state;
-=======
-      fracto_values: {}
-   };
-
-   componentDidMount() {
-      const {admin_back_ref, fracto_ref} = this.state;
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       AppBrand.swatch_fadein(admin_back_ref, AppBrand.COOL_FADE_IN_MS);
       this.set_content_wrapper_rect();
    }
@@ -116,15 +93,10 @@ export class AdminFracto extends Component {
    }
 
    render() {
-<<<<<<< HEAD
       const {
          admin_back_ref, selected_title, fracto_ref,
          content_wrapper_rect, fracto_values, fractone
       } = this.state;
-=======
-      const {admin_back_ref, selected_title, fracto_ref,
-         content_wrapper_rect, fracto_values} = this.state;
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       const title = "fracto";
       let frame_contents = [];
       let selected_content = [];
@@ -145,7 +117,6 @@ export class AdminFracto extends Component {
             </SelectedContentWrapper>
             break;
 
-<<<<<<< HEAD
          case "capture":
             frame_contents = <ContentWrapper>
                <FractoCapture width_px={content_wrapper_rect.width}/>
@@ -201,14 +172,6 @@ export class AdminFracto extends Component {
             </SelectedContentWrapper>
             break;
 
-=======
-         case "define":
-            frame_contents = <ContentWrapper>
-               <FractoDefine width_px={content_wrapper_rect.width} />
-            </ContentWrapper>;
-            break;
-
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
          default:
             frame_contents = [`unknown: ${selected_title}`];
             break;

@@ -28,13 +28,10 @@ export class StoreS3 {
 
    static put_file_async = (name, data, prefix = S3_PREFIX, cb) => {
       const full_key = `${prefix}/${name}`
-<<<<<<< HEAD
       if (!data) {
          cb (false);
          return;
       }
-=======
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
       const params = {
          Bucket: "mikehallstudio",
          Key: full_key,
@@ -77,19 +74,11 @@ export class StoreS3 {
          Key: full_key
       };
       s3.getObject(params, (err, data) => {
-<<<<<<< HEAD
          if (err) {
             console.error("S3.getObject error", params);
             cb(false)
          } else {
             const str_data = data.Body.toString('utf-8');
-=======
-         const str_data = data.Body.toString('utf-8');
-         if (err) {
-            console.error("S3.getObject error", err);
-            cb(err)
-         } else {
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
             cb(str_data)
          }
       })
@@ -97,13 +86,10 @@ export class StoreS3 {
 
    static image_cache = {};
 
-<<<<<<< HEAD
    static remove_from_cache = (name) => {
       delete StoreS3.image_cache[name];
    }
 
-=======
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
    static load_image_async = (name, prefix, cb) => {
       if (StoreS3.image_cache[name]) {
          cb(StoreS3.image_cache[name]);
@@ -112,7 +98,6 @@ export class StoreS3 {
       const full_key = `${prefix}${name}`
       const params = {
          Bucket: "mikehallstudio",
-<<<<<<< HEAD
          Key: full_key,
       };
       try {
@@ -133,18 +118,6 @@ export class StoreS3 {
       } catch (error) {
          console.log("exception thrown", error);
       }
-=======
-         Key: full_key
-      };
-      s3.getObject(params, (err, data) => {
-         // console.log("data",data);
-         var image = new Image();
-         let image_data = new Buffer(data.Body).toString('base64');
-         image.src = "data:" + data.ContentType + ";base64," + image_data;
-         StoreS3.image_cache[name] = image;
-         cb(image);
-      });
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
    }
 
    static async get_json_file(file_path, prefix = "manifest") {
@@ -179,16 +152,12 @@ export class StoreS3 {
       return file_set;
    }
 
-<<<<<<< HEAD
    static get_signed_url = (url) => {
       const params = {Bucket: 'bucket', Key: 'key', Expires: 3600};
       const signed_url = s3.getSignedUrl('getObject', params);
       console.log('get_signed_url', signed_url); // expires in 1 hour
       return signed_url;
    }
-
-=======
->>>>>>> 1bd7e99733fd1d8211494e53ee3492efd97ae6fe
 }
 
 export default StoreS3;
