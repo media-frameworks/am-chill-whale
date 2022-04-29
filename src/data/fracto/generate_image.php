@@ -3,11 +3,13 @@
 ini_set('memory_limit', '-1');
 set_time_limit(0);
 
-//$_REQUEST["span"] = 0.04503599627370496;
-//$_REQUEST["focal_x"] = -0.7608598285535194;
-//$_REQUEST["focal_y"] = 0.06316767031821476;
+//span=0.10995116277760002&focal_x=-0.2548135023591507&focal_y=0.6286335671871858&aspect_ratio=0.6180339887498948&width_px=800
+
+//$_REQUEST["span"] = 0.10995116277760002;
+//$_REQUEST["focal_x"] = -0.2548135023591507;
+//$_REQUEST["focal_y"] = 0.6286335671871858;
 //$_REQUEST["aspect_ratio"] = 0.6180339887498948;
-//$_REQUEST["width_px"] = 2000;
+//$_REQUEST["width_px"] = 800;
 
 $span_w = floatval($_REQUEST["span"]);
 $focal_x = floatval($_REQUEST["focal_x"]);

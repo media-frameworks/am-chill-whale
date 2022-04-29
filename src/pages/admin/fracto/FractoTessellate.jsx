@@ -6,6 +6,7 @@ import {AppStyles, AppColors} from "../../../app/AppImports";
 import FractoRender from "./FractoRender";
 import FractoImage from "./FractoImage";
 import FractoTileEditor from "./FractoTileEditor";
+import FractoLocate from "./FractoLocate";
 import {LEVEL_SCOPES} from "./FractoData";
 
 const IMAGE_ASPECT_RATIO = 0.5;
@@ -29,20 +30,16 @@ const CommonBorder = css`
    border-radius: 0.25rem;
 `;
 
+const BorderWrapper = styled(AppStyles.InlineBlock)`
+   ${CommonBorder}
+   margin: 1rem;
+`;
+
 const RenderWrapper = styled(AppStyles.InlineBlock)`
    ${CommonBorder}
    margin: 1rem;
    float: right;
    height: 250px;
-`;
-
-const PanelWrapper = styled(AppStyles.InlineBlock)`
-   ${CommonBorder}
-   background-color: white;
-   margin: 1rem;
-   max-width: 500px;
-   float: left;
-   padding: 0.25rem;
 `;
 
 const CoordsWrapper = styled(AppStyles.Block)`
@@ -58,37 +55,6 @@ const TileEditWrapper = styled(AppStyles.Block)`
 const TileSelectWrapper = styled(AppStyles.Block)`
    width: 100%;
    height: ${IMAGE_HEIGHT_PX + 35}px;
-`;
-
-const NumberSpan = styled.span`
-   ${AppStyles.monospace}
-   font-size: 0.85rem;
-`;
-
-const ItalicSpan = styled.span`
-   ${AppStyles.bold}
-   ${AppStyles.italic}
-   font-family: Arial;
-   font-size: 0.85rem;
-`;
-
-const PanelEntry = styled(AppStyles.Block)`
-   margin: 0 0.5rem;
-`;
-
-const PanelLabel = styled(AppStyles.InlineBlock)`
-   ${AppStyles.bold}
-   text-align: right;
-   padding: 0.125rem 0.25rem;
-   width: 6rem;
-   font-size: 0.85rem;   
-   background-color: ${AppColors.HSL_LIGHT_COOL_BLUE};
-   margin-top: 0.125rem;
-`;
-
-const PanelValue = styled(AppStyles.InlineBlock)`
-   text-align: left;
-   padding: 0.125rem 0.25rem;
 `;
 
 const SelectedTileBox = styled.div`
@@ -212,13 +178,6 @@ export class FractoTessellate extends Component {
          tile_index: tile_index,
          hover_tile: hover_tile
       });
-   }
-
-   render_coordinates = (x, y) => {
-      return [
-         <NumberSpan>{`${x} + ${y}`}</NumberSpan>,
-         <ItalicSpan>i</ItalicSpan>
-      ]
    }
 
    get_tile_outline = (tile) => {
@@ -359,26 +318,6 @@ export class FractoTessellate extends Component {
       } = this.state;
       const selected_tile_outline = this.get_tile_outline(selected_tile);
 
-      const panel_data = [
-         {
-            label: "level",
-            value: <NumberSpan>{level}</NumberSpan>
-         },
-         {
-            label: "focal point",
-            value: this.render_coordinates(fracto_values.focal_point.x, fracto_values.focal_point.y)
-         },
-         {
-            label: "scope",
-            value: <NumberSpan>{fracto_values.scope}</NumberSpan>
-         },
-      ];
-      const panel = panel_data.map(datum => {
-         return <PanelEntry>
-            <PanelLabel>{datum.label}:</PanelLabel>
-            <PanelValue>{datum.value}</PanelValue>
-         </PanelEntry>
-      });
       const tile_edit = !selected_tile || !selected_tile.code ? '' : <TileEditWrapper>
          <FractoTileEditor
             code={selected_tile.code}
@@ -388,7 +327,9 @@ export class FractoTessellate extends Component {
       </TileEditWrapper>;
       return <AppStyles.Block>
          <TileSelectWrapper>
-            <PanelWrapper>{panel}</PanelWrapper>
+            <BorderWrapper>
+               <FractoLocate level={level} fracto_values={fracto_values}/>
+            </BorderWrapper>
             <RenderWrapper
                ref={fracto_ref}
                onMouseMove={e => this.fracto_pos(e)}
@@ -400,7 +341,7 @@ export class FractoTessellate extends Component {
                   tile_outline={tile_outline}
                   on_param_change={values => this.update_values(values)}
                />
-               <CoordsWrapper>{this.render_coordinates(cursor_x, cursor_y)}</CoordsWrapper>
+               <CoordsWrapper>{FractoLocate.render_coordinates(cursor_x, cursor_y)}</CoordsWrapper>
                <SelectedTileBox style={selected_tile_outline}/>
             </RenderWrapper>
          </TileSelectWrapper>

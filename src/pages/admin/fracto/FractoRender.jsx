@@ -31,7 +31,7 @@ export class FractoRender extends Component {
          scope: DEFAULT_SCOPE,
          focal_point: DEFAULT_FOCAL_POINT
       },
-      tile_outline: {}
+      tile_outline: null
    };
 
    componentDidMount() {
@@ -157,7 +157,7 @@ export class FractoRender extends Component {
             focal_point={focal_point}
             scope={scope}
          />
-         <TileBox style={tile_outline}/>
+         {tile_outline && <TileBox style={tile_outline}/>}
       </AppStyles.Block>
    }
 
