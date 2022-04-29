@@ -93,7 +93,7 @@ export class AppStyles {
         ${AppStyles.italic};
         ${AppStyles.pointer};
         &: hover{
-            ${AppStyles.underline}
+            ${AppStyles.underline};
         }
     `;
 

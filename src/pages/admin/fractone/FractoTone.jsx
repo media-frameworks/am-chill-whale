@@ -30,7 +30,6 @@ const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/da
 const INSTRUMENT_WIDTH = 800;
 const INSTRUMENT_HEIGHT = INSTRUMENT_WIDTH * ONE_BY_PHI;
 const BASE_FREQ = 27.5;
-const MAX_FREQ = 20000;
 
 const PlayButton = styled(AppStyles.InlineBlock)`
    ${AppStyles.pointer}
@@ -62,7 +61,7 @@ const ColumnWrapper = styled(AppStyles.InlineBlock)`
 `;
 
 const FractoWrapper = styled(AppStyles.InlineBlock)`
-   margin: 1rem;
+   margin-top: 1rem;
    vertical-aligh: top;
 `;
 
@@ -87,11 +86,12 @@ export class FractoTone extends Component {
       ctx: null,
       bounds_rect: {},
       in_save: false,
-      in_drag: false
+      in_drag: false,
+      wrapper_ref: React.createRef()
    };
 
    componentDidMount() {
-      const {canvas_ref} = this.state;
+      const {canvas_ref, wrapper_ref} = this.state;
       const canvas = canvas_ref.current;
       if (canvas) {
          const ctx = canvas.getContext('2d');
@@ -110,6 +110,39 @@ export class FractoTone extends Component {
          synths.push(synth);
       }
       this.setState({synths: synths});
+      const wrapper = wrapper_ref.current;
+      wrapper.addEventListener('touchstart', this.process_touchstart, false);
+      wrapper.addEventListener('touchmove', this.process_touchmove, false);
+      wrapper.addEventListener('touchcancel', this.process_touchcancel, false);
+      wrapper.addEventListener('touchend', this.process_touchend, false);
+   }
+
+   process_touchstart = (e) => {
+      console.log("process_touchstart")
+      for (let i=0; i < e.targetTouches.length; i++) {
+         this.start_drag(e.targetTouches[i])
+      }
+      e.preventDefault();
+   }
+
+   process_touchmove = (e) => {
+      console.log("process_touchmove")
+      for (let i=0; i < e.targetTouches.length; i++) {
+         this.on_mouse_move(e.targetTouches[i])
+      }
+      e.preventDefault();
+   }
+
+   process_touchcancel = (e) => {
+      console.log("process_touchcancel")
+      this.end_drag(e)
+      e.preventDefault();
+   }
+
+   process_touchend = (e) => {
+      console.log("process_touchend")
+      this.end_drag(e)
+      e.preventDefault();
    }
 
    play_tone = (f, synth_index = MID_INDEX) => {
@@ -260,7 +293,7 @@ export class FractoTone extends Component {
             let pixel_index = col * MASK_WIDTH + row;
             const pixel = column[pixel_index_base + row];
             const freq = pixel[0] * BASE_FREQ;
-            if (freq > 0 && freq < MAX_FREQ) {
+            if (freq > 0) {
                if (is_start) {
                   synths[pixel_index].triggerAttack(freq);
                } else {
@@ -287,7 +320,7 @@ export class FractoTone extends Component {
    }
 
    render() {
-      const {fracto_values, canvas_ref, instrument, in_drag} = this.state;
+      const {fracto_values, canvas_ref, instrument, in_drag, wrapper_ref} = this.state;
       const tone_columns = [];
       for (let pow_2 = 0; pow_2 <= 5; pow_2++) {
          const start_range = Math.pow(2, pow_2);
@@ -337,6 +370,7 @@ export class FractoTone extends Component {
       return [
          <TonesWrapper>{tone_columns}</TonesWrapper>,
          <FractoWrapper
+            ref={wrapper_ref}
             // onClick={e => this.on_mouse_click(e)}
             onMouseDown={e => this.start_drag(e)}
             onMouseUp={e => this.end_drag(e)}
