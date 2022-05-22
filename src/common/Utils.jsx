@@ -43,6 +43,10 @@ export class Utils {
       return d.toISOString();
    }
 
+   static random_int = (limit = 100000) => {
+      return Math.floor(Math.random() * limit);
+   }
+   
    static random_id() {
       return 'id_' + Math.floor(Math.random() * 10000000);
    }
@@ -59,6 +63,12 @@ export class Utils {
          .map((a) => a.value)
    }
 
+   preventDefault = (e) => {
+      e = e || window.event;
+      if (e.preventDefault)
+         e.preventDefault();
+      e.returnValue = false;
+   }
 
 }
 

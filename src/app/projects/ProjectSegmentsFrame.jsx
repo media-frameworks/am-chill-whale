@@ -8,8 +8,9 @@ import {faQuestionCircle} from '@fortawesome/free-regular-svg-icons';
 import {AppStyles, AppColors} from "../AppImports";
 import Utils from "../../common/Utils";
 import ProjectSegment from "./ProjectSegment";
-import SegmentsMenu from "./segments/SegmentsMenu";
-import SegmentTypeModal from "./segments/SegmentTypeModal";
+import ComponentMenu from "./component/ComponentMenu";
+import ComponentTypes from "./component/ComponentTypes";
+import ComponentMeta from "./component/ComponentMeta";
 
 const SEGMENT_CODE_ADD_ABOVE = 1;
 const SEGMENT_CODE_ADD_BELOW = 2;
@@ -17,6 +18,7 @@ const SEGMENT_CODE_MOVE_UP = 3;
 const SEGMENT_CODE_MOVE_DOWN = 4;
 const SEGMENT_CODE_DELETE = 5;
 const SEGMENT_CODE_ADD_RIGHT = 6;
+const SEGMENT_CODE_EDIT_META = 7;
 
 const SEGMENT_MENU = [
    {label: "add above", code: SEGMENT_CODE_ADD_ABOVE},
@@ -92,6 +94,7 @@ export class ProjectSegmentsFrame extends Component {
    state = {
       in_type_modal: false,
       segment_index: -1,
+      in_meta_edit: false
    };
 
    componentDidUpdate(prevProps, prevState, snapshot) {
@@ -116,7 +119,7 @@ export class ProjectSegmentsFrame extends Component {
          }
       })
       if (update_needed) {
-         console.log("ProjectSegmentsFrame update_needed",data)
+         console.log("ProjectSegmentsFrame update_needed", data)
          on_update(data);
       }
    }
@@ -186,6 +189,9 @@ export class ProjectSegmentsFrame extends Component {
          case SEGMENT_CODE_ADD_RIGHT:
             this.segment_split(segment_index)
             break;
+         case SEGMENT_CODE_EDIT_META:
+            this.setState({in_meta_edit: true})
+            break;
          default:
             break;
       }
@@ -194,12 +200,12 @@ export class ProjectSegmentsFrame extends Component {
    type_selected = (response) => {
       const {segment_index} = this.state;
       const {data, on_update} = this.props;
+      this.setState({in_type_modal: false});
       if (response) {
          console.log("type_selected", response);
          data.segments[segment_index].type = response;
          on_update(data);
       }
-      this.setState({in_type_modal: false});
    }
 
    component_from_type = (type) => {
@@ -215,8 +221,18 @@ export class ProjectSegmentsFrame extends Component {
       return false;
    }
 
+   save_meta = (meta) => {
+      const {data, on_update} = this.props;
+      console.log("save_meta",meta)
+      if (meta) {
+         data.meta = Object.assign({}, meta);
+         on_update(data);
+      }
+      this.setState({in_meta_edit: false})
+   }
+
    render() {
-      const {in_type_modal} = this.state;
+      const {in_type_modal, in_meta_edit} = this.state;
       const {data, on_update, components} = this.props;
       const segments = !data.segments ? '' : data.segments.map((segment_data, index) => {
 
@@ -229,11 +245,16 @@ export class ProjectSegmentsFrame extends Component {
          const component = this.component_from_type(segment_data.type)
          const menu_options = SEGMENT_MENU.map(item => {
             if (item.label === "component" && component && segment_data) {
-               item.submenu = component.get_menu_options(segment_data);
+               const meta_menu = [
+                  {label: "edit meta", code: SEGMENT_CODE_EDIT_META},
+                  {type: "separator"}
+               ]
+               const component_menu = component.get_menu_options(segment_data);
+               item.submenu = meta_menu.concat(component_menu)
             }
-            return Object.assign ({}, item);
+            return Object.assign({}, item);
          })
-         const segments_menu = <SegmentsMenu
+         const segments_menu = <ComponentMenu
             menu_options={menu_options}
             on_selected={selected => this.segment_operation(selected, index, component)}/>
 
@@ -262,9 +283,13 @@ export class ProjectSegmentsFrame extends Component {
          <AllSegmentsBlock>
             {segments}
          </AllSegmentsBlock>
-         {in_type_modal && <SegmentTypeModal
+         {in_type_modal && <ComponentTypes
             components={components}
             on_response={response => this.type_selected(response)}
+         />}
+         {in_meta_edit && <ComponentMeta
+            meta={data.meta}
+            response={meta => this.save_meta(meta)}
          />}
       </SegmentsWrapper>
    }

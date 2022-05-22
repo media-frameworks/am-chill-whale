@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {AppStyles, AppColors} from "../../../app/AppImports";
+import Utils from "../../../common/Utils";
 import {PHI} from "../../../common/math/constants";
 
 import FractoRender from "./FractoRender";
 import FractoUtil from "./FractoUtil";
+import FractoCalc from "./FractoCalc";
 
 const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
 const RESULT_WIDTH = 2000;
@@ -38,7 +40,8 @@ export class FractoCapture extends Component {
       },
       aspect_ratio: RESULT_ASPECT_RATIO,
       canvas_ref: React.createRef(),
-      ctx: null
+      ctx: null,
+      canvas_filled: false
    };
 
    componentDidMount() {
@@ -48,6 +51,7 @@ export class FractoCapture extends Component {
          const ctx = canvas.getContext('2d');
          this.setState({ctx: ctx});
       }
+      window.onwheel = Utils.preventDefault;
    }
 
    update_values = (new_values) => {
@@ -55,29 +59,33 @@ export class FractoCapture extends Component {
    }
 
    fill_canvas = (data) => {
-      const {ctx} = this.state;
-      const {width_px} = this.props;
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, width_px, width_px);
+      const {ctx, fracto_values, aspect_ratio} = this.state;
+      const increment = fracto_values.scope / RESULT_WIDTH;
+      const leftmost = fracto_values.focal_point.x - fracto_values.scope / 2;
+      const bottommost = fracto_values.focal_point.y - aspect_ratio * fracto_values.scope / 2;
+      // ctx.fillStyle = 'white';
+      // ctx.fillRect(0, 0, width_px, width_px);
       for (let img_x = 0; img_x < data.length; img_x++ ) {
          const column = data[img_x];
+         const x = leftmost + increment * img_x;
          for (let img_y = 0; img_y < column.length; img_y++ ) {
-            const pixel = column[img_y];
-            if (!pixel[1]) {
-               ctx.fillStyle = 'white';
+            const y = bottommost + increment * img_y;
+            let pixel = column[img_y];
+            if (!pixel.length) {
+               const calculated = FractoCalc.calc(x, y);
+               pixel = [calculated.pattern, calculated.iteration]
             }
-            else {
-               ctx.fillStyle = FractoUtil.fracto_pattern_color(pixel[0], pixel[1])
-            }
+            ctx.fillStyle = FractoUtil.fracto_pattern_color(pixel[0], pixel[1])
             ctx.fillRect(img_x, column.length - img_y, 1, 1);
          }
       }
+      this.setState({canvas_filled: true})
    }
 
    capture_image = () => {
       const {fracto_values, aspect_ratio} = this.state;
 
-      const url = `${FRACTO_PHP_URL_BASE}/generate_image.php?span=${fracto_values.scope}&focal_x=${fracto_values.focal_point.x}&focal_y=${fracto_values.focal_point.y}&aspect_ratio=${aspect_ratio}&width_px=${RESULT_WIDTH}`;
+      const url = `${FRACTO_PHP_URL_BASE}/point_sieve.php?span=${fracto_values.scope}&focal_x=${fracto_values.focal_point.x}&focal_y=${fracto_values.focal_point.y}&aspect_ratio=${aspect_ratio}&width_px=${RESULT_WIDTH}`;
       console.log("url", url);
 
       const that = this;
@@ -119,13 +127,13 @@ export class FractoCapture extends Component {
          <AppStyles.InlineBlock>
             <CaptureButton onClick={e => this.capture_image()}>Capture</CaptureButton>
          </AppStyles.InlineBlock>,
-         <AppStyles.Block>
+         <AppStyles.InlineBlock>
             <CanvasField
                ref={canvas_ref}
                style={canvas_style}
                width={`${result_width}px`}
                height={`${result_height}px`}/>
-         </AppStyles.Block>
+         </AppStyles.InlineBlock>
       ]
 
    }

@@ -2,14 +2,21 @@ import React, {Component} from 'react';
 import {createBrowserHistory} from "history";
 
 import {AppAdmin} from "./app/AppImports";
-import {PageMain, PageLogin, PageAdmin, PageWorks, PageError} from "./pages/PageImports";
+import {PageMain, PageLogin, PageAdmin, PageWorks, PageError, PageFracto} from "./pages/PageImports";
 import {WorksArt, WorksMusic, WorksVideo, WorksDoc} from "./pages/works/WorksImports";
 import {AdminThreeD, AdminFracto, AdminStudio, AdminManifest} from "./pages/admin/AdminImports";
 
 const ACCESS_PUBLIC = 'public';
 const ACCESS_PROTECTED = 'protected';
 
-const routings = [
+const FRACTO_ROUTING =
+   {
+       segment: 'fracto',
+       path: '/fracto',
+       component: <PageFracto/>,
+   };
+
+const DEV_ROUTINGS = [
     {
         segment: '',
         path: '/',
@@ -55,6 +62,7 @@ const routings = [
 
                 ]
             },
+            FRACTO_ROUTING,
             {
                 segment: 'works',
                 path: '/works',
@@ -154,7 +162,10 @@ export class AppRouting extends Component {
         const segments = history.location.pathname.split('/');
         segments.shift();
         console.log("segments", segments);
-        return this.process_path(segments, routings);
+        if (process.env.NODE_ENV === 'production') {
+            return this.process_path(segments, [FRACTO_ROUTING]);
+        }
+        return this.process_path(segments, DEV_ROUTINGS);
     }
 }
 

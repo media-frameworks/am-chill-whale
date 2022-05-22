@@ -5,8 +5,8 @@ import styled from "styled-components";
 import {AppStyles} from "../../../app/AppImports";
 import ImageModalSelect from "./ImageModalSelect";
 import ImageRender from "./ImageRender";
-import RoverDesign from "./rover/RoverDesign";
-import RoverRender from "./rover/RoverRender";
+import RoverDesign from "../rover/RoverDesign";
+import RoverRender from "../rover/RoverRender";
 
 const MEDIA_IMAGE_ROVER_DESIGN = 10001;
 const MEDIA_IMAGE_ROVER_RENDER = 10002;

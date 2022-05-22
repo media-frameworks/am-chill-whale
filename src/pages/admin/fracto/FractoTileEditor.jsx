@@ -233,7 +233,8 @@ export class FractoTileEditor extends Component {
    }
 
    complete_tile = (tile_data) => {
-      const {auto_publish} = this.state;
+      const {auto_publish, auto_advance} = this.state;
+      const {on_publish_complete} = this.props;
       if (!tile_data.tile_data) {
          return;
       }
@@ -283,8 +284,10 @@ export class FractoTileEditor extends Component {
          })
          .then(function (json) {
             console.log("fill_points result", json);
-            if (auto_publish) {
+            if (auto_publish && json.added) {
                that.generate_tile();
+            } else if (auto_advance) {
+               on_publish_complete();
             }
          });
    }
@@ -315,6 +318,8 @@ export class FractoTileEditor extends Component {
          <canvas ref={canvas_ref} width={IMAGE_SIZE_PX} height={IMAGE_SIZE_PX}/>;
       const generate_tile_link = have_tile_data ? '' :
          <GenerateTileLink onClick={e => this.generate_tile()}>generate tile</GenerateTileLink>
+      const regenerate_tile_link =
+         <GenerateTileLink onClick={e => this.generate_tile()}>re-generate tile</GenerateTileLink>
       const publish_tile_link = !have_tile_data ? '' :
          <GenerateTileLink onClick={e => this.publish_tile(tile_data)}>publish tile</GenerateTileLink>
       const complete_tile_link = !have_tile_data ? '' :
@@ -335,6 +340,7 @@ export class FractoTileEditor extends Component {
          <ImageWrapper>
             {tile_canvas}
             {generate_tile_link}
+            {regenerate_tile_link}
          </ImageWrapper>
          <ImageWrapper>
             {tile_stats}

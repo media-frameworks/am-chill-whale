@@ -45,6 +45,13 @@ const TitleBlurb = styled.div`
     text-shadow: 0.25rem 0.25rem 0.5rem #888888;
 `;
 
+const Smoll = styled.span`
+    font-size: 0.65rem;
+    margin: 0 0.65rem;
+    vertical-align: middle;
+    color: white;
+`;
+
 export class AppTitleBar extends Component {
 
     static propTypes = {
@@ -66,7 +73,7 @@ export class AppTitleBar extends Component {
         return <AppBrand.UpperSwatch>
             <AppStyles.LinkSpan
                 onClick={e => window.location = link_path}>
-                {AppBrand.BRAND_NAME}
+                <Smoll>an</Smoll>{AppBrand.BRAND_NAME}<Smoll>gig</Smoll>
             </AppStyles.LinkSpan>
         </AppBrand.UpperSwatch>
     }
