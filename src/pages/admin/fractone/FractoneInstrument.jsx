@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
+import StoreS3 from "../../../common/StoreS3";
 import FractoUtil from "../fracto/FractoUtil";
 
 const CanvasField = styled.canvas`
@@ -60,6 +61,15 @@ export class FractoneInstrument extends Component {
             ctx.fillRect(img_x, instrument_height - img_y, 1, 1);
          }
       }
+   }
+
+   save_image_async = (image_name, s3_prefix, cb) => {
+      const {canvas_ref} = this.state;
+      const blob = FractoUtil.canvas_to_blob(canvas_ref);
+      StoreS3.put_file_async(image_name, blob, s3_prefix, data => {
+         console.log("put_file_async returns", data);
+         cb(data)
+      });
    }
 
    render() {

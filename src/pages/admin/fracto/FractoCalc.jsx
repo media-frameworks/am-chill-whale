@@ -151,7 +151,7 @@ export class FractoCalc extends Component {
       this.fill_frame(cache, code_11, x + width_by_2, y - width_by_2, width_by_2, new_depth, max_iterations);
    }
 
-   static calc = (x0, y0, max_iteration) => {
+   static calc = (x0, y0, max_iteration = 1000000) => {
       let x = 0;
       let y = 0;
       let iteration = 0;

@@ -86,6 +86,7 @@ export class ProjectSegment extends Component {
       this.setState({
          component: React.createElement(component_type, { ...props, ref: ref }),
       })
+      this.forceUpdate();
    }
 
    static query_interface = (component_type, props) => {

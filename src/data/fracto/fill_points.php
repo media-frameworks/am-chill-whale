@@ -69,7 +69,7 @@ foreach ($results as $slug => $contents) {
 
 $data = [
     "results" => "$point_count points added",
-    "added" => $added
+    "added" => $point_count
 ];
 
 header('Content-Type: application/json');

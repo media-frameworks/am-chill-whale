@@ -32,9 +32,9 @@ export class AppBrand {
       font-size: 1.25rem;
       background: linear-gradient(120deg, 
         rgba(0,0,0,0) 0, 
-        rgba(0,0,0,0) 40%, 
+        rgba(0,0,0,0) 35%, 
         #cccccc 50%, 
-        rgba(0,0,0,0) 60%, 
+        rgba(0,0,0,0) 65%, 
         rgba(0,0,0,0) 100%);
     `;
 

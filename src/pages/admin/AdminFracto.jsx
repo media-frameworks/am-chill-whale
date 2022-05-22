@@ -13,6 +13,7 @@ import FractoTone from "./fractone/FractoTone";
 import FractonePageBuild from "./fractone/FractonePageBuild";
 import FractonePageLoad from "./fractone/FractonePageLoad";
 import FractonePagePlay from "./fractone/FractonePagePlay";
+import FractoneSelector from "./fractone/FractoneSelector";
 
 const FRACTONE_PAGE_LOAD_AND_TEST = "load_and_test";
 const FRACTONE_PAGE_GO_LIVE = "go_live";
@@ -25,6 +26,7 @@ const ContentWrapper = styled(AppStyles.Block)`
     left: ${SECTION_WIDTH_PCT}%;
     top: ${AppStyles.TITLEBAR_HEIGHT_REM}rem;
     bottom: 0;
+    overflow: scroll;
 `;
 
 const SelectedContentWrapper = styled(AppStyles.Block)`
@@ -65,7 +67,9 @@ export class AdminFracto extends Component {
       fracto_values: {},
       fractone: {
          selected_page: FRACTONE_PAGE_BUILD_INSTRUMENTS
-      }
+      },
+      fractone_instrument: '',
+      section_splitter_pos: 200
    };
 
    componentDidMount() {
@@ -92,10 +96,19 @@ export class AdminFracto extends Component {
       return `${name} = ${value}`;
    }
 
+   resize_regions = (pos) => {
+      const {content_wrapper_rect} = this.state;
+      content_wrapper_rect.width = window.innerWidth - pos - 5;
+      this.setState({
+         section_splitter_pos: pos,
+         content_wrapper_rect: content_wrapper_rect
+      })
+   }
+
    render() {
       const {
-         admin_back_ref, selected_title, fracto_ref,
-         content_wrapper_rect, fracto_values, fractone
+         admin_back_ref, selected_title, fracto_ref, section_splitter_pos,
+         content_wrapper_rect, fracto_values, fractone, fractone_instrument
       } = this.state;
       const title = "fracto";
       let frame_contents = [];
@@ -130,6 +143,7 @@ export class AdminFracto extends Component {
             break;
 
          case "fractone":
+            console.log("fractone_instrument", fractone_instrument)
             switch (fractone.selected_page) {
                case FRACTONE_PAGE_BUILD_INSTRUMENTS:
                   frame_contents = <ContentWrapper><FractonePageBuild
@@ -138,6 +152,7 @@ export class AdminFracto extends Component {
                   break;
                case FRACTONE_PAGE_LOAD_AND_TEST:
                   frame_contents = <ContentWrapper><FractonePageLoad
+                     prefix={fractone_instrument}
                      width_px={content_wrapper_rect.width}/>
                   </ContentWrapper>
                   break;
@@ -152,6 +167,10 @@ export class AdminFracto extends Component {
                   </ContentWrapper>;
                   break;
             }
+            const fractone_selector = <FractoneSelector
+               width_px={120}
+               on_selected={prefix => this.setState({fractone_instrument: prefix})}
+            />
             selected_content = <SelectedContentWrapper>
                <AspectLink
                   onClick={e => this.setState({fractone: {selected_page: FRACTONE_PAGE_BUILD_INSTRUMENTS}})}>
@@ -161,6 +180,7 @@ export class AdminFracto extends Component {
                   onClick={e => this.setState({fractone: {selected_page: FRACTONE_PAGE_LOAD_AND_TEST}})}>
                   {"load & test"}
                </AspectLink>
+               {(fractone.selected_page === FRACTONE_PAGE_LOAD_AND_TEST) && fractone_selector}
                <AspectLink
                   onClick={e => this.setState({fractone: {selected_page: FRACTONE_PAGE_GO_LIVE}})}>
                   {"go live!"}
@@ -182,9 +202,11 @@ export class AdminFracto extends Component {
          {frame_contents}
          <SectionIndex
             index={SECTIONS}
+            width_px={section_splitter_pos}
             title={"fractal graphics"}
             selected_index={selected_title}
             on_select_index={title => this.setState({selected_title: title})}
+            on_resize={pos => this.resize_regions(pos)}
             selected_content={selected_content}
          />
       </AppStyles.PageWrapper>

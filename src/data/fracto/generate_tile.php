@@ -67,7 +67,7 @@ function process_point_dir($point_dir, $x)
         if ($y > $top) {
             continue;
         }
-        if ($y < $bottom) {
+        if ($y <= $bottom) {
             continue;
         }
         $img_y_real = ($top - $y) / $increment;

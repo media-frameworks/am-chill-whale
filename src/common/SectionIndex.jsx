@@ -7,6 +7,7 @@ import {faAngleRight} from '@fortawesome/free-solid-svg-icons'
 import {faAngleDown} from '@fortawesome/free-solid-svg-icons'
 
 import {AppStyles} from "../app/AppImports";
+import CoolSplitter, {SPLITTER_TYPE_VERTICAL} from "./cool/CoolSplitter";
 
 export const NO_SELECTION = "None";
 export const SECTION_WIDTH_PCT = 15;
@@ -16,7 +17,6 @@ const IndexWrapper = styled.div`
     left: 0;
     top: ${AppStyles.TITLEBAR_HEIGHT_REM}rem;
     bottom: 0;
-    right: ${100 - SECTION_WIDTH_PCT}%;
     background-color: #eeeeee;
     border-right: 0.15rem solid #bbbbbb;
 `;
@@ -68,13 +68,32 @@ export class SectionIndex extends Component {
    static propTypes = {
       index: PropTypes.array.isRequired,
       title: PropTypes.string.isRequired,
+      width_px: PropTypes.number.isRequired,
       selected_index: PropTypes.string.isRequired,
       on_select_index: PropTypes.func.isRequired,
+      on_resize: PropTypes.func.isRequired,
       selected_content: PropTypes.array.isRequired
    }
 
+   state = {
+      section_ref: React.createRef(),
+      section_bounds: {height: 0}
+   }
+
+   componentDidMount() {
+      const {section_ref} = this.state;
+      const section_bounds = section_ref.current.getBoundingClientRect()
+      this.setState({section_bounds: section_bounds})
+   }
+
+   on_change = (pos) => {
+      const {on_resize} = this.props;
+      on_resize(pos);
+   }
+
    render() {
-      const {index, title, selected_index, on_select_index, selected_content} = this.props;
+      const {section_ref, section_bounds} = this.state;
+      const {index, title, width_px, selected_index, on_select_index, selected_content} = this.props;
       const entries = index.sort((a, b) => a.title > b.title ? 1 : -1)
          .map(entry => {
             const isSelected = selected_index === entry.title;
@@ -86,12 +105,25 @@ export class SectionIndex extends Component {
                {isSelected ? selected_content : []}
             </IndexEntry>
          });
-      return <IndexWrapper>
-         <TitleWrapper>
-            <IndexTitle>{title}</IndexTitle>
-         </TitleWrapper>
-         {entries}
-      </IndexWrapper>
+      const index_style = {width: `${width_px}px`}
+      return [
+         <IndexWrapper
+            ref={section_ref}
+            style={index_style}>
+            <TitleWrapper>
+               <IndexTitle>{title}</IndexTitle>
+            </TitleWrapper>
+            {entries}
+         </IndexWrapper>,
+         <CoolSplitter
+            type={SPLITTER_TYPE_VERTICAL}
+            name={"section-index"}
+            bar_width_px={5}
+            container_bounds={section_bounds}
+            position={width_px}
+            on_change={pos => this.on_change(pos)}
+         />
+      ]
    }
 }
 

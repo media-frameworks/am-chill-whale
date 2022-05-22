@@ -46,19 +46,21 @@ export class FractonePatternBar extends Component {
    }
 
    componentDidMount() {
-      this.fill_patterns()
+      const {instrument_data} = this.props;
+      const patterns = FractonePatternBar.fill_patterns(instrument_data)
+      this.setState({patterns: patterns})
    }
 
    componentDidUpdate(prevProps, prevState, snapshot) {
       const {instrument_data} = this.props;
       if (prevProps.instrument_data !== instrument_data) {
-         this.fill_patterns()
+         const patterns = FractonePatternBar.fill_patterns(instrument_data)
+         this.setState({patterns: patterns})
          this.forceUpdate();
       }
    }
 
-   fill_patterns = () => {
-      const {instrument_data} = this.props;
+   static fill_patterns = (instrument_data) => {
       let patterns = {};
       const width = Object.keys(instrument_data).length;
       for (let img_x = 0; img_x < width; img_x++) {
@@ -76,7 +78,7 @@ export class FractonePatternBar extends Component {
             }
          }
       }
-      this.setState({patterns: patterns})
+      return patterns
    }
 
    render() {

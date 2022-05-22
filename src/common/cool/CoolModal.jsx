@@ -27,7 +27,7 @@ const FormContainer = styled.div`
 const FormContent = styled.div`
     min-height: 5rem;
     max-height: 75vh;
-    padding: 0.5rem 1rem 1.5rem;
+    padding: 0.5rem 1rem;
 `;
 
 export class CoolModal extends Component {

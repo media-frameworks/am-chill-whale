@@ -3,6 +3,7 @@ import config from "../config/aws.json";
 export const S3_PREFIX = 'am-chill-whale';
 
 var AWS = require('aws-sdk');
+AWS.config.correctClockSkew = true;
 var s3 = new AWS.S3(config);
 
 export class StoreS3 {
@@ -29,7 +30,7 @@ export class StoreS3 {
    static put_file_async = (name, data, prefix = S3_PREFIX, cb) => {
       const full_key = `${prefix}/${name}`
       if (!data) {
-         cb (false);
+         cb(false);
          return;
       }
       const params = {
@@ -105,10 +106,9 @@ export class StoreS3 {
          s3.getObject(params, (err, data) => {
             var image = new Image();
             if (!data || err) {
-               console.log("error error", err);
-               cb(image);
-            }
-            else {
+               // console.log("error error", err);
+               cb(null);
+            } else {
                let image_data = new Buffer(data.Body).toString('base64');
                image.src = "data:" + data.ContentType + ";base64," + image_data;
                StoreS3.image_cache[name] = image;

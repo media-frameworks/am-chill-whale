@@ -27,6 +27,14 @@ const PromptText = styled.span`
    padding: 0 0.25rem;
 `;
 
+const CharCounter = styled(AppStyles.Block)`
+   ${AppStyles.monospace};
+   color: #aaaaaa;   
+   font-size: 0.85rem;
+   padding: 0 0.25rem;
+   text-align: right;
+`;
+
 export class CoolNotes extends Component {
 
    static propTypes = {
@@ -157,17 +165,22 @@ export class CoolNotes extends Component {
       style_extra["width"] = "20rem";
       switch (editor_type) {
          case "regular" :
-            return <AppStyles.InputTextArea
-               ref={input_ref}
-               autoFocus
-               size={current_value.length}
-               style={style_extra}
-               value={current_value}
-               rows={"auto"}
-               cols={current_value.length + 5}
-               onChange={e => this.setState({current_value: e.target.value})}
-               placeholder={placeholder}
-            />
+            return [
+               <AppStyles.Block>
+                  <AppStyles.InputTextArea
+                     ref={input_ref}
+                     autoFocus
+                     size={current_value.length}
+                     style={style_extra}
+                     value={current_value}
+                     rows={"auto"}
+                     cols={current_value.length + 5}
+                     onChange={e => this.setState({current_value: e.target.value})}
+                     placeholder={placeholder}
+                  />
+               </AppStyles.Block>,
+               <CharCounter>{current_value.length}</CharCounter>
+            ]
 
          case "fancy":
             return <CoolEditor
