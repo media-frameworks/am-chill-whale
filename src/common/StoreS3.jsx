@@ -68,7 +68,13 @@ export class StoreS3 {
       });
    }
 
+   static file_cache = {};
+
    static get_file_async(name, prefix = S3_PREFIX, cb) {
+      if (StoreS3.file_cache[name]) {
+         cb(StoreS3.file_cache[name]);
+         return;
+      }
       const full_key = `${prefix}/${name}`
       const params = {
          Bucket: "mikehallstudio",
@@ -76,10 +82,11 @@ export class StoreS3 {
       };
       s3.getObject(params, (err, data) => {
          if (err) {
-            console.error("S3.getObject error", params);
+            // console.error("S3.getObject error", params);
             cb(false)
          } else {
             const str_data = data.Body.toString('utf-8');
+            StoreS3.file_cache[name] = str_data;
             cb(str_data)
          }
       })
@@ -89,6 +96,7 @@ export class StoreS3 {
 
    static remove_from_cache = (name) => {
       delete StoreS3.image_cache[name];
+      delete StoreS3.file_cache[name];
    }
 
    static load_image_async = (name, prefix, cb) => {
@@ -122,7 +130,7 @@ export class StoreS3 {
 
    static async get_json_file(file_path, prefix = "manifest") {
       const div_item = await StoreS3.get_file(file_path, prefix).catch(e => {
-         console.log("error loading file", file_path);
+         // console.log("error loading file", file_path);
       })
       return div_item ? JSON.parse(div_item.Body) : [];
    }

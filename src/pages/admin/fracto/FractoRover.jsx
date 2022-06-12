@@ -1,25 +1,37 @@
 import {Component} from 'react';
 import PropTypes from 'introspective-prop-types'
-// import styled from "styled-components";
+import styled from "styled-components";
 
-// import {AppStyles} from "../../../app/AppImports";
+import {AppStyles, AppColors} from "app/AppImports";
 import FractoRoverDesign from "./rover/FractoRoverDesign";
+import FractoRoverPreview from "./rover/FractoRoverPreview";
+import FractoRoverRender from "./rover/FractoRoverRender";
 
 const FRACTO_ROVER_DESIGN = 10001;
 const FRACTO_ROVER_PREVIEW = 10002;
 const FRACTO_ROVER_RENDER = 10003;
+
+const PromptSpan = styled.span`
+   ${AppStyles.italic}
+   ${AppStyles.bold}
+   ${AppStyles.pointer}
+   ${AppColors.COLOR_DEEP_BLUE}
+   margin-left: 0.5rem;
+`;
 
 export class FractoRover extends Component {
 
    static propTypes = {
       steps_list: PropTypes.array,
       aspect_ratio: PropTypes.number,
+      width_px: PropTypes.number,
       on_update_props: PropTypes.func.isRequired,
    }
 
    static defaultProps = {
       steps_list: [],
-      aspect_ratio: 16 / 9
+      aspect_ratio: 16 / 9,
+      width_px: 1200,
    }
 
    state = {
@@ -75,38 +87,34 @@ export class FractoRover extends Component {
    }
 
    render() {
-      const {in_path_design} = this.state;
-      const {image_id, steps_list, aspect_ratio, on_update_props} = this.props;
+      const {in_path_design, in_path_preview, in_path_render} = this.state;
+      const {steps_list, aspect_ratio, width_px, on_update_props} = this.props;
+
       const designer = !in_path_design ? '' : <FractoRoverDesign
-         key={`RoverDesign_${image_id}`}
-         image_id={image_id}
          steps_list={steps_list}
          aspect_ratio={aspect_ratio}
+         width_px={width_px}
          on_update_props={on_update_props}
          on_response_modal={r => this.setState({in_path_design: false})}/>
-      // const previewer = !in_path_preview ? '' : <RoverPreview
-      //    key={`RoverPreview${image_id}`}
-      //    image_id={image_id}
-      //    steps_list={steps_list}
-      //    aspect_ratio={aspect_ratio}
-      //    on_response_modal={r => this.setState({in_path_preview: false})}/>
-      // const renderer = !in_path_render ? '' : <RoverRender
-      //    key={`RoverRender${image_id}`}
-      //    image_id={image_id}
-      //    steps_list={steps_list}
-      //    aspect_ratio={aspect_ratio}
-      //    on_response_modal={r => this.setState({in_path_render: false})}/>
-      // const image = !image_id ? '' : <ImageRender
-      //    key={`ImageRender_${image_id}`}
-      //    image_id={image_id}
-      //    width_px={250}/>
-      // return [
-      //    designer,
-      //    previewer,
-      //    renderer,
-      //    image
-      // ];
-      return designer
+      const previewer = !in_path_preview ? '' : <FractoRoverPreview
+         steps_list={steps_list}
+         aspect_ratio={aspect_ratio}
+         width_px={width_px}
+         on_response_modal={r => this.setState({in_path_preview: false})}/>
+      const renderer = !in_path_render ? '' : <FractoRoverRender
+         steps_list={steps_list}
+         aspect_ratio={aspect_ratio}
+         width_px={width_px}
+         on_response_modal={r => this.setState({in_path_render: false})}/>
+
+      const design_link = <PromptSpan onClick={e => this.setState({in_path_design: true})}>design</PromptSpan>;
+      const preview_link = <PromptSpan onClick={e => this.setState({in_path_preview: true})}>preview</PromptSpan>;
+      const render_link = <PromptSpan onClick={e => this.setState({in_path_render: true})}>render</PromptSpan>;
+
+      return [
+         designer, previewer, renderer,
+         design_link, preview_link, render_link
+      ];
    }
 }
 

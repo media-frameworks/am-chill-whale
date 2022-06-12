@@ -52,8 +52,10 @@ export class ProjectBlock extends Component {
 
    load_data = () => {
       const {project_path} = this.props;
-      StoreS3.get_file_async(`${project_path}main.json`, S3_PREFIX, data => {
-         console.log("loaded data", project_path);
+      const filepath = `${project_path}main.json`;
+      StoreS3.remove_from_cache(filepath);
+      StoreS3.get_file_async(filepath, S3_PREFIX, data => {
+         // console.log(`load_data ${project_path}`, data);
          if (typeof data !== 'string') {
             console.log("get_file_async error", data)
          }
@@ -66,7 +68,7 @@ export class ProjectBlock extends Component {
    componentDidUpdate(prevProps, prevState, snapshot) {
       const {data, needs_update} = this.state;
       if (needs_update) {
-         console.log("loading from componentDidUpdate", prevState.data, data);
+         // console.log("loading from componentDidUpdate", prevState.data, data);
          this.load_data();
          this.setState({needs_update: false});
       }

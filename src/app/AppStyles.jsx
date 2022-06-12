@@ -197,6 +197,11 @@ export class AppStyles {
         border-radius: 0.25rem;
     `;
 
+    static DARK_BORDER = css`
+        border: 0.125rem solid #888888;
+        border-radius: 0.25rem;
+    `;
+
     static COOL_BLUE_TEXT = css`
         ${AppColors.COLOR_COOL_BLUE};
         font-size: 1rem;
@@ -222,7 +227,6 @@ export class AppStyles {
             color: #bbbbbb;
         }
     `;
-
 }
 
 export default AppStyles;

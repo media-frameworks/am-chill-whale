@@ -56,6 +56,9 @@ export class FractoRender extends Component {
          };
          this.setState({focal_point: new_focal_point});
       }
+      if (initial_params.scope !== prevProps.initial_params.scope) {
+         this.setState({scope: initial_params.scope});
+      }
    }
 
    state = {
@@ -142,6 +145,7 @@ export class FractoRender extends Component {
    render() {
       const {focal_point, scope, fracto_ref, in_update} = this.state;
       const {width_px, aspect_ratio, tile_outline} = this.props;
+
       return <AppStyles.Block
          ref={fracto_ref}>
          <FractoImage

@@ -9,6 +9,7 @@ import {PHI} from "../../../common/math/constants";
 import FractoRender from "./FractoRender";
 import FractoUtil from "./FractoUtil";
 import FractoCalc from "./FractoCalc";
+import FractoSieve from "./FractoSieve";
 
 const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
 const RESULT_WIDTH = 2000;
@@ -63,15 +64,13 @@ export class FractoCapture extends Component {
       const increment = fracto_values.scope / RESULT_WIDTH;
       const leftmost = fracto_values.focal_point.x - fracto_values.scope / 2;
       const bottommost = fracto_values.focal_point.y - aspect_ratio * fracto_values.scope / 2;
-      // ctx.fillStyle = 'white';
-      // ctx.fillRect(0, 0, width_px, width_px);
-      for (let img_x = 0; img_x < data.length; img_x++ ) {
+      for (let img_x = 0; img_x < data.length; img_x++) {
          const column = data[img_x];
          const x = leftmost + increment * img_x;
-         for (let img_y = 0; img_y < column.length; img_y++ ) {
+         for (let img_y = 0; img_y < column.length; img_y++) {
             const y = bottommost + increment * img_y;
             let pixel = column[img_y];
-            if (!pixel.length) {
+            if (!pixel.length || !pixel[1]) {
                const calculated = FractoCalc.calc(x, y);
                pixel = [calculated.pattern, calculated.iteration]
             }
@@ -82,7 +81,7 @@ export class FractoCapture extends Component {
       this.setState({canvas_filled: true})
    }
 
-   capture_image = () => {
+   capture_image_not = () => {
       const {fracto_values, aspect_ratio} = this.state;
 
       const url = `${FRACTO_PHP_URL_BASE}/point_sieve.php?span=${fracto_values.scope}&focal_x=${fracto_values.focal_point.x}&focal_y=${fracto_values.focal_point.y}&aspect_ratio=${aspect_ratio}&width_px=${RESULT_WIDTH}`;
@@ -105,6 +104,14 @@ export class FractoCapture extends Component {
          console.log("capture_image result", json);
          that.fill_canvas(json);
       });
+   }
+
+   capture_image = () => {
+      const {fracto_values, aspect_ratio} = this.state;
+      FractoSieve.extract(
+         fracto_values.focal_point, aspect_ratio, fracto_values.scope, RESULT_WIDTH, result => {
+            this.fill_canvas(result);
+         });
    }
 
    render() {

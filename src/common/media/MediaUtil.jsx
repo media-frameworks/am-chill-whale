@@ -15,15 +15,15 @@ export class MediaUtil {
 
    static ASPECT_RATIO = {
       AR_SQUARE_KEY: {label: '1:1', value: 1, help: 'Square'},
-      AR_DSLR_KEY: {label: '3:2', value: 3 / 2, help: 'DSLR camera, smartphones'},
-      AR_SDTV_KEY: {label: '4:3', value: 4 / 3, help: 'SDTV/video, computer displays'},
-      AR_COMP_KEY: {label: '5:4', value: 5 / 4, help: 'Computer displays'},
-      AR_WIDE_KEY: {label: '16:10', value: 16 / 10, help: 'Widescreens, smartphones'},
-      AR_HDTV_KEY: {label: '16:9', value: 16 / 9, help: 'HDTV widescreen, smartphones'},
-      AR_IHDTV_KEY: {label: '9:16', value: 9 / 16, help: 'Vertical smartphones'},
-      AR_CINEMA_KEY: {label: '1.85:1', value: 1.85, help: 'Cinema film'},
-      AR_PHI_KEY: {label: 'PHI:1', value: PHI, help: 'Golden ratio (horizontal)'},
-      AR_IPHI_KEY: {label: '1:PHI', value: PHI - 1.0, help: 'Golden ratio (vertical)'},
+      AR_DSLR_KEY: {label: '3:2', value: 2 / 3, help: 'DSLR camera, smartphones'},
+      AR_SDTV_KEY: {label: '4:3', value: 3 / 4, help: 'SDTV/video, computer displays'},
+      AR_COMP_KEY: {label: '5:4', value: 4 / 5, help: 'Computer displays'},
+      AR_WIDE_KEY: {label: '16:10', value: 10 / 16, help: 'Widescreens, smartphones'},
+      AR_HDTV_KEY: {label: '16:9', value: 9 / 16, help: 'HDTV widescreen, smartphones'},
+      AR_IHDTV_KEY: {label: '9:16', value: 16 / 9, help: 'Vertical smartphones'},
+      AR_CINEMA_KEY: {label: '1.85:1', value: 1.0 / 1.85, help: 'Cinema film'},
+      AR_PHI_KEY: {label: 'PHI:1', value: PHI, help: 'Golden ratio, vertical'},
+      AR_IPHI_KEY: {label: '1:PHI', value: PHI - 1.0, help: 'Golden ratio, horizontal'},
    };
 
 }
