@@ -170,10 +170,12 @@ export class FractoImage extends Component {
 
       const best_level = FractoImage.find_best_level(scope);
       // console.log("best_level", best_level)
-      const images = this.find_images(LEVEL_SCOPES[best_level].cells);
+      const images = this.find_images(LEVEL_SCOPES[best_level].cells.concat(LEVEL_SCOPES[best_level].empties));
 
       if (!images.length) {
-         on_ready()
+         if (on_ready) {
+            on_ready()
+         }
          return;
       }
 
@@ -191,7 +193,7 @@ export class FractoImage extends Component {
       if (on_ready) {
          setTimeout(() => {
             on_ready();
-         }, 500)
+         }, 1000)
       }
    }
 

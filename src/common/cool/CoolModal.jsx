@@ -2,10 +2,12 @@ import React, {Component} from 'react';
 import styled from "styled-components";
 import PropTypes from 'prop-types';
 
+import {AppStyles} from "app/AppImports";
+
 const FormField = styled.div`
     position: fixed;
     z-Index: 200;
-    padding-top: 5%;
+    padding-top: 5rem;
     left: 0;
     top: 0;
     width: 100%;
@@ -26,9 +28,19 @@ const FormContainer = styled.div`
 
 const FormContent = styled.div`
     min-height: 5rem;
-    max-height: 75vh;
+    max-height: 90vh;
     padding: 0.5rem 1rem;
 `;
+
+export const ModalTitle = styled(AppStyles.Block)`
+    ${AppStyles.uppercase}
+    ${AppStyles.centered}
+    ${AppStyles.underline}
+    ${AppStyles.bold}
+    letter-spacing: 0.125rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+ `;
 
 export class CoolModal extends Component {
 

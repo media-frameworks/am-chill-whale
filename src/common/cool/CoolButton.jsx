@@ -23,6 +23,7 @@ export class CoolButton extends Component {
    static defaultProps = {
       primary: false,
       disabled: false,
+      style: {},
    }
 
    render() {

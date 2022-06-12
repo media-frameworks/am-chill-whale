@@ -112,7 +112,8 @@ export class ProjectSegment extends Component {
    update_sub_segment = (data, index) => {
       const {segment_data, on_update_segment_list} = this.props;
       segment_data.segments[index] = data;
-      on_update_segment_list(segment_data.segments)
+      on_update_segment_list(segment_data.segments);
+      console.log("update_sub_segment", data)
    }
 
    on_toggle_collapse = () => {

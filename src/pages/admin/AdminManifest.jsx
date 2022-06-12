@@ -56,7 +56,7 @@ export class AdminManifest extends Component {
          <AppProjectsFrame
             sections={SECTIONS}
             components={COMPONENTS}
-            sections_title={"index of works"}
+            sections_title={"catalog of works"}
          />
       </AppStyles.PageWrapper>
    }

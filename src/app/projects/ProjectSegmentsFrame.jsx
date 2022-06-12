@@ -112,7 +112,7 @@ export class ProjectSegmentsFrame extends Component {
          data.segments.push(this.empty_segment());
          update_needed = true;
       }
-      data.segments.forEach(segment => {
+      data.segments.forEach((segment, index) => {
          if (!segment.id) {
             segment.id = Utils.random_id();
             update_needed = true;

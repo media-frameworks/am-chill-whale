@@ -31,6 +31,8 @@ import LEVEL_14_empty from "../../../data/fracto/json/level_14_empty.json";
 import LEVEL_15_empty from "../../../data/fracto/json/level_15_empty.json";
 import LEVEL_16_empty from "../../../data/fracto/json/level_16_empty.json";
 
+export const MAX_LEVEL = 16;
+
 export const LEVEL_SCOPES = [
    {cells: [], scope: 2.0},
    {cells: [], scope: 1.0},
@@ -50,3 +52,18 @@ export const LEVEL_SCOPES = [
    {cells: LEVEL_15, empties: LEVEL_15_empty, scope: 0.00006103515625},
    {cells: LEVEL_16, empties: LEVEL_16_empty, scope: 0.000030517578125},
 ];
+
+export const ideal_level = (scope, width_px) => {
+
+   const ideal_tiles_across = Math.ceil(1.618 * width_px / 256);
+   const ideal_tile_scope = scope / ideal_tiles_across;
+
+   let ideal_level = -1;
+   for (let i = 0; i <= MAX_LEVEL; i++) {
+      if (LEVEL_SCOPES[i].scope < ideal_tile_scope) {
+         ideal_level = i;
+         break;
+      }
+   }
+   return ideal_level;
+}
