@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {AppStyles, AppBrand, AppTitleBar, AppColors} from "../../app/AppImports";
-import SectionIndex, {SECTION_WIDTH_PCT} from "../../common/SectionIndex";
+import SectionIndex, {SECTION_WIDTH_PCT, INITIAL_SPLITTER_POS_PX} from "../../common/SectionIndex";
 
 import FractoRender from "./fracto/FractoRender";
 import FractoCapture from "./fracto/FractoCapture";
@@ -69,7 +69,7 @@ export class AdminFracto extends Component {
          selected_page: FRACTONE_PAGE_BUILD_INSTRUMENTS
       },
       fractone_instrument: '',
-      section_splitter_pos: 200
+      section_splitter_pos: INITIAL_SPLITTER_POS_PX
    };
 
    componentDidMount() {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {AppStyles} from "./AppImports";
-import SectionIndex, {NO_SELECTION} from "../common/SectionIndex";
+import SectionIndex, {NO_SELECTION, INITIAL_SPLITTER_POS_PX} from "../common/SectionIndex";
 import ProjectsTitleBar from "./projects/ProjectsTitleBar";
 import ProjectsFrame from "./projects/ProjectsFrame";
 import StoreS3, {S3_PREFIX} from "../common/StoreS3";
@@ -26,14 +26,27 @@ export class AppProjectsFrame extends Component {
       selected_title: NO_SELECTION,
       selected_key: NO_SELECTION,
       selected_path: NO_SELECTION,
-      project_paths: []
+      project_paths: [],
+      outer_block_ref: React.createRef(),
+      content_width_px: 0,
+      splitter_pos: INITIAL_SPLITTER_POS_PX,
+      selected_paths: []
    };
+
+   componentDidMount() {
+      const {splitter_pos} = this.state;
+      this.on_resize(splitter_pos)
+   }
 
    refresh_project_paths = (entry_key) => {
       StoreS3.list_files_async(entry_key, S3_PREFIX, data => {
          console.log("refresh_project_paths", data)
          const project_paths = data.CommonPrefixes.map(obj => obj.Prefix.substr(S3_PREFIX.length + 1))
-         this.setState({project_paths: project_paths});
+         const selected_paths = this.list_selected_paths(project_paths)
+         this.setState({
+            project_paths: project_paths,
+            selected_paths: selected_paths
+         });
       })
    }
 
@@ -56,8 +69,8 @@ export class AppProjectsFrame extends Component {
       }
    }
 
-   list_selected_paths = () => {
-      const {project_paths, selected_path} = this.state;
+   list_selected_paths = (project_paths) => {
+      const {selected_path} = this.state;
       return project_paths.sort((a, b) => a > b ? 1 : -1)
          .map(path => {
             const project_ref = React.createRef();
@@ -79,23 +92,37 @@ export class AppProjectsFrame extends Component {
          });
    }
 
+   on_resize = (pos) => {
+      const {outer_block_ref} = this.state;
+      const client_rect = outer_block_ref.current.getBoundingClientRect();
+      this.setState({
+         splitter_pos: pos,
+         content_width_px: client_rect.width - pos - 35
+      })
+   }
+
    render() {
-      const {selected_title, selected_key, project_paths, selected_path} = this.state;
+      const {
+         selected_title, selected_key, project_paths, selected_paths,
+         selected_path, outer_block_ref, content_width_px, splitter_pos
+      } = this.state;
       const {sections, components, sections_title} = this.props;
       const have_selection = selected_key !== NO_SELECTION;
-      console.log("render AppProjectsFrame");
-      return <AppStyles.Block>
+      return <AppStyles.Block ref={outer_block_ref}>
          <SectionIndex
             index={sections}
             title={sections_title}
             selected_index={selected_title}
             on_select_index={title => this.selectEntry(title)}
-            selected_content={this.list_selected_paths()}
+            on_resize={pos => this.on_resize(pos)}
+            selected_content={selected_paths}
+            width_px={splitter_pos}
          />
          {have_selection && <ProjectsTitleBar
             title={selected_title}
             s3_key={selected_key}
             project_paths={project_paths}
+            width_px={content_width_px}
          />}
          {have_selection && <ProjectsFrame
             title={selected_title}
@@ -105,6 +132,7 @@ export class AppProjectsFrame extends Component {
             refresh_project_paths={() => this.refresh_project_paths(selected_key)}
             on_select_path={path => this.setState({selected_path: path})}
             components={components}
+            width_px={content_width_px}
          />}
       </AppStyles.Block>
    }

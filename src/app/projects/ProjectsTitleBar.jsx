@@ -10,7 +10,6 @@ const TitleBarWrapper = styled.div`
     position: fixed;
     top: ${AppStyles.TITLEBAR_HEIGHT_REM}rem;
     height: ${PROJECTS_TITLEBAR_HEIGHT_REM}rem;
-    left: 15%;
     right: 0;
     padding: 0.125rem 1rem 0;
     background: linear-gradient(120deg, #666666, #cccccc);
@@ -38,21 +37,22 @@ const StatusSpan = styled.span`
     padding-left: 1rem;
 `;
 
-export class ManifestTitleBar extends Component {
+export class ProjectsTitleBar extends Component {
 
     static propTypes = {
         title: PropTypes.string.isRequired,
         s3_key: PropTypes.string.isRequired,
         project_paths: PropTypes.array.isRequired,
+        width_px: PropTypes.string.isRequired,
     }
 
     render() {
-        const {title, project_paths} = this.props;
-        return <TitleBarWrapper>
+        const {title, project_paths, width_px} = this.props;
+        return <TitleBarWrapper style={{width: `${width_px}px`}}>
             <TitleSpan>{`${title} works`}</TitleSpan>
             <StatusSpan>{`${project_paths.length} projects`}</StatusSpan>
         </TitleBarWrapper>
     }
 }
 
-export default ManifestTitleBar;
+export default ProjectsTitleBar;

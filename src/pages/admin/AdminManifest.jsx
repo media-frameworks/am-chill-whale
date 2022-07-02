@@ -11,17 +11,18 @@ import ImageRover from "../../common/media/image/ImageRover";
 import FractoRover from "./fracto/FractoRover";
 
 const SECTIONS = [
-   {title: "chaotic", key: "chaotic"},
-   {title: "documented", key: "documented"},
+   {title: "fracto", key: "fracto"},
+   // {title: "chaotic", key: "chaotic"},
+   // {title: "documented", key: "documented"},
    {title: "reactive", key: "reactive"},
-   {title: "composed", key: "composed"},
-   {title: "cognitive", key: "cognitive"},
-   {title: "recursive", key: "recursive"},
+   // {title: "composed", key: "composed"},
+   // {title: "cognitive", key: "cognitive"},
+   // {title: "recursive", key: "recursive"},
    {title: "generated", key: "generated"},
-   {title: "invented", key: "invented"},
-   {title: "intermodal", key: "intermodal"},
-   {title: "performed", key: "performed"},
-   {title: "written", key: "written"},
+   // {title: "invented", key: "invented"},
+   // {title: "intermodal", key: "intermodal"},
+   // {title: "performed", key: "performed"},
+   // {title: "written", key: "written"},
 ];
 
 const COMPONENTS = [
