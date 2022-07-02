@@ -12,7 +12,6 @@ const NONE_EXPANDED = 'None';
 const FrameWrapper = styled.div`
     position: fixed;
     top: ${AppStyles.TITLEBAR_HEIGHT_REM + PROJECTS_TITLEBAR_HEIGHT_REM}rem;
-    left: 15%;
     right: 0;
     bottom: 0;
     padding: 0.125rem 1rem 0;
@@ -34,6 +33,7 @@ export class ProjectsFrame extends Component {
       on_select_path: PropTypes.func.isRequired,
       refresh_project_paths: PropTypes.func.isRequired,
       components: PropTypes.array.isRequired,
+      width_px: PropTypes.number.isRequired
    }
 
    select_path = (project_path) => {
@@ -46,7 +46,7 @@ export class ProjectsFrame extends Component {
    }
 
    render() {
-      const {title, s3_key, project_paths, selected_path, refresh_project_paths, components} = this.props;
+      const {title, s3_key, project_paths, selected_path, refresh_project_paths, components, width_px} = this.props;
       const projectBlocks = project_paths.map(project_path => {
          const is_expanded = project_path === selected_path;
          const project_block = <ProjectBlock
@@ -63,11 +63,13 @@ export class ProjectsFrame extends Component {
                {project_block}
             </AppStyles.Clickable>
       });
-      return <FrameWrapper>
+      return <FrameWrapper style={{width: `${width_px}px`}}>
          <ProjectsFrameBar
             title={title}
             s3_key={s3_key}
-            refresh_project_paths={() => refresh_project_paths()}/>
+            refresh_project_paths={() => refresh_project_paths()}
+            width_px={width_px}
+         />
          <AllProjects>{projectBlocks}</AllProjects>
       </FrameWrapper>
    }

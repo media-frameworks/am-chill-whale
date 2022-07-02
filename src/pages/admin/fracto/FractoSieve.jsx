@@ -124,6 +124,9 @@ export class FractoSieve {
       }
       return all_tiles
          .filter(image => {
+            if (!image) {
+               return false;
+            }
             if (image.bounds.right < viewport.left) {
                return false;
             }

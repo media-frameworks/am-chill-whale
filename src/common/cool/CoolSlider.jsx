@@ -35,16 +35,21 @@ export class CoolSlider extends Component {
       min: PropTypes.number.isRequired,
       max: PropTypes.number.isRequired,
       on_change: PropTypes.func.isRequired,
+      step_count: PropTypes.number,
+   }
+
+   static defaultProps = {
+      step_count: 100
    }
 
    render() {
-      const {value, min, max, on_change} = this.props;
+      const {value, min, max, on_change, step_count} = this.props;
       const Thumb = (props, state) => <StyledThumb {...props}>{state.valueNow}</StyledThumb>;
       const Track = (props, state) => <StyledTrack {...props} index={state.index}/>;
       return <StyledSlider
          max={max}
          min={min}
-         step={(max - min) / 100}
+         step={(max - min) / step_count}
          value={value}
          renderTrack={Track}
          renderThumb={Thumb}

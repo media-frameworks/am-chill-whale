@@ -5,13 +5,16 @@ import {AppStyles, AppBrand, AppTitleBar} from "../../app/AppImports";
 import AppProjectsFrame from "../../app/AppProjectsFrame";
 
 import ThreeDFluidMotion from "./threed/ThreeDFluidMotion";
+import ThreeDFractopography from "./threed/ThreeDFractopography";
 
 const SECTIONS = [
    {title: "animator", key: "animator"},
+   {title: "holodeck", key: "holodeck"},
 ];
 
 const COMPONENTS = [
    {title: "fluid motion test", class_name: "ThreeDFluidMotion", component_type: ThreeDFluidMotion},
+   {title: "fractopography", class_name: "ThreeDFractopography", component_type: ThreeDFractopography},
 ];
 
 export class AdminThreeD extends Component {

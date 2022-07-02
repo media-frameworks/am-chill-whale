@@ -11,6 +11,7 @@ import CoolSplitter, {SPLITTER_TYPE_VERTICAL} from "./cool/CoolSplitter";
 
 export const NO_SELECTION = "None";
 export const SECTION_WIDTH_PCT = 15;
+export const INITIAL_SPLITTER_POS_PX = 200;
 
 const IndexWrapper = styled.div`
     position: fixed;
@@ -68,16 +69,22 @@ export class SectionIndex extends Component {
    static propTypes = {
       index: PropTypes.array.isRequired,
       title: PropTypes.string.isRequired,
-      width_px: PropTypes.number.isRequired,
       selected_index: PropTypes.string.isRequired,
       on_select_index: PropTypes.func.isRequired,
-      on_resize: PropTypes.func.isRequired,
-      selected_content: PropTypes.array.isRequired
+      selected_content: PropTypes.array.isRequired,
+      on_resize: PropTypes.func,
+      width_px: PropTypes.number,
+   }
+
+   static defaultProps = {
+      width_px: INITIAL_SPLITTER_POS_PX,
+      on_resize: null
    }
 
    state = {
       section_ref: React.createRef(),
-      section_bounds: {height: 0}
+      section_bounds: {height: 0},
+      splitter_pos: this.props.width_px
    }
 
    componentDidMount() {
@@ -86,14 +93,24 @@ export class SectionIndex extends Component {
       this.setState({section_bounds: section_bounds})
    }
 
+   componentDidUpdate(prevProps, prevState, snapshot) {
+      const {width_px} = this.props;
+      if (prevProps.width_px !== width_px) {
+         this.setState({splitter_pos: width_px})
+      }
+   }
+
    on_change = (pos) => {
       const {on_resize} = this.props;
-      on_resize(pos);
+      if (on_resize) {
+         on_resize(pos);
+      }
+      this.setState({splitter_pos: pos})
    }
 
    render() {
-      const {section_ref, section_bounds} = this.state;
-      const {index, title, width_px, selected_index, on_select_index, selected_content} = this.props;
+      const {section_ref, section_bounds, splitter_pos} = this.state;
+      const {index, title, selected_index, on_select_index, selected_content} = this.props;
       const entries = index.sort((a, b) => a.title > b.title ? 1 : -1)
          .map(entry => {
             const isSelected = selected_index === entry.title;
@@ -105,7 +122,7 @@ export class SectionIndex extends Component {
                {isSelected ? selected_content : []}
             </IndexEntry>
          });
-      const index_style = {width: `${width_px}px`}
+      const index_style = {width: `${splitter_pos}px`}
       return [
          <IndexWrapper
             ref={section_ref}
@@ -120,7 +137,7 @@ export class SectionIndex extends Component {
             name={"section-index"}
             bar_width_px={5}
             container_bounds={section_bounds}
-            position={width_px}
+            position={splitter_pos}
             on_change={pos => this.on_change(pos)}
          />
       ]

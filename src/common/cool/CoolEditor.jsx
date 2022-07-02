@@ -3,18 +3,39 @@ import PropTypes from 'introspective-prop-types'
 // import styled from "styled-components";
 
 import {Editor} from 'react-draft-wysiwyg';
-import {EditorState, ContentState, convertFromHTML} from 'draft-js';
+import {EditorState, Modifier, ContentState, convertFromHTML} from 'draft-js';
 import {stateToHTML} from 'draft-js-export-html';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
 import './cool.css';
+
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faCheckCircle, faTimesCircle} from '@fortawesome/free-regular-svg-icons';
+
 // import {AppStyles, AppColors} from "../../app/AppImports";
+
+class OkCancelButtons extends Component {
+   static propTypes = {
+      onChange: PropTypes.func,
+      editorState: PropTypes.object,
+      response: PropTypes.func.isRequired
+   };
+
+   render() {
+      const {response} = this.props;
+      return [
+         <div onClick={e => response(true)}><FontAwesomeIcon icon={faCheckCircle}/></div>,
+         <div onClick={e => response(false)}><FontAwesomeIcon icon={faTimesCircle}/></div>,
+      ];
+   }
+}
 
 export class CoolEditor extends Component {
 
    static propTypes = {
       html: PropTypes.string.isRequired,
       on_update: PropTypes.func.isRequired,
+      on_end: PropTypes.func.isRequired,
    }
 
    static defaultProps = {
@@ -69,6 +90,7 @@ export class CoolEditor extends Component {
 
    render() {
       const {editorState} = this.state;
+      const {on_end} = this.props;
       const toolbar = {
          options: ['inline', 'blockType', 'colorPicker', 'history'],
          inline: {
@@ -99,6 +121,7 @@ export class CoolEditor extends Component {
          toolbarClassName={"editor-toolbar"}
          editorStyle={editor_style}
          toolbar={toolbar}
+         toolbarCustomButtons={[<OkCancelButtons response={result => on_end(result) }  />]}
          onEditorStateChange={editorState => {
             this.onEditorStateChange(editorState);
          }}

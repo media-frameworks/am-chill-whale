@@ -185,6 +185,7 @@ export class CoolNotes extends Component {
          case "fancy":
             return <CoolEditor
                html={current_value}
+               on_end={value => this.setState({edit_mode: false}) }
                on_update={html => {
                   on_update_props({value: html})
                }}

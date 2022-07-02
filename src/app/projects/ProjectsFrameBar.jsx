@@ -14,7 +14,6 @@ import CoolInputText from "../../common/cool/CoolInputText";
 const ProjectBarWrapper = styled.div`
     position: fixed;
     top: ${AppStyles.TITLEBAR_HEIGHT_REM + PROJECTS_TITLEBAR_HEIGHT_REM}rem;
-    left: 15%;
     right: 0;
     padding: 0.125rem 1rem 0;
 `;
@@ -49,6 +48,7 @@ export class ProjectsFrameBar extends Component {
       title: PropTypes.string.isRequired,
       s3_key: PropTypes.string.isRequired,
       refresh_project_paths: PropTypes.func.isRequired,
+      width_px: PropTypes.number.isRequired
    }
 
    state = {
@@ -100,7 +100,8 @@ export class ProjectsFrameBar extends Component {
 
    render() {
       const {new_project_mode} = this.state;
-      return <ProjectBarWrapper>
+      const {width_px} = this.props;
+      return <ProjectBarWrapper style={{width: `${width_px}px`}}>
          {new_project_mode ? this.new_project_data() : this.new_project_button()}
       </ProjectBarWrapper>
    }
