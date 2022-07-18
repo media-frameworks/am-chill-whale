@@ -207,7 +207,7 @@ export class FractoTileEditor extends Component {
       const file_name_png = `${short_code}.png`;
       StoreS3.put_file_async(file_name_png, blob, `fracto/tiles/${IMAGE_SIZE_PX}/png`, data => {
          console.log("publish png complete", data);
-         const image_name = `/tiles/256/png/${short_code}.png`;
+         const image_name = `/tiles/${IMAGE_SIZE_PX}/png/${short_code}.png`;
          StoreS3.remove_from_cache(image_name);
       });
 

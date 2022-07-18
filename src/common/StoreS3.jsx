@@ -93,10 +93,12 @@ export class StoreS3 {
    }
 
    static image_cache = {};
+   static fails_cache = {};
 
    static remove_from_cache = (name) => {
       delete StoreS3.image_cache[name];
       delete StoreS3.file_cache[name];
+      delete StoreS3.fails_cache[name];
    }
 
    static load_image_async = (name, prefix, cb) => {
@@ -104,28 +106,28 @@ export class StoreS3 {
          cb(StoreS3.image_cache[name]);
          return;
       }
+      if (StoreS3.fails_cache[name]) {
+         cb(null);
+         return;
+      }
       const full_key = `${prefix}${name}`
       const params = {
          Bucket: "mikehallstudio",
          Key: full_key,
       };
-      try {
-         // console.log(full_key)
-         s3.getObject(params, (err, data) => {
+      s3.getObject(params, (err, data) => {
+         if (!data || err) {
+            // console.log("error error", err);
+            StoreS3.fails_cache[name] = true;
+            cb(null);
+         } else {
             var image = new Image();
-            if (!data || err) {
-               // console.log("error error", err);
-               cb(null);
-            } else {
-               let image_data = new Buffer(data.Body).toString('base64');
-               image.src = "data:" + data.ContentType + ";base64," + image_data;
-               StoreS3.image_cache[name] = image;
-               cb(image);
-            }
-         });
-      } catch (error) {
-         console.log("exception thrown", error);
-      }
+            let image_data = new Buffer(data.Body).toString('base64');
+            image.src = "data:" + data.ContentType + ";base64," + image_data;
+            StoreS3.image_cache[name] = image;
+            cb(image);
+         }
+      });
    }
 
    static async get_json_file(file_path, prefix = "manifest") {

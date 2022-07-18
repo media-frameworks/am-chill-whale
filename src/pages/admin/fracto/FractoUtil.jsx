@@ -1,3 +1,9 @@
+
+export const DEFAULT_FRACTO_VALUES = {
+   scope: 2.5,
+      focal_point: {x: -.75, y: 0.771}
+};
+
 export class FractoUtil {
 
    static get_short_code = (long_code) => {
@@ -7,6 +13,17 @@ export class FractoUtil {
          .replaceAll('01', '1')
          .replaceAll('00', '0')
          .replaceAll('-', '')
+   }
+
+   static fracto_pattern_family = (pattern) => {
+      if (pattern < 2) {
+         return pattern;
+      }
+      let result = pattern;
+      while (result % 2 === 0) {
+         result /= 2;
+      }
+      return result;
    }
 
    static fracto_pattern_color = (pattern, iterations) => {

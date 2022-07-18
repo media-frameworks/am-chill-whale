@@ -251,7 +251,10 @@ export class FractoTessellate extends Component {
             new_tile_index = (tile_index + all_tiles.length - 1000) % all_tiles.length;
             break;
          case NAV_BAR_NEXT:
-            new_tile_index = tile_index === last_index ? 0 : tile_index + 1;
+            if (tile_index === last_index) {
+               return false;
+            }
+            new_tile_index = tile_index + 1;
             break;
          case NAV_BAR_NEXT_PLUS:
             new_tile_index = (tile_index + 10) % all_tiles.length;
@@ -286,6 +289,7 @@ export class FractoTessellate extends Component {
             fracto_values: new_values
          });
       }
+      return true;
    }
 
    render_nav_bar = () => {
@@ -321,7 +325,9 @@ export class FractoTessellate extends Component {
       const tile_edit = !selected_tile || !selected_tile.code ? '' : <TileEditWrapper>
          <FractoTileEditor
             code={selected_tile.code}
-            on_publish_complete={() => this.nav_bar_action(NAV_BAR_NEXT)}
+            on_publish_complete={() => {
+               return this.nav_bar_action(NAV_BAR_NEXT)
+            }}
             auto_publish={!edit_empties}
          />
       </TileEditWrapper>;

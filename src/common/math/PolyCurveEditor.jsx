@@ -89,7 +89,6 @@ export class PolyCurveEditor extends Component {
    }
 
    componentDidUpdate(prevProps, prevState, snapshot) {
-      const {update_ready} = this.state;
       const {inputs} = this.props;
       if (JSON.stringify(inputs) !== JSON.stringify(prevProps.inputs)) {
          //this.set_extrema();
@@ -132,7 +131,6 @@ export class PolyCurveEditor extends Component {
       const new_inputs = Object.assign({}, inputs)
       new_inputs[index] = value;
       on_update(new_inputs, index)
-      return;
 
       const coefficients = LinearEquation.solve(poly_matrix, inputs);
       let values = [];
@@ -213,11 +211,11 @@ export class PolyCurveEditor extends Component {
          left: `${canvas_left + 2}px`,
       }
       return <BlockWrapper>
-         {/*<CanvasField*/}
-         {/*   ref={canvas_ref}*/}
-         {/*   style={field_styles}*/}
-         {/*   width={`${width_px}px`}*/}
-         {/*   height={`${height_px}px`}/>*/}
+         <CanvasField
+            ref={canvas_ref}
+            style={field_styles}
+            width={`${width_px}px`}
+            height={`${height_px}px`}/>
          <TestFieldWrapper>
             {sliders}
          </TestFieldWrapper>

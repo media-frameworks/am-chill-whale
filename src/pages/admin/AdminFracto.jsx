@@ -2,14 +2,19 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import {AppStyles, AppBrand, AppTitleBar, AppColors} from "../../app/AppImports";
-import SectionIndex, {SECTION_WIDTH_PCT, INITIAL_SPLITTER_POS_PX} from "../../common/SectionIndex";
+import {AppStyles, AppBrand, AppTitleBar, AppColors} from "app/AppImports";
+import SectionIndex, {
+   SECTION_WIDTH_PCT, INITIAL_SPLITTER_POS_PX
+} from "common/SectionIndex";
 
 import FractoRender from "./fracto/FractoRender";
 import FractoCapture from "./fracto/FractoCapture";
 import FractoTessellate from "./fracto/FractoTessellate";
-import FractoTone from "./fractone/FractoTone";
+import FractoChaosLab from "./fracto/FractoChaosLab";
+import FractoRegistry from "./fracto/FractoRegistry";
+import FractoTileFactory from "./fracto/FractoTileFactory";
 
+import FractoTone from "./fractone/FractoTone";
 import FractonePageBuild from "./fractone/FractonePageBuild";
 import FractonePageLoad from "./fractone/FractonePageLoad";
 import FractonePagePlay from "./fractone/FractonePagePlay";
@@ -50,6 +55,9 @@ const SECTIONS = [
    {title: "capture", key: "capture"},
    {title: "tessellate", key: "tessellate"},
    {title: "fractone", key: "fractone"},
+   {title: "chaos lab", key: "chaos_lab"},
+   {title: "bailiwicks", key: "bailiwicks"},
+   {title: "tile factory", key: "tile_factory"},
 ];
 
 export class AdminFracto extends Component {
@@ -113,11 +121,14 @@ export class AdminFracto extends Component {
       const title = "fracto";
       let frame_contents = [];
       let selected_content = [];
+      const wrapperStyle = {
+         left: `${section_splitter_pos}px`
+      }
       switch (selected_title) {
 
          case "explore" :
             console.log("content_wrapper_rect", content_wrapper_rect);
-            frame_contents = <ContentWrapper ref={fracto_ref}>
+            frame_contents = <ContentWrapper style={wrapperStyle} ref={fracto_ref}>
                <FractoRender
                   width_px={content_wrapper_rect.width}
                   aspect_ratio={content_wrapper_rect.height / content_wrapper_rect.width}
@@ -131,14 +142,32 @@ export class AdminFracto extends Component {
             break;
 
          case "capture":
-            frame_contents = <ContentWrapper>
+            frame_contents = <ContentWrapper style={wrapperStyle}>
                <FractoCapture width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 
          case "tessellate":
-            frame_contents = <ContentWrapper>
+            frame_contents = <ContentWrapper style={wrapperStyle}>
                <FractoTessellate width_px={content_wrapper_rect.width}/>
+            </ContentWrapper>;
+            break;
+
+         case "chaos lab":
+            frame_contents = <ContentWrapper style={wrapperStyle}>
+               <FractoChaosLab width_px={content_wrapper_rect.width}/>
+            </ContentWrapper>;
+            break;
+
+         case "bailiwicks":
+            frame_contents = <ContentWrapper style={wrapperStyle}>
+               <FractoRegistry width_px={content_wrapper_rect.width}/>
+            </ContentWrapper>;
+            break;
+
+         case "tile factory":
+            frame_contents = <ContentWrapper style={wrapperStyle}>
+               <FractoTileFactory width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 
@@ -146,23 +175,23 @@ export class AdminFracto extends Component {
             console.log("fractone_instrument", fractone_instrument)
             switch (fractone.selected_page) {
                case FRACTONE_PAGE_BUILD_INSTRUMENTS:
-                  frame_contents = <ContentWrapper><FractonePageBuild
+                  frame_contents = <ContentWrapper style={wrapperStyle}><FractonePageBuild
                      width_px={content_wrapper_rect.width}/>
                   </ContentWrapper>
                   break;
                case FRACTONE_PAGE_LOAD_AND_TEST:
-                  frame_contents = <ContentWrapper><FractonePageLoad
+                  frame_contents = <ContentWrapper style={wrapperStyle}><FractonePageLoad
                      prefix={fractone_instrument}
                      width_px={content_wrapper_rect.width}/>
                   </ContentWrapper>
                   break;
                case FRACTONE_PAGE_GO_LIVE:
-                  frame_contents = <ContentWrapper><FractonePagePlay
+                  frame_contents = <ContentWrapper style={wrapperStyle}><FractonePagePlay
                      width_px={content_wrapper_rect.width}/>
                   </ContentWrapper>
                   break;
                default:
-                  frame_contents = <ContentWrapper>
+                  frame_contents = <ContentWrapper style={wrapperStyle}>
                      <FractoTone width_px={content_wrapper_rect.width}/>
                   </ContentWrapper>;
                   break;

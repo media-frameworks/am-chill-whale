@@ -20,9 +20,9 @@ const MIN_VALUE_Y = -1.25;
 const MAX_VALUE_Y = 1.25;
 const STEP_COUNT_Y = 250;
 
-const MIN_VALUE_Z = 0;
-const MAX_VALUE_Z = 2;
-const STEP_COUNT_Z = 200;
+// const MIN_VALUE_Z = 0;
+// const MAX_VALUE_Z = 2;
+// const STEP_COUNT_Z = 200;
 
 const MIN_VALUE_L = 0;
 const MAX_VALUE_L = 12;
@@ -116,10 +116,6 @@ const EnhanceButton = styled(AppStyles.InlineBlock)`
       font-weight: bold;
       text-shadow: 0.25rem 0.25rem 0.5rem rgba(0,0,0,0.75);
    }
-`;
-
-const NotSlidersWrapper = styled(AppStyles.Block)`
-   margin: 0;
 `;
 
 const FractoRenderWrapper = styled(AppStyles.InlineBlock)`

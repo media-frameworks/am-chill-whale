@@ -18,6 +18,10 @@ $results = [
     "LEVEL_14" => [],
     "LEVEL_15" => [],
     "LEVEL_16" => [],
+    "LEVEL_17" => [],
+    "LEVEL_18" => [],
+    "LEVEL_19" => [],
+    "LEVEL_20" => [],
 ];
 
 $empties = [
@@ -36,6 +40,10 @@ $empties = [
     "LEVEL_14" => [],
     "LEVEL_15" => [],
     "LEVEL_16" => [],
+    "LEVEL_17" => [],
+    "LEVEL_18" => [],
+    "LEVEL_19" => [],
+    "LEVEL_20" => [],
 ];
 
 $zero_stats = [
@@ -60,6 +68,10 @@ $stats = [
     "LEVEL_14" => $zero_stats,
     "LEVEL_15" => $zero_stats,
     "LEVEL_16" => $zero_stats,
+    "LEVEL_17" => $zero_stats,
+    "LEVEL_18" => $zero_stats,
+    "LEVEL_19" => $zero_stats,
+    "LEVEL_20" => $zero_stats,
 ];
 
 $locked = [];
@@ -72,7 +84,7 @@ function process_tile($json_filename, $level)
     global $stats;
     global $locked;
 
-    if ($level > 16) {
+    if ($level > 20) {
         return;
     }
     if (!file_exists($json_filename)) {
@@ -101,7 +113,7 @@ function process_tile($json_filename, $level)
         ]
     ];
 
-    if ($level < 8.0) {
+    if ($level < 9.0) {
         echo("\n" . $code);
     }
 
@@ -145,6 +157,10 @@ file_put_contents("$json_dir/level_13_complete.json", json_encode($results["LEVE
 file_put_contents("$json_dir/level_14_complete.json", json_encode($results["LEVEL_14"]));
 file_put_contents("$json_dir/level_15_complete.json", json_encode($results["LEVEL_15"]));
 file_put_contents("$json_dir/level_16_complete.json", json_encode($results["LEVEL_16"]));
+file_put_contents("$json_dir/level_17_complete.json", json_encode($results["LEVEL_17"]));
+file_put_contents("$json_dir/level_18_complete.json", json_encode($results["LEVEL_18"]));
+file_put_contents("$json_dir/level_19_complete.json", json_encode($results["LEVEL_19"]));
+file_put_contents("$json_dir/level_20_complete.json", json_encode($results["LEVEL_20"]));
 
 file_put_contents("$json_dir/level_02_empty.json", json_encode($empties["LEVEL_02"]));
 file_put_contents("$json_dir/level_03_empty.json", json_encode($empties["LEVEL_03"]));
@@ -161,6 +177,10 @@ file_put_contents("$json_dir/level_13_empty.json", json_encode($empties["LEVEL_1
 file_put_contents("$json_dir/level_14_empty.json", json_encode($empties["LEVEL_14"]));
 file_put_contents("$json_dir/level_15_empty.json", json_encode($empties["LEVEL_15"]));
 file_put_contents("$json_dir/level_16_empty.json", json_encode($empties["LEVEL_16"]));
+file_put_contents("$json_dir/level_17_empty.json", json_encode($empties["LEVEL_17"]));
+file_put_contents("$json_dir/level_18_empty.json", json_encode($empties["LEVEL_18"]));
+file_put_contents("$json_dir/level_19_empty.json", json_encode($empties["LEVEL_19"]));
+file_put_contents("$json_dir/level_20_empty.json", json_encode($empties["LEVEL_20"]));
 
 file_put_contents("$json_dir/locked.json", json_encode($locked));
 file_put_contents("$json_dir/stats.json", json_encode($stats));

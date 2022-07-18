@@ -5,8 +5,6 @@ import styled from "styled-components";
 import {PHI} from "common/math/constants";
 import {Point3d} from "common/math/Vector";
 
-const DEFAULT_FOCAL_X = -0.625001;
-
 const HolodeckCanvas = styled.canvas`
    position: fixed;
 `;
