@@ -3,7 +3,7 @@ import PropTypes from 'introspective-prop-types'
 // import styled from "styled-components";
 
 import {Editor} from 'react-draft-wysiwyg';
-import {EditorState, Modifier, ContentState, convertFromHTML} from 'draft-js';
+import {EditorState, ContentState, convertFromHTML} from 'draft-js';
 import {stateToHTML} from 'draft-js-export-html';
 
 import '../../../node_modules/react-draft-wysiwyg/dist/react-draft-wysiwyg.css';

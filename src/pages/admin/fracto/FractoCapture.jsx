@@ -2,30 +2,42 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import {AppStyles, AppColors} from "../../../app/AppImports";
-import Utils from "../../../common/Utils";
-import {PHI} from "../../../common/math/constants";
+import {AppStyles, AppColors} from "app/AppImports";
+import Utils from "common/Utils";
+import {PHI} from "common/math/constants";
 
 import FractoRender from "./FractoRender";
 import FractoUtil from "./FractoUtil";
 import FractoCalc from "./FractoCalc";
 import FractoSieve from "./FractoSieve";
+import FractoImage from "./FractoImage";
+import FractoLocate from "./FractoLocate";
 
-const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
 const RESULT_WIDTH = 2000;
 const RESULT_ASPECT_RATIO = 1 / PHI;
 
 const CaptureButton = styled(AppStyles.Block)`
    ${AppStyles.pointer}
+   ${AppStyles.centered}
    color: white;
    margin: 0.5rem 1rem;
    padding: 0.5rem 1rem;
    background-color: ${AppColors.HSL_DEEP_BLUE};
    border-radius: 0.25rem;
+   width: 5rem;
 `;
 
 const CanvasField = styled.canvas`
     margin: 0.5rem auto;
+`;
+
+const LocateWrapper = styled(AppStyles.Block)`
+    border: 0.125rem solid #aaaaaa;
+    width: 30rem;
+    height: 5rem;
+    margin: 1rem;
+    margin-bottom: 0;
+    border-radius: 0.25rem;
 `;
 
 export class FractoCapture extends Component {
@@ -81,31 +93,6 @@ export class FractoCapture extends Component {
       this.setState({canvas_filled: true})
    }
 
-   capture_image_not = () => {
-      const {fracto_values, aspect_ratio} = this.state;
-
-      const url = `${FRACTO_PHP_URL_BASE}/point_sieve.php?span=${fracto_values.scope}&focal_x=${fracto_values.focal_point.x}&focal_y=${fracto_values.focal_point.y}&aspect_ratio=${aspect_ratio}&width_px=${RESULT_WIDTH}`;
-      console.log("url", url);
-
-      const that = this;
-      fetch(url, {
-         headers: {
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-         },
-         method: 'GET',
-         mode: 'cors'
-      }).then(function (response) {
-         if (response.body) {
-            return response.json();
-         }
-         return ["fail"];
-      }).then(function (json) {
-         console.log("capture_image result", json);
-         that.fill_canvas(json);
-      });
-   }
-
    capture_image = () => {
       const {fracto_values, aspect_ratio} = this.state;
       FractoSieve.extract(
@@ -123,15 +110,19 @@ export class FractoCapture extends Component {
          width: `${result_width}px`,
          height: `${result_height}px`
       }
+      const level = FractoImage.find_best_level(fracto_values.scope);
       return [
          <AppStyles.InlineBlock>
             <FractoRender
-               width_px={width_px / PHI}
+               width_px={width_px / 2.0}
                aspect_ratio={aspect_ratio}
                initial_params={fracto_values}
                on_param_change={values => this.update_values(values)}/>
          </AppStyles.InlineBlock>,
          <AppStyles.InlineBlock>
+            <LocateWrapper>
+               <FractoLocate level={level} fracto_values={fracto_values}/>
+            </LocateWrapper>
             <CaptureButton onClick={e => this.capture_image()}>Capture</CaptureButton>
          </AppStyles.InlineBlock>,
          <AppStyles.InlineBlock>

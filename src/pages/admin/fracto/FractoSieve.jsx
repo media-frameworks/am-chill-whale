@@ -161,7 +161,7 @@ export class FractoSieve {
    }
 
    static extract = (focal_point, aspect_ratio, scope, width_px, cb) => {
-      const ideal_tiles_across = Math.ceil(1.618 * width_px / 256);
+      const ideal_tiles_across = Math.ceil(2.0 * width_px / 256);
       const ideal_tile_scope = scope / ideal_tiles_across;
 
       let ideal_level = -1;
@@ -183,13 +183,11 @@ export class FractoSieve {
          const short_code = FractoUtil.get_short_code(tile.code);
          const json_name = `tiles/256/json/${short_code}.json`;
          StoreS3.get_file_async(json_name, "fracto", json_str => {
-            if (!json_str) {
-               countdown--;
-               return;
-            }
-            const all_data = JSON.parse(json_str);
-            FractoSieve.stack_data(point_stacks, all_data);
             countdown--;
+            if (json_str) {
+               const all_data = JSON.parse(json_str);
+               FractoSieve.stack_data(point_stacks, all_data);
+            }
             if (!countdown) {
                const xy_grid = FractoSieve.point_sieve(point_stacks, focal_point, aspect_ratio, scope, width_px)
                cb(xy_grid);

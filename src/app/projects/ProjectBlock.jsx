@@ -66,9 +66,8 @@ export class ProjectBlock extends Component {
    }
 
    componentDidUpdate(prevProps, prevState, snapshot) {
-      const {data, needs_update} = this.state;
+      const {needs_update} = this.state;
       if (needs_update) {
-         // console.log("loading from componentDidUpdate", prevState.data, data);
          this.load_data();
          this.setState({needs_update: false});
       }
