@@ -4,14 +4,18 @@ import styled from "styled-components";
 
 import StoreS3 from "common/StoreS3";
 import {AppStyles} from "app/AppImports";
+import CoolTabs from "common/cool/CoolTabs";
 
 import BailiwickFiles from "./BailiwickFiles";
-import BailiwickEditTabs from "./BailiwickEditTabs";
+import BailiwickImages from "./BailiwickImages";
+import BailiwickTools from "./BailiwickTools";
+
+import CommonRenderings from "../common/CommonRenderings";
+import CommonFiles from "../common/CommonFiles";
 
 import FractoRender from "../FractoRender";
 import FractoLocate from "../FractoLocate";
 import FractoImage from "../FractoImage";
-import FractoUtil from "../FractoUtil";
 
 const FRACTO_RENDER_WIDTH_PX = 350;
 
@@ -34,10 +38,6 @@ const InfoWrapper = styled(AppStyles.InlineBlock)`
 
 const DataRowWrapper = styled(AppStyles.Block)`
    line-height: 1rem;
-`;
-
-const TabsWrapper = styled(AppStyles.Block)`
-   margin-top: 0.25rem;
 `;
 
 const LabelSpan = styled.span`
@@ -64,7 +64,8 @@ export class BailiwickEdit extends Component {
    state = {
       bailiwick_data: {},
       loading: true,
-      fracto_values: {}
+      fracto_values: {},
+      highlight_points: []
    }
 
    componentDidMount() {
@@ -105,18 +106,35 @@ export class BailiwickEdit extends Component {
       })
    }
 
+   set_highlight_points = (highlight_points) => {
+      console.log("set_highlight_points", highlight_points)
+      this.setState({highlight_points: highlight_points})
+   }
+
+   load_resources = () => {
+      const {registry_filename} = this.props;
+      const bailiwick_dirname = registry_filename.replace('/registry.json', '');
+      CommonFiles.load_registry_json(`bailiwicks/${bailiwick_dirname}`, data => {
+         console.log("CommonFiles.load_registry_json returns", data)
+         this.setState({bailiwick_data: data})
+      })
+   }
+
    render() {
       const {bailiwick_data, loading, fracto_values} = this.state;
+      const {registry_filename} = this.props;
       if (loading) {
          return "..."
       }
 
+      const point_highlights = [];
       const fracto_render = !fracto_values.scope ? '' : <RenderWrapper>
          <FractoRender
             width_px={FRACTO_RENDER_WIDTH_PX}
             aspect_ratio={1.0}
             initial_params={fracto_values}
             on_param_change={values => this.setState({fracto_values: values})}
+            point_highlights={point_highlights}
          />
       </RenderWrapper>
 
@@ -134,6 +152,23 @@ export class BailiwickEdit extends Component {
          !bailiwick_data.display_settings ? link_span : [' (', link_span, ')']
       ]);
 
+      console.log("bailiwick_data", bailiwick_data)
+      const bailiwick_dirname = registry_filename.replace('/registry.json', '');
+      console.log("bailiwick_dirname", bailiwick_dirname)
+      const bailiwick_edit_tabs = [
+         {
+            label: "renderings",
+            content: <CommonRenderings
+               registry_data={bailiwick_data}
+               fracto_values={bailiwick_data.display_settings}
+               s3_folder_prefix={`bailiwicks/${bailiwick_dirname}`}
+               on_change={() => this.load_resources()}/>
+         },
+         {label: "images", content: <BailiwickImages bailiwick_data={bailiwick_data}/>},
+         {label: "patterns", content: <BailiwickImages bailiwick_data={bailiwick_data}/>},
+         {label: "tools", content: <BailiwickTools bailiwick_data={bailiwick_data}/>}
+      ];
+
       return [
          fracto_render,
          <AppStyles.InlineBlock>{[
@@ -142,7 +177,7 @@ export class BailiwickEdit extends Component {
                focal_point,
                display_settings,
             ]}</InfoWrapper>,
-            <TabsWrapper><BailiwickEditTabs bailiwick_data={bailiwick_data} /></TabsWrapper>
+            <CoolTabs tab_data={bailiwick_edit_tabs}/>
          ]}</AppStyles.InlineBlock>
       ]
    }

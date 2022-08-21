@@ -15,6 +15,15 @@ export class FractoUtil {
          .replaceAll('-', '')
    }
 
+   static get_dirname_slug = (name) => {
+      return name
+         .toLowerCase()
+         .trim()
+         .replace(/[^\w\s-]/g, '')
+         .replace(/[\s_-]+/g, '-')
+         .replace(/^-+|-+$/g, '');
+   }
+
    static fracto_pattern_family = (pattern) => {
       if (pattern < 2) {
          return pattern;
@@ -26,7 +35,7 @@ export class FractoUtil {
       return result;
    }
 
-   static fracto_pattern_color = (pattern, iterations) => {
+   static fracto_pattern_color = (pattern, iterations = 255) => {
       if (pattern === -1) {
          return 'black'
       }
@@ -64,7 +73,56 @@ export class FractoUtil {
       }
       return new Blob([new Uint8Array(array)], {type: type});
    }
-   
+
+   static get_pattern_lists = (data) => {
+
+      let all_patterns = {};
+      for (let img_x = 0; img_x < data.length; img_x++) {
+         const column = data[img_x];
+         for (let img_y = 0; img_y < column.length; img_y++) {
+            const pixel = column[img_y];
+            const pattern = pixel[0];
+            const pattern_key = `_${pattern}`;
+            if (!all_patterns[pattern_key]) {
+               all_patterns[pattern_key] = 1;
+            } else {
+               all_patterns[pattern_key] += 1;
+            }
+         }
+      }
+
+      let all_families = {}
+      Object.keys(all_patterns).forEach(pattern_key => {
+         const pattern = parseInt(pattern_key.replace('_', ''));
+         const family = FractoUtil.fracto_pattern_family(pattern)
+         const family_key = `_${family}`;
+         if (!all_families[family_key]) {
+            all_families[family_key] = [];
+         }
+         all_families[family_key].push({
+            pattern: pattern,
+            amount: all_patterns[pattern_key]
+         })
+      });
+
+      const total_size = data.length * data.length;
+      return Object.keys(all_families).map(key => {
+         const family = parseInt(key.replace('_', ''));
+         let total_amount = 0;
+         const pattern_list = all_families[key].map(member => {
+            total_amount += member.amount;
+            return member.pattern;
+         }).sort((a, b) => a - b);
+         return {
+            family: family,
+            total_amount: total_amount,
+            total_amount_pct: Math.floor(100000 * total_amount / total_size) / 1000.0,
+            color: FractoUtil.fracto_pattern_color(family),
+            all_patterns: pattern_list,
+            members: all_families[key].sort((a, b) => a.pattern - b.pattern),
+         }
+      }).sort((a,b) => a.family - b.family)
+   }
 }
 
 export default FractoUtil;

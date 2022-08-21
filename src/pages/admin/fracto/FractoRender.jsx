@@ -43,7 +43,7 @@ export class FractoRender extends Component {
    };
 
    componentDidMount() {
-      const {initial_params, on_param_change} = this.props;
+      const {initial_params} = this.props;
       this.setState({
          scope: initial_params.scope,
          focal_point: {
@@ -51,7 +51,6 @@ export class FractoRender extends Component {
             y: initial_params.focal_point.y
          }
       })
-      // on_param_change(initial_params);
    }
 
    componentDidUpdate(prevProps, prevState, snapshot) {
@@ -151,7 +150,7 @@ export class FractoRender extends Component {
    }
 
    highlight_points = () => {
-      const {focal_point, scope, fracto_ref, in_update} = this.state;
+      const {focal_point, scope, fracto_ref} = this.state;
       const {width_px, aspect_ratio, point_highlights} = this.props;
       if (!fracto_ref.current || !point_highlights) {
          return [];
@@ -203,7 +202,7 @@ export class FractoRender extends Component {
    render() {
       const {focal_point, scope, fracto_ref, in_update} = this.state;
       const {width_px, aspect_ratio, tile_outline, point_highlights} = this.props;
-      const highlights = !point_highlights.length ? [] : this.highlight_points()
+      const highlights = in_update || !point_highlights.length ? [] : this.highlight_points()
 
       const fracto_image = !scope ? '' : <FractoImage
          on_click={e => this.re_position(e)}

@@ -11,6 +11,7 @@ export class CoolInputText extends Component {
       placeholder: PropTypes.string.isRequired,
       callback: PropTypes.func.isRequired,
       is_text_area: PropTypes.bool.isRequired,
+      on_change: PropTypes.func
    }
 
    static defaultProps = {
@@ -41,6 +42,14 @@ export class CoolInputText extends Component {
       document.addEventListener("keydown", key_handler);
    }
 
+   on_change = (value) => {
+      const {on_change} = this.props;
+      this.setState({current_value: value})
+      if (on_change) {
+         on_change(value)
+      }
+   }
+
    render() {
       const {input_ref, current_value} = this.state;
       const {placeholder, style_extra, is_text_area, callback} = this.props;
@@ -53,7 +62,7 @@ export class CoolInputText extends Component {
             value={current_value}
             rows={5}
             cols={40}
-            onChange={e => this.setState({current_value: e.target.value})}
+            onChange={e => this.on_change(e.target.value)}
             placeholder={placeholder}/> :
          <AppStyles.InputText
             ref={input_ref}
@@ -61,7 +70,7 @@ export class CoolInputText extends Component {
             size={current_value.length}
             style={style_extra}
             value={current_value}
-            onChange={e => this.setState({current_value: e.target.value})}
+            onChange={e => this.on_change(e.target.value)}
             onBlur={e => callback(input_ref.current.value)}
             placeholder={placeholder}/>
    }

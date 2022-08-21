@@ -69,6 +69,23 @@ const TilesWrapper = styled(AppStyles.Block)`
    margin: 0 0.5rem 1rem;
 `;
 
+const UpstanWrapper = styled(AppStyles.Block)`
+   ${AppStyles.bold}
+   color: #666666;
+   margin: 0 1rem;
+`;
+
+const UpstanLink = styled.span`
+   ${AppStyles.link}
+   ${AppStyles.COOL_BLUE_TEXT}
+   padding: 0 0.25rem;
+   font-size: 0.85rem;
+`;
+
+const LevelContentWrapper = styled(AppStyles.Block)`
+   margin: 0 1rem;
+`;
+
 export class FractoChaosLab extends Component {
 
    static propTypes = {
@@ -98,15 +115,26 @@ export class FractoChaosLab extends Component {
          const tiles_count = LEVEL_SCOPES[i].cells.length;
          const points_count = tiles_count > 500 ?
             `${Math.round(tiles_count / 1.6) / 10}M` : `${tiles_count * Math.pow(2, 6)}K`;
-         const wrapper_style = { backgroundColor: selected_level !== i ? "#dddddd" : "white" }
-         return <LevelSummaryWrapper
-            style={wrapper_style}
-            onClick={e => this.setState({selected_level: i})}>
-            {marker}
-            <LevelTitleLink>{`level ${i}`}</LevelTitleLink>
-            <LevelSummaryInfo>{`${tiles_count} tiles (${points_count} points)`}</LevelSummaryInfo>
-            {tiles_viewer}
-         </LevelSummaryWrapper>
+         const wrapper_style = {backgroundColor: selected_level !== i ? "#dddddd" : "white"}
+         const upstans = selected_level !== i ? '' : <UpstanWrapper>
+            {"up-stan images: "}
+            <UpstanLink>512</UpstanLink>
+            <UpstanLink>1024</UpstanLink>
+            <UpstanLink>2048</UpstanLink>
+         </UpstanWrapper>
+         return [
+            <LevelSummaryWrapper
+               style={wrapper_style}
+               onClick={e => this.setState({selected_level: i})}>
+               {marker}
+               <LevelTitleLink>{`level ${i}`}</LevelTitleLink>
+               <LevelSummaryInfo>{`${tiles_count} tiles (${points_count} points)`}</LevelSummaryInfo>
+            </LevelSummaryWrapper>,
+            <LevelContentWrapper>{[
+               upstans,
+               tiles_viewer
+            ]}</LevelContentWrapper>
+         ]
       })
       return [title_bar, scope_summary]
    }
