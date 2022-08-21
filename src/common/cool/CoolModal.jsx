@@ -21,8 +21,7 @@ const FormContainer = styled.div`
     border-radius: 0.5rem;
     border: 0.15rem solid #aaaaaa;
     box-shadow: 0.5rem 0.5rem 1rem rgba(0,0,0,25%);
-    min-width: 50%;   
-    max-width: 75%;   
+    min-width: 10%;   
     background-color: white; 
 `;
 
@@ -48,10 +47,12 @@ export class CoolModal extends Component {
       contents: PropTypes.element.isRequired,
       response: PropTypes.func.isRequired,
       width: PropTypes.string,
+      settings: PropTypes.object,
    }
 
    static defaultProps = {
-      width: "40%"
+      width: "40%",
+      settings: {}
    }
 
    state = {
@@ -59,7 +60,13 @@ export class CoolModal extends Component {
    }
 
    key_handler = (key) => {
-      const {response} = this.props;
+      const {response, settings} = this.props;
+      if (key.code === "KeyC" && key.ctrlKey) {
+         response(0);
+      }
+      if (settings["no_escape"]) {
+         return;
+      }
       if (key.code === "Escape") {
          response(0);
       }
@@ -67,7 +74,10 @@ export class CoolModal extends Component {
 
    click_handler = (evt) => {
       const {modal_ref} = this.state;
-      const {response} = this.props;
+      const {response, settings} = this.props;
+      if (settings["no_escape"]) {
+         return;
+      }
       if (!modal_ref.current) {
          return;
       }

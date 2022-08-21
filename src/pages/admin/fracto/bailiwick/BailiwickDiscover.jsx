@@ -12,16 +12,18 @@ import FractoImage from "../FractoImage";
 import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
 import {LEVEL_SCOPES} from "../FractoData";
+import {render_modal_title, render_fracto_locate} from "../FractoStyles";
 
 import BailiwickFiles from "./BailiwickFiles";
 
-const TEST_FRACTO_VALUES = {
-   scope: 0.006044629098073147,
-   focal_point: {
-      x: -1.1864869782016154,
-      y: 0.3031100138920893
-   }
-};
+// const TEST_FRACTO_VALUES = {
+//    scope: 0.006044629098073147,
+//    focal_point: {
+//       x: -1.1864869782016154,
+//       y: 0.3031100138920893
+//    }
+// };
+
 const DEFAULT_FRACTO_VALUES = {
    scope: 2.5,
    focal_point: {
@@ -32,30 +34,12 @@ const DEFAULT_FRACTO_VALUES = {
 
 const BAILIWICK_SAMPLE_WIDTH_PX = 1200;
 
-const TitleBar = styled(AppStyles.Block)`
-   ${AppStyles.centered};
-   ${AppStyles.uppercase};
-   letter-spacing: 0.75rem;
-   color: #888888;
-   font-size: 0.85rem;
-   border-bottom: 0.125rem solid ${AppColors.HSL_COOL_BLUE};
-`;
-
 const FractoWrapper = styled(AppStyles.InlineBlock)`
    margin: 1rem 1rem 0;
 `;
 
 const CorePointsWrapper = styled(AppStyles.Block)`
    margin: 1rem 1rem 0;
-`;
-
-const LocateWrapper = styled(AppStyles.Block)`
-    border: 0.125rem solid #aaaaaa;
-    width: 30rem;
-    height: 5rem;
-    margin: 1rem;
-    margin-bottom: 0;
-    border-radius: 0.25rem;
 `;
 
 const UpgradeLink = styled(AppStyles.Block)`
@@ -84,10 +68,6 @@ const NewBailiwickLink = styled(AppStyles.Block)`
    ${AppColors.COLOR_COOL_BLUE};
    font-size: 1.125rem;
    margin: 0.5rem 2rem;
-`;
-
-const IdentifyWrapper = styled(AppStyles.InlineBlock)`
-   margin: 0.25rem 1rem;
 `;
 
 const PatternRow = styled(AppStyles.Block)`
@@ -156,7 +136,7 @@ export class BailiwickDiscover extends Component {
    }
 
    key_handler = (e) => {
-      const {potentials, selected_pattern, selected_potential, potentials_list_ref} = this.state;
+      const {potentials, selected_potential, potentials_list_ref} = this.state;
       if (!potentials.length) {
          return;
       }
@@ -183,7 +163,7 @@ export class BailiwickDiscover extends Component {
       const {fracto_values} = this.state;
       const level = FractoImage.find_best_level(fracto_values.scope);
       const visible_tiles = FractoSieve.find_tiles(
-         LEVEL_SCOPES[level].cells, fracto_values.focal_point, 1.0, fracto_values.scope);
+         LEVEL_SCOPES[level].cells.concat(LEVEL_SCOPES[level].empties), fracto_values.focal_point, 1.0, fracto_values.scope);
       const filename = this.focal_point_filename(fracto_values.focal_point);
       StoreS3.put_file_async(filename, JSON.stringify(visible_tiles), `fracto/orders`, data => {
          console.log(`upgrade_level order issued ${filename}`, data);
@@ -301,7 +281,7 @@ export class BailiwickDiscover extends Component {
    render() {
       const {fracto_values, in_identify, potentials, selected_pattern, selected_potential} = this.state;
       const {on_response_modal} = this.props;
-      const modal_title = <TitleBar>discover a bailiwick</TitleBar>
+      const modal_title = render_modal_title("discover a bailiwick")
       const point_highlights = !potentials.length ? this.bailiwick_highlights() : [potentials[selected_pattern].values[selected_potential]];
       const fracto_render = <FractoWrapper>
          <FractoRender
@@ -312,10 +292,8 @@ export class BailiwickDiscover extends Component {
             point_highlights={point_highlights}
          />
       </FractoWrapper>
-      const level = FractoImage.find_best_level(fracto_values.scope);
-      const fracto_locate = <LocateWrapper>
-         <FractoLocate level={level} fracto_values={fracto_values}/>
-      </LocateWrapper>
+      const fracto_locate = render_fracto_locate (fracto_values);
+
       const upgrade_link = <UpgradeLink
          onClick={e => this.upgrade_level()}>{"upgrade level"}</UpgradeLink>
       const identify_link = in_identify ? '' : <IdentifyLink

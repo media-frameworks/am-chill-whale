@@ -113,12 +113,16 @@ export class TileProceesor extends Component {
          .then(response => response.json())
          .then(result => {
             console.log("fetch returns", result)
-            TileProceesor.render_image(result)
-            if (!is_redo && result.all_points.length < 256 * 256) {
-               TileProceesor.complete_tile(result, cb)
-            } else {
-               console.log("all points compleed", tile_data.code)
+            if (!result.tile_data) {
                cb(result)
+            } else {
+               TileProceesor.render_image(result)
+               if (!is_redo && result.all_points.length < 256 * 256) {
+                  TileProceesor.complete_tile(result, cb)
+               } else {
+                  console.log("all points compleed", tile_data.code)
+                  cb(result)
+               }
             }
          });
    }
@@ -152,7 +156,6 @@ export class TileProceesor extends Component {
          }
       }
 
-      const that = this;
       const url = `${FRACTO_PHP_URL_BASE}/fill_points.php`;
       const body_data = JSON.stringify(points_to_complete);
       fetch(url, {
@@ -208,7 +211,7 @@ export class TileProceesor extends Component {
             .then(response => response.json())
             .then(results => {
                console.log("set_tile_status.php returns", results);
-               cb (results)
+               cb(results)
             });
       });
 
@@ -232,7 +235,6 @@ export class TileProceesor extends Component {
    }
 
    start_processing = () => {
-      const {processing} = this.state;
       this.setState({processing: true})
       this.process_tile(0);
    }

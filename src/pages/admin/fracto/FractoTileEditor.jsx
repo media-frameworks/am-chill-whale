@@ -178,6 +178,10 @@ export class FractoTileEditor extends Component {
       const {tile_data, published} = this.state;
       const all_patterns = Object.keys(tile_data.all_patterns);
 
+      if (!tile_data.tile_data) {
+         return "no tile data"
+      }
+
       const all_data = [];
       all_data.push(`${tile_data.all_points.length} points`);
       all_data.push(`${all_patterns.length} patterns`);

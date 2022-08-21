@@ -13,6 +13,8 @@ import FractoTessellate from "./fracto/FractoTessellate";
 import FractoChaosLab from "./fracto/FractoChaosLab";
 import FractoRegistry from "./fracto/FractoRegistry";
 import FractoTileFactory from "./fracto/FractoTileFactory";
+import FractoBurrows from "./fracto/FractoBurrows";
+import FractoObservatory from "./fracto/FractoObservatory";
 
 import FractoTone from "./fractone/FractoTone";
 import FractonePageBuild from "./fractone/FractonePageBuild";
@@ -58,6 +60,8 @@ const SECTIONS = [
    {title: "chaos lab", key: "chaos_lab"},
    {title: "bailiwicks", key: "bailiwicks"},
    {title: "tile factory", key: "tile_factory"},
+   {title: "burrows", key: "burrows"},
+   {title: "observatory", key: "observatory"},
 ];
 
 export class AdminFracto extends Component {
@@ -168,6 +172,18 @@ export class AdminFracto extends Component {
          case "tile factory":
             frame_contents = <ContentWrapper style={wrapperStyle}>
                <FractoTileFactory width_px={content_wrapper_rect.width}/>
+            </ContentWrapper>;
+            break;
+
+         case "burrows":
+            frame_contents = <ContentWrapper style={wrapperStyle}>
+               <FractoBurrows width_px={content_wrapper_rect.width}/>
+            </ContentWrapper>;
+            break;
+
+         case "observatory":
+            frame_contents = <ContentWrapper style={wrapperStyle}>
+               <FractoObservatory width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 

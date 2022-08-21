@@ -171,6 +171,9 @@ export class FractoSieve {
             break;
          }
       }
+      if (ideal_level < 3) {
+         ideal_level = 3;
+      }
       console.log("ideal_level", ideal_level)
 
       const all_tiles = LEVEL_SCOPES[ideal_level].cells.concat(LEVEL_SCOPES[ideal_level].empties);

@@ -25,7 +25,7 @@ $top = floatval($tile_data->bounds->top);
 $right = $left + $size;
 $bottom = $top - $size;
 $increment = $size / 256.0;
-$epsilon = $increment / 100;
+$epsilon = $increment / 3;
 
 $all_points = [];
 $all_patterns = [];
