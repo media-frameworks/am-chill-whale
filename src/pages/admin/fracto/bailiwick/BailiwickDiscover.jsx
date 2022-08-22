@@ -8,10 +8,9 @@ import StoreS3 from "common/StoreS3";
 
 import FractoRender from "../FractoRender";
 import FractoLocate from "../FractoLocate";
-import FractoImage from "../FractoImage";
 import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
-import {LEVEL_SCOPES} from "../FractoData";
+import {get_level_tiles} from "../FractoData";
 import {render_modal_title, render_fracto_locate} from "../FractoStyles";
 
 import BailiwickFiles from "./BailiwickFiles";
@@ -161,9 +160,8 @@ export class BailiwickDiscover extends Component {
 
    upgrade_level = () => {
       const {fracto_values} = this.state;
-      const level = FractoImage.find_best_level(fracto_values.scope);
-      const visible_tiles = FractoSieve.find_tiles(
-         LEVEL_SCOPES[level].cells.concat(LEVEL_SCOPES[level].empties), fracto_values.focal_point, 1.0, fracto_values.scope);
+      const visible_tiles = get_level_tiles(BAILIWICK_SAMPLE_WIDTH_PX, fracto_values.scope);
+
       const filename = this.focal_point_filename(fracto_values.focal_point);
       StoreS3.put_file_async(filename, JSON.stringify(visible_tiles), `fracto/orders`, data => {
          console.log(`upgrade_level order issued ${filename}`, data);

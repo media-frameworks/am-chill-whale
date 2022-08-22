@@ -15,7 +15,7 @@ import CommonFiles from "../common/CommonFiles";
 
 import FractoRender from "../FractoRender";
 import FractoLocate from "../FractoLocate";
-import FractoImage from "../FractoImage";
+import {render_fracto_locate} from "../FractoStyles";
 
 const FRACTO_RENDER_WIDTH_PX = 350;
 
@@ -24,12 +24,6 @@ const RenderWrapper = styled(AppStyles.InlineBlock)`
    border: 0.125rem solid #aaaaaa;
    border-radius: 0.25rem;
    height: ${FRACTO_RENDER_WIDTH_PX}px;
-`;
-
-const LocateWrapper = styled(AppStyles.Block)`
-   border: 0.125rem solid #aaaaaa;
-   border-radius: 0.25rem;
-   overflow: hidden;
 `;
 
 const InfoWrapper = styled(AppStyles.InlineBlock)`
@@ -138,10 +132,7 @@ export class BailiwickEdit extends Component {
          />
       </RenderWrapper>
 
-      const level = FractoImage.find_best_level(fracto_values.scope);
-      const fracto_locate = <LocateWrapper>
-         <FractoLocate level={level} fracto_values={fracto_values}/>
-      </LocateWrapper>
+      const fracto_locate = render_fracto_locate(fracto_values);
 
       const focal_point = this.data_row('core point',
          FractoLocate.render_coordinates(bailiwick_data.core_point.x, bailiwick_data.core_point.y));

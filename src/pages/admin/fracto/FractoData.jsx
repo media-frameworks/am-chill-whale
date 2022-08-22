@@ -1,4 +1,3 @@
-
 import LEVEL_02 from "../../../data/fracto/json/level_02_complete.json";
 import LEVEL_03 from "../../../data/fracto/json/level_03_complete.json";
 import LEVEL_04 from "../../../data/fracto/json/level_04_complete.json";
@@ -33,7 +32,7 @@ import LEVEL_16_empty from "../../../data/fracto/json/level_16_empty.json";
 
 export const MAX_LEVEL = 16;
 
-export const LEVEL_SCOPES = [
+const LEVEL_SCOPES = [
    {cells: [], scope: 2.0},
    {cells: [], scope: 1.0},
    {cells: LEVEL_02, empties: LEVEL_02_empty, scope: 0.5},
@@ -53,7 +52,7 @@ export const LEVEL_SCOPES = [
    {cells: LEVEL_16, empties: LEVEL_16_empty, scope: 0.000030517578125},
 ];
 
-export const ideal_level = (scope, width_px) => {
+export const get_ideal_level = (width_px, scope) => {
 
    const ideal_tiles_across = Math.ceil(1.618 * width_px / 256);
    const ideal_tile_scope = scope / ideal_tiles_across;
@@ -66,4 +65,19 @@ export const ideal_level = (scope, width_px) => {
       }
    }
    return ideal_level;
+}
+
+const cached_level_tiles = {};
+
+export const get_level_tiles = (width_px, scope) => {
+   const ideal_level = get_ideal_level(width_px, scope);
+   const cache_key = `level_${ideal_level}`
+   if (!cached_level_tiles[cache_key]) {
+      cached_level_tiles[cache_key] = LEVEL_SCOPES[ideal_level].cells.concat(LEVEL_SCOPES[ideal_level].empties);
+   }
+   return cached_level_tiles[cache_key];
+}
+
+export const get_level_cells = (level) => {
+   return LEVEL_SCOPES[level].cells;
 }

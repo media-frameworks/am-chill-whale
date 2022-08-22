@@ -10,8 +10,7 @@ import FractoRender from "./FractoRender";
 import FractoUtil from "./FractoUtil";
 import FractoCalc from "./FractoCalc";
 import FractoSieve from "./FractoSieve";
-import FractoImage from "./FractoImage";
-import FractoLocate from "./FractoLocate";
+import {render_fracto_locate} from "./FractoStyles";
 
 const RESULT_WIDTH = 2000;
 const RESULT_ASPECT_RATIO = 1 / PHI;
@@ -29,15 +28,6 @@ const CaptureButton = styled(AppStyles.Block)`
 
 const CanvasField = styled.canvas`
     margin: 0.5rem auto;
-`;
-
-const LocateWrapper = styled(AppStyles.Block)`
-    border: 0.125rem solid #aaaaaa;
-    width: 30rem;
-    height: 5rem;
-    margin: 1rem;
-    margin-bottom: 0;
-    border-radius: 0.25rem;
 `;
 
 export class FractoCapture extends Component {
@@ -110,7 +100,8 @@ export class FractoCapture extends Component {
          width: `${result_width}px`,
          height: `${result_height}px`
       }
-      const level = FractoImage.find_best_level(fracto_values.scope);
+      const fracto_locate = render_fracto_locate(fracto_values)
+
       return [
          <AppStyles.InlineBlock>
             <FractoRender
@@ -120,9 +111,7 @@ export class FractoCapture extends Component {
                on_param_change={values => this.update_values(values)}/>
          </AppStyles.InlineBlock>,
          <AppStyles.InlineBlock>
-            <LocateWrapper>
-               <FractoLocate level={level} fracto_values={fracto_values}/>
-            </LocateWrapper>
+            {fracto_locate}
             <CaptureButton onClick={e => this.capture_image()}>Capture</CaptureButton>
          </AppStyles.InlineBlock>,
          <AppStyles.InlineBlock>

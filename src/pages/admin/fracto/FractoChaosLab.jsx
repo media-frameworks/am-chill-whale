@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import AppStyles from "app/AppStyles";
 
-import {LEVEL_SCOPES} from "./FractoData";
+import {MAX_LEVEL, get_level_cells} from "./FractoData";
 import FractoTiles from "./FractoTiles";
 
 const TitleBar = styled(AppStyles.Block)`
@@ -96,23 +96,18 @@ export class FractoChaosLab extends Component {
       selected_level: 2
    }
 
-   componentDidMount() {
-
-   }
-
    render() {
       const {selected_level} = this.state;
       const title_bar = <TitleBar><TitleSpan>Chaos lab</TitleSpan></TitleBar>
-      const scope_summary = LEVEL_SCOPES.map((level, i) => {
-         if (i < 2) {
-            return '';
-         }
+      let scope_summary = ['', ''];
+      for (let i = 2; i < MAX_LEVEL; i++) {
          const marker = selected_level === i ? <SelectedMarker/> : <NotSelectedSpace/>
+         const cells = get_level_cells (i);
          const tiles_viewer = selected_level !== i ? '' :
             <TilesWrapper>
-               <FractoTiles key={`level_${i}`} cells={LEVEL_SCOPES[i].cells}/>
+               <FractoTiles key={`level_${i}`} cells={cells}/>
             </TilesWrapper>
-         const tiles_count = LEVEL_SCOPES[i].cells.length;
+         const tiles_count = cells.length;
          const points_count = tiles_count > 500 ?
             `${Math.round(tiles_count / 1.6) / 10}M` : `${tiles_count * Math.pow(2, 6)}K`;
          const wrapper_style = {backgroundColor: selected_level !== i ? "#dddddd" : "white"}
@@ -122,7 +117,7 @@ export class FractoChaosLab extends Component {
             <UpstanLink>1024</UpstanLink>
             <UpstanLink>2048</UpstanLink>
          </UpstanWrapper>
-         return [
+         scope_summary.push([
             <LevelSummaryWrapper
                style={wrapper_style}
                onClick={e => this.setState({selected_level: i})}>
@@ -134,8 +129,8 @@ export class FractoChaosLab extends Component {
                upstans,
                tiles_viewer
             ]}</LevelContentWrapper>
-         ]
-      })
+         ])
+      }
       return [title_bar, scope_summary]
    }
 

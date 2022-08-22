@@ -2,19 +2,18 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import {LEVEL_SCOPES} from "./FractoData";
-import FractoUtil from "./FractoUtil";
+import {AppStyles} from "app/AppImports";
+import StoreS3 from "common/StoreS3";
 
-import StoreS3 from "../../../common/StoreS3";
-// import {AppStyles} from "../../../app/AppImports";
+import {get_level_tiles, get_ideal_level} from "./FractoData";
+import FractoUtil from "./FractoUtil";
 
 const FractoCanvas = styled.canvas`
    margin: 0;
 `;
 
 const OffScreenCanvas = styled.canvas`
-   margin: 0;
-   position: fixed;
+   ${AppStyles.fixed}
 `;
 
 export class FractoImage extends Component {
@@ -98,18 +97,12 @@ export class FractoImage extends Component {
    }
 
    static find_best_level = (scope) => {
-      const test_val = scope / 8;
-      for (let i = 0; i < LEVEL_SCOPES.length; i++) {
-         if (test_val > LEVEL_SCOPES[i].scope) {
-            return i;
-         }
-      }
-      return LEVEL_SCOPES.length - 1;
+      return get_ideal_level (1024, scope);
    }
 
    static countdown = 0;
 
-   apply_image = (ctx, scratch_ctx, code, bounds, best_level, scratch_canvas) => {
+   apply_image = (ctx, scratch_ctx, code, bounds, scratch_canvas) => {
       const {width_px, aspect_ratio, focal_point, scope} = this.props;
 
       const image_scope = bounds.right - bounds.left;
@@ -168,9 +161,8 @@ export class FractoImage extends Component {
       const {scratch_canvas_ref} = this.state;
       const {width_px, scope, on_ready} = this.props;
 
-      const best_level = FractoImage.find_best_level(scope);
-      // console.log("best_level", best_level)
-      const images = this.find_images(LEVEL_SCOPES[best_level].cells.concat(LEVEL_SCOPES[best_level].empties));
+      const level_tiles = get_level_tiles(width_px, scope)
+      const images = this.find_images(level_tiles);
 
       if (!images.length) {
          if (on_ready) {
@@ -188,7 +180,7 @@ export class FractoImage extends Component {
       for (var i = 0; i < images.length; i++) {
          const code = images[i].code;
          const bounds = Object.assign({}, images[i].bounds);
-         this.apply_image(ctx, scratch_ctx, code, bounds, best_level, scratch_canvas)
+         this.apply_image(ctx, scratch_ctx, code, bounds, scratch_canvas)
       }
       if (on_ready) {
          setTimeout(() => {
