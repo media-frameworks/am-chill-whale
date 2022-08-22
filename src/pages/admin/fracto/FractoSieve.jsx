@@ -1,5 +1,5 @@
 import StoreS3 from "../../../common/StoreS3";
-import {LEVEL_SCOPES, MAX_LEVEL} from "./FractoData";
+import {get_level_tiles} from "./FractoData";
 import FractoUtil from "./FractoUtil";
 
 export class FractoSieve {
@@ -161,24 +161,14 @@ export class FractoSieve {
    }
 
    static extract = (focal_point, aspect_ratio, scope, width_px, cb) => {
-      const ideal_tiles_across = Math.ceil(2.0 * width_px / 256);
-      const ideal_tile_scope = scope / ideal_tiles_across;
 
-      let ideal_level = -1;
-      for (let i = 0; i <= MAX_LEVEL; i++) {
-         if (LEVEL_SCOPES[i].scope < ideal_tile_scope) {
-            ideal_level = i;
-            break;
-         }
-      }
-      if (ideal_level < 3) {
-         ideal_level = 3;
-      }
-      console.log("ideal_level", ideal_level)
-
-      const all_tiles = LEVEL_SCOPES[ideal_level].cells.concat(LEVEL_SCOPES[ideal_level].empties);
+      const all_tiles = get_level_tiles(width_px, scope);
       const visible_tiles = FractoSieve.find_tiles(all_tiles, focal_point, aspect_ratio, scope);
       console.log("visible_tiles", visible_tiles);
+      if (!visible_tiles.length) {
+         cb([]);
+         return;
+      }
 
       let point_stacks = {};
       let countdown = visible_tiles.length;

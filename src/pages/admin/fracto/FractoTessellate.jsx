@@ -3,14 +3,15 @@ import PropTypes from 'prop-types';
 import styled, {css} from "styled-components";
 
 import {AppStyles, AppColors} from "../../../app/AppImports";
+
 import FractoRender from "./FractoRender";
-import FractoImage from "./FractoImage";
 import FractoTileEditor from "./FractoTileEditor";
 import FractoLocate from "./FractoLocate";
-import {LEVEL_SCOPES} from "./FractoData";
+import {get_ideal_level, get_level_tiles} from "./FractoData";
+import {render_fracto_locate} from "./FractoStyles";
 
 const IMAGE_ASPECT_RATIO = 0.5;
-const IMAGE_WIDTH_PX = 500;
+const IMAGE_WIDTH_PX = 1000;
 const IMAGE_HEIGHT_PX = IMAGE_WIDTH_PX * IMAGE_ASPECT_RATIO;
 const DEFAULT_TILE_OUTLINE = {width: 0, height: 0};
 
@@ -31,7 +32,6 @@ const CommonBorder = css`
 `;
 
 const BorderWrapper = styled(AppStyles.InlineBlock)`
-   ${CommonBorder}
    margin: 1rem;
 `;
 
@@ -203,7 +203,7 @@ export class FractoTessellate extends Component {
 
    update_values = (new_values) => {
       const {level, hover_tile, fracto_values} = this.state;
-      const new_level = FractoImage.find_best_level(new_values.scope);
+      const new_level = get_ideal_level(IMAGE_WIDTH_PX, new_values.scope);
 
       if (fracto_values.scope === new_values.scope) {
          this.setState({
@@ -214,7 +214,7 @@ export class FractoTessellate extends Component {
          this.setState({fracto_values: new_values});
       }
       if (new_level !== level) {
-         const tiles = LEVEL_SCOPES[new_level].cells.concat(LEVEL_SCOPES[new_level].empties);
+         const tiles = get_level_tiles(IMAGE_WIDTH_PX, new_values.scope);
          const sorted = tiles.sort((a, b) => {
             return a.bounds.left === b.bounds.left ?
                (a.bounds.top > b.bounds.top ? -1 : 1) :
@@ -318,7 +318,7 @@ export class FractoTessellate extends Component {
       const {
          fracto_values, fracto_ref,
          cursor_x, cursor_y, tile_outline,
-         selected_tile, level, edit_empties
+         selected_tile, edit_empties
       } = this.state;
       const selected_tile_outline = this.get_tile_outline(selected_tile);
 
@@ -331,10 +331,12 @@ export class FractoTessellate extends Component {
             auto_publish={!edit_empties}
          />
       </TileEditWrapper>;
+
+      const fracto_locate = render_fracto_locate(fracto_values);
       return <AppStyles.Block>
          <TileSelectWrapper>
             <BorderWrapper>
-               <FractoLocate level={level} fracto_values={fracto_values}/>
+               {fracto_locate}
             </BorderWrapper>
             <RenderWrapper
                ref={fracto_ref}

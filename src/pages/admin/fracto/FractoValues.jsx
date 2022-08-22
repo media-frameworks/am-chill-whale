@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import {AppStyles} from "../../../app/AppImports";
 import FractoLocate from "./FractoLocate";
-import {ideal_level} from "./FractoData";
+import {get_ideal_level} from "./FractoData";
 
 export const VALUES_BLOCK_WIDTH_PX = 640;
 
@@ -41,7 +41,7 @@ export class FractoValues extends Component {
       return [
          <ValuesBlock>
             <MetaName>{"level:"}</MetaName>
-            <ConstantValue>{ideal_level(fracto_values.scope, width_px)}</ConstantValue>
+            <ConstantValue>{get_ideal_level(fracto_values.scope, width_px)}</ConstantValue>
          </ValuesBlock>,
          <ValuesBlock>
             <MetaName>{"scope:"}</MetaName>

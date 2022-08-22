@@ -5,9 +5,8 @@ import styled from "styled-components";
 import {AppStyles, AppColors} from "app/AppImports";
 import StoreS3 from "common/StoreS3";
 
-import FractoImage from "../FractoImage";
 import FractoSieve from "../FractoSieve";
-import {LEVEL_SCOPES} from "../FractoData";
+import {get_level_tiles} from "../FractoData";
 
 const UpgradeLink = styled(AppStyles.Block)`
    ${AppStyles.link}
@@ -42,9 +41,9 @@ export class BailiwickTools extends Component {
    upgrade_level = () => {
       const {bailiwick_data} = this.props;
       const display_settings = bailiwick_data.display_settings;
-      const level = FractoImage.find_best_level(display_settings.scope);
+      const level_tiles = get_level_tiles(1500, display_settings.scope);
       const visible_tiles = FractoSieve.find_tiles(
-         LEVEL_SCOPES[level].cells.concat(LEVEL_SCOPES[level].empties), display_settings.focal_point, 1.0, display_settings.scope);
+         level_tiles, display_settings.focal_point, 1.0, display_settings.scope);
       const filename = this.focal_point_filename(display_settings.focal_point);
       StoreS3.put_file_async(filename, JSON.stringify(visible_tiles), `fracto/orders`, data => {
          console.log(`upgrade_level order issued ${filename}`, data);

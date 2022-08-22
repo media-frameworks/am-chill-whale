@@ -1,4 +1,4 @@
-import styled from "styled-components";
+   import styled from "styled-components";
 
 import {AppStyles, AppColors} from "app/AppImports";
 import FractoImage from "./FractoImage";
