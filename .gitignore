@@ -36,6 +36,9 @@ yarn-error.log*
 /src/data/fracto/tmp
 /src/data/fracto/index_gen
 /src/data/fracto/cluster
+/src/data/fracto/burrows
+/src/data/fracto/studies
+/src/data/fracto/bailiwicks
 
 /script/admin
 

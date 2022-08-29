@@ -5,7 +5,11 @@ import styled from "styled-components";
 import {AppStyles, AppColors} from "app/AppImports";
 
 import FractoCommon from "../FractoCommon";
+import {get_ideal_level, get_level_tiles, GET_COMPLETED_TILES_ONLY} from "../FractoData";
+import FractoSieve from "../FractoSieve";
+
 import CommonRenderModal from "./CommonRenderModal";
+import CommonTilesGenerate from "./CommonTilesGenerate";
 
 const S3_FRACTO_PREFIX = 'https://mikehallstudio.s3.amazonaws.com/fracto';
 
@@ -30,7 +34,7 @@ const HeaderSpan = styled.span`
 `;
 
 const TableRow = styled(AppStyles.Block)`
-   width: ${COLUMN_WIDTH_REM * 5.75}rem;
+   width: ${COLUMN_WIDTH_REM * 7.25}rem;
    height: ${CELL_HEIGHT_REM}rem;
    &:hover {
       background-color: #eeeeee;
@@ -65,23 +69,34 @@ const CellExtra = styled(AppStyles.Block)`
    color: #888888;
 `;
 
+const RenderLevelSpan = styled.span`
+   ${AppStyles.link}
+   ${AppColors.COLOR_COOL_BLUE}
+   &:hover {
+      ${AppStyles.underline}
+      ${AppStyles.italic}
+   }
+`;
+
 export class CommonRenderings extends Component {
 
    static propTypes = {
       registry_data: PropTypes.object.isRequired,
       fracto_values: PropTypes.object.isRequired,
       s3_folder_prefix: PropTypes.string.isRequired,
+      size_list: PropTypes.array.isRequired,
       on_change: PropTypes.func.isRequired
    }
 
    state = {
       render_dimension: 0,
-      in_view_image: 0
+      in_view_image: 0,
+      render_level_dimension: false
    }
 
    render_response = (r) => {
       const {on_change} = this.props;
-      this.setState({render_dimension: 0})
+      this.setState({render_dimension: 0, render_level_dimension: 0})
       if (r) {
          on_change()
       }
@@ -100,14 +115,14 @@ export class CommonRenderings extends Component {
    }
 
    render() {
-      const {render_dimension, in_view_image} = this.state;
-      const {registry_data, s3_folder_prefix, fracto_values} = this.props;
+      const {render_dimension, in_view_image, render_level_dimension} = this.state;
+      const {registry_data, s3_folder_prefix, fracto_values, size_list} = this.props;
       console.log("CommonRenderings registry_data", registry_data)
 
-      const header = ["dimension", "image", "data", "patterns"].map(col_name => {
+      const header = ["dimension", "image", "data", "patterns", "level"].map(col_name => {
          return <ColumnHeader><HeaderSpan>{col_name}</HeaderSpan></ColumnHeader>
       })
-      const rows = [128, 256, 512, 1024, 2048].map(dim => {
+      const rows = size_list.map(dim => {
          const png_data = !registry_data.png_files ? [] :
             registry_data.png_files.filter(file => file.size === dim);
          const json_data = !registry_data.json_files ? [] :
@@ -130,6 +145,14 @@ export class CommonRenderings extends Component {
             this.setState({in_view_image: 0})
          })
 
+         const level = !fracto_values ? '' : get_ideal_level(dim, fracto_values.scope);
+         const level_tiles = !fracto_values ? [] : get_level_tiles(dim, fracto_values.scope);
+         const completed_tiles = !fracto_values ? [] : get_level_tiles(dim, fracto_values.scope, GET_COMPLETED_TILES_ONLY);
+         const tiles_in_level = !fracto_values ? [] : FractoSieve.find_tiles(level_tiles, fracto_values.focal_point, 1.0, fracto_values.scope);
+         const completed_tiles_in_level = !fracto_values ? [] : FractoSieve.find_tiles(completed_tiles, fracto_values.focal_point, 1.0, fracto_values.scope);
+         const level_cell_extra = !fracto_values ? '' :
+            <CellExtra>{`${completed_tiles_in_level.length}/${tiles_in_level.length} tiles`}</CellExtra>
+
          return [
             <TableRow>
                <TableCell
@@ -139,6 +162,12 @@ export class CommonRenderings extends Component {
                <TableCell>{png_cell}{png_cell_extra}</TableCell>
                <TableCell>{json_data.length ? "verify" : "---"}{json_cell_extra}</TableCell>
                <TableCell>{pattern_data.length ? "inspect" : "---"}{pattern_cell_extra}</TableCell>
+               <TableCell>
+                  <RenderLevelSpan onClick={e => this.setState({render_level_dimension: dim})}>
+                     {level}
+                  </RenderLevelSpan>
+                  {level_cell_extra}
+               </TableCell>
             </TableRow>,
             view_image
          ]
@@ -149,12 +178,20 @@ export class CommonRenderings extends Component {
          fracto_values={fracto_values}
          on_modal_response={r => this.render_response(r)}
       />
+      const render_level_modal = !render_level_dimension ? '' : <CommonTilesGenerate
+         on_response_modal={r => this.render_response(r)}
+         s3_folder_prefix={s3_folder_prefix}
+         fracto_values={fracto_values}
+         width_px={render_level_dimension}
+      />
+
       return [
          <TableWrapper>
             <AppStyles.Block>{header}</AppStyles.Block>
             <AppStyles.Block>{rows}</AppStyles.Block>
          </TableWrapper>,
-         render_dimension_modal
+         render_dimension_modal,
+         render_level_modal
       ]
    }
 }

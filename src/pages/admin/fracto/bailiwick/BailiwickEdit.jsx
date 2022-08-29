@@ -7,7 +7,6 @@ import {AppStyles} from "app/AppImports";
 import CoolTabs from "common/cool/CoolTabs";
 
 import BailiwickFiles from "./BailiwickFiles";
-import BailiwickImages from "./BailiwickImages";
 import BailiwickTools from "./BailiwickTools";
 
 import CommonRenderings from "../common/CommonRenderings";
@@ -153,10 +152,9 @@ export class BailiwickEdit extends Component {
                registry_data={bailiwick_data}
                fracto_values={bailiwick_data.display_settings}
                s3_folder_prefix={`bailiwicks/${bailiwick_dirname}`}
+               size_list={[128, 256, 512, 1024, 2048]}
                on_change={() => this.load_resources()}/>
          },
-         {label: "images", content: <BailiwickImages bailiwick_data={bailiwick_data}/>},
-         {label: "patterns", content: <BailiwickImages bailiwick_data={bailiwick_data}/>},
          {label: "tools", content: <BailiwickTools bailiwick_data={bailiwick_data}/>}
       ];
 

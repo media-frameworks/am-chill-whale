@@ -47,9 +47,9 @@ function process_point_dir($point_dir, $x)
     global $bad_files;
 
     $img_x_real = ($x - $left) / $increment;
-//    if (abs ($img_x_real - round($img_x_real)) > $epsilon) {
-//        return;
-//    }
+    if (abs ($img_x_real - round($img_x_real)) > 0.01) {
+        return;
+    }
     $img_x = round($img_x_real);
 
     $file_path = __DIR__ . "/points/$point_dir/all_points.csv";
@@ -71,7 +71,7 @@ function process_point_dir($point_dir, $x)
             continue;
         }
         $img_y_real = ($top - $y) / $increment;
-        if (abs ($img_y_real - round($img_y_real)) > $epsilon) {
+        if (abs ($img_y_real - round($img_y_real)) > 0.01) {
             continue;
         }
         $img_y = round($img_y_real);
@@ -112,10 +112,10 @@ foreach ($point_dirs as $point_dir) {
     }
     $x = floatval(trim($point_dir, '[]'));
 
-    if ($x < $left) {
+    if ($x < $left - $increment) {
         continue;
     }
-    if ($x >= $right) {
+    if ($x >= $right + $increment) {
         continue;
     }
     process_point_dir($point_dir, $x);

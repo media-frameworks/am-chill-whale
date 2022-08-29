@@ -10,11 +10,12 @@ import SectionIndex, {
 import FractoRender from "./fracto/FractoRender";
 import FractoCapture from "./fracto/FractoCapture";
 import FractoTessellate from "./fracto/FractoTessellate";
-import FractoChaosLab from "./fracto/FractoChaosLab";
-import FractoRegistry from "./fracto/FractoRegistry";
 import FractoTileFactory from "./fracto/FractoTileFactory";
-import FractoBurrows from "./fracto/FractoBurrows";
-import FractoObservatory from "./fracto/FractoObservatory";
+
+import LevelDirectory from "./fracto/levels/LevelDirectory";
+import BailiwickRegistry from "./fracto/bailiwick/BailiwickRegistry";
+import ObservatoryFieldStudies from "./fracto/observatory/ObservatoryFieldStudies";
+import BurrowCollection from "./fracto/burrows/BurrowCollection";
 
 import FractoTone from "./fractone/FractoTone";
 import FractonePageBuild from "./fractone/FractonePageBuild";
@@ -57,7 +58,7 @@ const SECTIONS = [
    {title: "capture", key: "capture"},
    {title: "tessellate", key: "tessellate"},
    {title: "fractone", key: "fractone"},
-   {title: "chaos lab", key: "chaos_lab"},
+   {title: "levels", key: "levels"},
    {title: "bailiwicks", key: "bailiwicks"},
    {title: "tile factory", key: "tile_factory"},
    {title: "burrows", key: "burrows"},
@@ -157,15 +158,15 @@ export class AdminFracto extends Component {
             </ContentWrapper>;
             break;
 
-         case "chaos lab":
+         case "levels":
             frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoChaosLab width_px={content_wrapper_rect.width}/>
+               <LevelDirectory width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 
          case "bailiwicks":
             frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoRegistry width_px={content_wrapper_rect.width}/>
+               <BailiwickRegistry width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 
@@ -177,13 +178,13 @@ export class AdminFracto extends Component {
 
          case "burrows":
             frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoBurrows width_px={content_wrapper_rect.width}/>
+               <BurrowCollection width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 
          case "observatory":
             frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoObservatory width_px={content_wrapper_rect.width}/>
+               <ObservatoryFieldStudies width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 
