@@ -10,7 +10,7 @@ import FractoRender from "../FractoRender";
 import FractoLocate from "../FractoLocate";
 import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
-import {get_level_tiles} from "../FractoData";
+import {get_level_tiles, GET_COMPLETED_TILES_ONLY} from "../FractoData";
 import {render_modal_title, render_fracto_locate} from "../FractoStyles";
 
 import BailiwickFiles from "./BailiwickFiles";
@@ -160,10 +160,31 @@ export class BailiwickDiscover extends Component {
 
    upgrade_level = () => {
       const {fracto_values} = this.state;
-      const visible_tiles = get_level_tiles(BAILIWICK_SAMPLE_WIDTH_PX, fracto_values.scope);
 
+      let sample_size = 2000;
+      let completed_tiles_in_scope = [];
+      while (true) {
+         console.log("sample_size", sample_size)
+         if (sample_size < 200) {
+            break;
+         }
+         const completed_tiles = get_level_tiles(sample_size, fracto_values.scope, GET_COMPLETED_TILES_ONLY);
+         if (!completed_tiles.length) {
+            sample_size -= 100;
+            continue;
+         }
+         completed_tiles_in_scope = FractoSieve.find_tiles(
+            completed_tiles, fracto_values.focal_point, 1.0, fracto_values.scope);
+         if (!completed_tiles_in_scope.length) {
+            sample_size -= 100;
+            continue;
+         }
+
+         break;
+      }
+      console.log("completed_tiles_in_scope.length", completed_tiles_in_scope.length)
       const filename = this.focal_point_filename(fracto_values.focal_point);
-      StoreS3.put_file_async(filename, JSON.stringify(visible_tiles), `fracto/orders`, data => {
+      StoreS3.put_file_async(filename, JSON.stringify(completed_tiles_in_scope), `fracto/orders`, data => {
          console.log(`upgrade_level order issued ${filename}`, data);
       });
    }
@@ -290,7 +311,7 @@ export class BailiwickDiscover extends Component {
             point_highlights={point_highlights}
          />
       </FractoWrapper>
-      const fracto_locate = render_fracto_locate (fracto_values);
+      const fracto_locate = render_fracto_locate(fracto_values);
 
       const upgrade_link = <UpgradeLink
          onClick={e => this.upgrade_level()}>{"upgrade level"}</UpgradeLink>
@@ -315,7 +336,7 @@ export class BailiwickDiscover extends Component {
          ]}</AppStyles.InlineBlock>
       ]
       return <CoolModal
-         width={"95%"}
+         width={"75%"}
          contents={discover_contents}
          response={r => on_response_modal(r)}/>
    }

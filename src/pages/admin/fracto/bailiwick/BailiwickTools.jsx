@@ -6,7 +6,7 @@ import {AppStyles, AppColors} from "app/AppImports";
 import StoreS3 from "common/StoreS3";
 
 import FractoSieve from "../FractoSieve";
-import {get_level_tiles} from "../FractoData";
+import {get_level_tiles, GET_COMPLETED_TILES_ONLY} from "../FractoData";
 
 const UpgradeLink = styled(AppStyles.Block)`
    ${AppStyles.link}
@@ -40,12 +40,36 @@ export class BailiwickTools extends Component {
 
    upgrade_level = () => {
       const {bailiwick_data} = this.props;
-      const display_settings = bailiwick_data.display_settings;
-      const level_tiles = get_level_tiles(1500, display_settings.scope);
-      const visible_tiles = FractoSieve.find_tiles(
-         level_tiles, display_settings.focal_point, 1.0, display_settings.scope);
-      const filename = this.focal_point_filename(display_settings.focal_point);
-      StoreS3.put_file_async(filename, JSON.stringify(visible_tiles), `fracto/orders`, data => {
+      const fracto_values = bailiwick_data.display_settings;
+
+      let sample_size = 2000;
+      let completed_tiles_in_scope = [];
+      while (true) {
+         console.log("sample_size", sample_size)
+         if (sample_size < 200) {
+            break;
+         }
+         const completed_tiles = get_level_tiles(sample_size, fracto_values.scope, GET_COMPLETED_TILES_ONLY);
+         if (!completed_tiles.length) {
+            sample_size -= 100;
+            continue;
+         }
+         completed_tiles_in_scope = FractoSieve.find_tiles(
+            completed_tiles, fracto_values.focal_point, 1.0, fracto_values.scope);
+         if (!completed_tiles_in_scope.length) {
+            sample_size -= 100;
+            continue;
+         }
+
+         break;
+      }
+      console.log("completed_tiles_in_scope.length", completed_tiles_in_scope.length)
+      if (!completed_tiles_in_scope.length) {
+         return;
+      }
+
+      const filename = this.focal_point_filename(fracto_values.focal_point);
+      StoreS3.put_file_async(filename, JSON.stringify(completed_tiles_in_scope), `fracto/orders`, data => {
          console.log(`upgrade_level order issued ${filename}`, data);
       });
    }

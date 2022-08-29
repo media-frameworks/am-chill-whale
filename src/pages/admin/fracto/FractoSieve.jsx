@@ -7,20 +7,24 @@ export class FractoSieve {
    static v_sieve = (x_index, y, epsilon, values, xy_grid, image_meta) => {
 
       if (y < image_meta.bounds.bottom || y > image_meta.bounds.top) {
+         // console.log("v_sieve exit 1")
          return 0;
       }
 
       const offset_y = y - image_meta.bounds.bottom;
       const y_index = Math.round(offset_y / image_meta.increment);
       if (y_index >= image_meta.height_px) {
+         // console.log("v_sieve exit 2")
          return 0;
       }
       if (xy_grid[x_index][y_index][1] !== 0) {
+         // console.log("v_sieve exit 3")
          return 0;
       }
 
       const difference_y = Math.abs(y_index * image_meta.increment - offset_y);
       if (difference_y > epsilon) {
+         // console.log("v_sieve exit 4")
          return 0;
       }
 
@@ -99,7 +103,7 @@ export class FractoSieve {
 
       let total = 0;
       const expected_total = width_px * height_px;
-      let epsilon = scope / (20 * width_px);
+      let epsilon = scope / (10 * width_px);
       for (let i = 0; i < 10; i++) {
          const result = FractoSieve.sieve(point_stacks, epsilon, xy_grid, image_meta);
          total += result;
@@ -145,6 +149,9 @@ export class FractoSieve {
 
    static stack_data = (point_stacks, all_data) => {
       // console.log("FractoSieve.stack_data", all_data)
+      if (!all_data.tile_data) {
+         return;
+      }
       const increment = all_data.tile_data.bounds.size / 256;
 
       all_data.all_points.forEach(point => {

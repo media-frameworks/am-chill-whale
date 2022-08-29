@@ -115,6 +115,21 @@ export class CommonResources {
          cb(pattern_files)
       })
    }
+
+   static list_step_files_async = (s3_folder_prefix, cb) => {
+      const s3_path = `${s3_folder_prefix}/steps`;
+      StoreS3.list_files_async(s3_path, "fracto", files => {
+         console.log("StoreS3.list_files_async", s3_path, files);
+         const step_files = files.CommonPrefixes.map(file => {
+            const filename = file.Prefix.replace(/\/+$/, '');
+            return {
+               name: filename.split('/').pop(),
+               filename: filename.replace('fracto/', ''),
+            }
+         })
+         cb(step_files);
+      })
+   }
 }
 
 export default CommonResources;

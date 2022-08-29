@@ -37,7 +37,7 @@ const StopButton = styled.span`
    background: maroon;
 `;
 
-export class TileProceesor extends Component {
+export class TileProcessor extends Component {
 
    static propTypes = {
       tiles: PropTypes.array.isRequired
@@ -116,9 +116,9 @@ export class TileProceesor extends Component {
             if (!result.tile_data) {
                cb(result)
             } else {
-               TileProceesor.render_image(result)
+               TileProcessor.render_image(result)
                if (!is_redo && result.all_points.length < 256 * 256) {
-                  TileProceesor.complete_tile(result, cb)
+                  TileProcessor.complete_tile(result, cb)
                } else {
                   console.log("all points compleed", tile_data.code)
                   cb(result)
@@ -136,7 +136,7 @@ export class TileProceesor extends Component {
       console.log("completing tile...", cell);
       const points_hash = {};
       cell.all_points.forEach(data => {
-         const hash_key = TileProceesor.hash_key(data.img_x, data.img_y);
+         const hash_key = TileProcessor.hash_key(data.img_x, data.img_y);
          points_hash[hash_key] = true;
       });
 
@@ -146,7 +146,7 @@ export class TileProceesor extends Component {
       for (let img_x = 0; img_x < 256; img_x++) {
          const x = cell_bounds.left + img_x * increment;
          for (let img_y = 0; img_y < 256; img_y++) {
-            const hash_value = TileProceesor.hash_key(img_x, img_y);
+            const hash_value = TileProcessor.hash_key(img_x, img_y);
             if (points_hash[hash_value]) {
                continue;
             }
@@ -170,14 +170,14 @@ export class TileProceesor extends Component {
          .then(response => response.json())
          .then(result => {
             console.log("fill_points result", result);
-            TileProceesor.generate_tile(cell.tile_data, cb, true);
+            TileProcessor.generate_tile(cell.tile_data, cb, true);
          });
    }
 
    static canvas_ref = React.createRef();
 
    static render_image = (tile_data) => {
-      const canvas = TileProceesor.canvas_ref.current;
+      const canvas = TileProcessor.canvas_ref.current;
       if (!canvas) {
          console.log('no canvas');
          return;
@@ -195,7 +195,7 @@ export class TileProceesor extends Component {
 
    static publish_tile = (result, cb) => {
 
-      const blob = FractoUtil.canvas_to_blob(TileProceesor.canvas_ref);
+      const blob = FractoUtil.canvas_to_blob(TileProcessor.canvas_ref);
       const file_name_png = `${result.short_code}.png`;
       StoreS3.put_file_async(file_name_png, blob, `fracto/tiles/256/png`, data => {
          console.log("publish png complete", data);
@@ -220,12 +220,12 @@ export class TileProceesor extends Component {
    process_tile = (tile_index) => {
       const {generate_tiles} = this.state;
       this.setState({process_index: tile_index})
-      TileProceesor.generate_tile(generate_tiles[tile_index], result => {
+      TileProcessor.generate_tile(generate_tiles[tile_index], result => {
          const {processing} = this.state;
          if (generate_tiles.length === tile_index + 1) {
             this.setState({processing: false})
          } else if (result && processing) {
-            TileProceesor.publish_tile(result, data => {
+            TileProcessor.publish_tile(result, data => {
                if (data && processing) {
                   this.process_tile(tile_index + 1)
                }
@@ -265,7 +265,7 @@ export class TileProceesor extends Component {
          style={button_style}
          on_click={e => this.stop_processing()}/>
       const tile_canvas = !processing ? '' : <CanvasWrapper>
-         <canvas ref={TileProceesor.canvas_ref} width={256} height={256}/>
+         <canvas ref={TileProcessor.canvas_ref} width={256} height={256}/>
       </CanvasWrapper>
       const progress = !processing ? '' : ` #${process_index}... `
       return [
@@ -277,4 +277,4 @@ export class TileProceesor extends Component {
 
 }
 
-export default TileProceesor;
+export default TileProcessor;

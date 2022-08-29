@@ -132,6 +132,7 @@ export class ObservatoryEdit extends Component {
                registry_data={field_study_data}
                fracto_values={field_study_data.fracto_values}
                s3_folder_prefix={`studies/${study_dirname}`}
+               size_list={[128, 256, 512, 1024, 2048]}
                on_change={() => this.load_resources()}/>
          },
          {label: "patterns", content: "patterns content"},
