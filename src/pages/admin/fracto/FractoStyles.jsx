@@ -1,8 +1,9 @@
-   import styled from "styled-components";
+import styled from "styled-components";
 
 import {AppStyles, AppColors} from "app/AppImports";
 import FractoImage from "./FractoImage";
 import FractoLocate from "./FractoLocate";
+import {get_ideal_level} from "./FractoData";
 
 const TitleBar = styled(AppStyles.Block)`
    background: linear-gradient(120deg, #999999, #eeeeee);
@@ -55,8 +56,9 @@ const LocateWrapper = styled(AppStyles.Block)`
     border-radius: 0.25rem;
 `;
 
-export const render_fracto_locate = (fracto_values) => {
-   const best_level = FractoImage.find_best_level(fracto_values.scope);
+export const render_fracto_locate = (fracto_values, width_px = 0) => {
+   const best_level = !width_px ? FractoImage.find_best_level(fracto_values.scope) :
+      get_ideal_level(width_px, fracto_values.scope)
    return <LocateWrapper>
       <FractoLocate level={best_level} fracto_values={fracto_values}/>
    </LocateWrapper>

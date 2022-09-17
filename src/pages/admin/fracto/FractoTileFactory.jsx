@@ -1,58 +1,31 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
-import moment from 'moment';
 
 import {AppStyles, AppColors} from "app/AppImports";
-import StoreS3 from "common/StoreS3";
+import {CoolModal} from "common/cool/CoolImports";
 
-import TileProcessor from "./tile/TileProcessor";
-import BailiwickDiscover from "./bailiwick/BailiwickDiscover";
-import BailiwickFiles from "./bailiwick/BailiwickFiles";
+import {
+   render_title_bar,
+   render_modal_title,
+   render_fracto_locate,
+   render_main_link
+} from "./FractoStyles";
+import FractoRender from "./FractoRender";
+import FractoCommon from "./FractoCommon";
+import FractoData, {get_ideal_level} from "./FractoData";
+import FractoUtil, {DEFAULT_FRACTO_VALUES} from "./FractoUtil";
 
-const TitleBar = styled(AppStyles.Block)`
-   background: linear-gradient(120deg, #999999, #eeeeee);
-   height: 1.125rem;
-   width: 100%;
-   border-bottom: 0.15rem solid #666666;
+import CommonFiles from "./common/CommonFiles";
+
+const FRACTO_RENDER_WIDTH_PX = 750;
+
+const FractoWrapper = styled(AppStyles.InlineBlock)`
+   margin: 1rem;
 `;
 
-const TitleSpan = styled.span`
-   ${AppStyles.uppercase}
-   ${AppStyles.noselect}
-   ${AppStyles.bold}
-   font-size: 1.125rem;
-   letter-spacing: 0.5rem;
-   margin-left: 1rem;
-   color: white;
-   text-shadow: 0.01rem 0.01rem 0.2rem black;
-`;
-
-const OrderFilename = styled(AppStyles.InlineBlock)`
-   ${AppStyles.monospace}
-   ${AppStyles.link}
-   ${AppStyles.COOL_BLUE_TEXT};
-   font-size: 1rem;   
-   margin-right: 1rem;
-`;
-
-const ModifiedDate = styled.span`
-   ${AppStyles.italic}
-   color: #aaaaaa;
-   padding-right: 1rem;
-   font-size: 0.85rem;
-   width: 5rem; 
-`;
-
-const OrderWrapper = styled(AppStyles.Block)`
-   margin: 0.5rem 1rem;
-`;
-
-const BailiwickLink = styled(AppStyles.InlineBlock)`
-   ${AppStyles.link}
-   ${AppStyles.italic}
-   ${AppStyles.underline}
-   ${AppColors.COLOR_COOL_BLUE};
+const NewLinkWrapper = styled(AppStyles.Block)`
+   margin-left: 9.5rem;
 `;
 
 export class FractoTileFactory extends Component {
@@ -62,98 +35,72 @@ export class FractoTileFactory extends Component {
    }
 
    state = {
-      orders: [],
-      process_filename: '',
-      process_tiles: [],
-      discover_mode: false,
-      bailiwick_values: {},
-      bailiwick_files: []
+      in_new_chaos: false,
+      fracto_values: DEFAULT_FRACTO_VALUES,
+      chaos_name: ''
    }
 
    componentDidMount() {
-      BailiwickFiles.load_registry(bailiwick_files => {
-         this.setState({bailiwick_files: bailiwick_files})
-      })
-      this.read_files();
    }
 
-   read_files = () => {
-      StoreS3.list_files_async("orders", "fracto", files => {
-         console.log("order files", files);
-         const orders = files.Contents.map(file => {
-            return {
-               filename: file.Key,
-               modified_time: moment(file.LastModified, 'ddd MMM DD YYYY HH:mm:ss ZZ'),
-               modified_str: file.LastModified.toDateString()
-            }
-         })
-            .sort((a, b) => a.modified_time > b.modified_time ? -1 : 1)
-         this.setState({orders: orders})
+   new_chaos = () => {
+      const {fracto_values, chaos_name} = this.state;
+      const {width_px} = this.props;
+      const level = get_ideal_level(width_px, fracto_values.scope);
+      const chaos_file = {
+         name: chaos_name,
+         level: level
+      }
+      const chaos_name_slug = FractoUtil.get_dirname_slug(chaos_name);
+      const s3_folder_prefix = "orders";
+      const filename = `${chaos_name_slug}.json`;
+      CommonFiles.save_json_file(s3_folder_prefix, filename, chaos_file, result => {
+         console.log("CommonFiles.save_registry_json", s3_folder_prefix, filename, chaos_file, result)
       })
    }
 
-   process_order = (filename) => {
-      const s3_filename = filename.replace("fracto/", "")
-      StoreS3.get_file_async(s3_filename, "fracto", data => {
-         const process_tiles = JSON.parse(data);
-         this.setState({
-            process_filename: filename,
-            process_tiles: process_tiles
-         })
-      })
-   }
-
-   goto_bailiwick = (fracto_values) => {
-      this.setState({
-         discover_mode: true,
-         bailiwick_values: fracto_values
-      })
+   on_response_modal = () => {
+      this.setState({in_new_chaos: false})
    }
 
    render() {
-      const {orders, process_tiles, process_filename, discover_mode, bailiwick_values, bailiwick_files} = this.state
-      const title_bar = <TitleBar><TitleSpan>tile factory</TitleSpan></TitleBar>
-      const ready_orders = orders.map(order => {
-         const proces_block = process_filename !== order.filename ? '' :
-            <TileProcessor tiles={process_tiles}/>
-         const coords = order.filename
-            .replace("fracto/orders/", "")
-            .replace("[", "")
-            .replace("]", "")
-            .replace(".json", "")
-            .split(',')
-         const x = parseFloat(coords[0]);
-         const y = parseFloat(coords[1]);
-         const filename = `${x} + ${y}i`
-         const fracto_values = {
-            scope: 0.025,
-            focal_point: {x: x, y: y}
-         }
-         return [
-            <OrderWrapper>
-               <ModifiedDate>{order.modified_str}</ModifiedDate>
-               <OrderFilename
-                  onClick={e => this.process_order(order.filename)}>
-                  {filename}
-               </OrderFilename>
-               <BailiwickLink
-                  onClick={e => this.goto_bailiwick(fracto_values)}>
-                  discover bailiwick
-               </BailiwickLink>
-            </OrderWrapper>,
-            proces_block
-         ]
-      })
-      console.log("bailiwick_values",bailiwick_values)
-      const bailiwick_discover = !discover_mode ? '' : <BailiwickDiscover
-         bailiwick_files={bailiwick_files}
-         initial_params={bailiwick_values}
-         on_response_modal={r => this.setState({discover_mode: false})}
-      />
+      const {in_new_chaos, fracto_values, chaos_name} = this.state;
+      const {width_px} = this.props;
+      const title_bar = render_title_bar("chaos factory");
+      const main_link = render_main_link("more chaos", e => this.setState({in_new_chaos: true}));
+
+      const modal_title_bar = render_modal_title("new chaos factory order")
+      const fracto_render = <FractoWrapper>
+         <FractoRender
+            width_px={FRACTO_RENDER_WIDTH_PX}
+            aspect_ratio={1.0}
+            initial_params={fracto_values}
+            on_param_change={values => this.setState({fracto_values: values})}
+         />
+      </FractoWrapper>
+      const fracto_locate = render_fracto_locate(fracto_values, FRACTO_RENDER_WIDTH_PX);
+
+      const chaos_name_input = FractoCommon.render_entity_name_input("enter", chaos_name,
+         value => this.setState({chaos_name: value}))
+      const new_link = render_main_link("generate chaos!", e => this.new_chaos());
+
+      const modal_contents = [
+         modal_title_bar,
+         fracto_render,
+         <AppStyles.InlineBlock>{[
+            fracto_locate,
+            chaos_name_input,
+            <NewLinkWrapper>{new_link}</NewLinkWrapper>,
+         ]}</AppStyles.InlineBlock>
+      ];
+      const new_chaos_modal = !in_new_chaos ? '' : <CoolModal
+         width={`${width_px - 200}px`}
+         contents={modal_contents}
+         response={r => this.on_response_modal(r)}/>
+
       return [
-         title_bar,
-         ready_orders,
-         bailiwick_discover
+         title_bar, main_link,
+         new_chaos_modal
       ]
    }
 }

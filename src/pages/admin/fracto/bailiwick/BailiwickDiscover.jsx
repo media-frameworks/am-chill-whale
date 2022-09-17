@@ -123,15 +123,34 @@ export class BailiwickDiscover extends Component {
       in_identify: false,
       potentials: [],
       selected_pattern: 0,
-      selected_potential: 0
+      selected_potential: 0,
+      core_points: []
    }
 
    componentDidMount() {
+      const {bailiwick_files} = this.props;
+      if (!bailiwick_files.length) {
+         BailiwickFiles.load_registry(bailiwick_files => {
+            this.set_core_points(bailiwick_files)
+         })
+      }
+      else {
+         this.set_core_points(bailiwick_files)
+      }
+
       document.addEventListener('keydown', this.key_handler);
    }
 
    componentWillUnmount() {
       document.removeEventListener('keydown', this.key_handler);
+   }
+
+
+   set_core_points = (bailiwick_files) => {
+      const core_points = bailiwick_files.map(b_f => {
+         return b_f.core_point;
+      });
+      this.setState({core_points: core_points})
    }
 
    key_handler = (e) => {
@@ -298,10 +317,10 @@ export class BailiwickDiscover extends Component {
    }
 
    render() {
-      const {fracto_values, in_identify, potentials, selected_pattern, selected_potential} = this.state;
+      const {fracto_values, in_identify, potentials, selected_pattern, selected_potential, core_points} = this.state;
       const {on_response_modal} = this.props;
       const modal_title = render_modal_title("discover a bailiwick")
-      const point_highlights = !potentials.length ? this.bailiwick_highlights() : [potentials[selected_pattern].values[selected_potential]];
+      const point_highlights = !potentials.length ? core_points : [potentials[selected_pattern].values[selected_potential]];
       const fracto_render = <FractoWrapper>
          <FractoRender
             width_px={500}

@@ -1,5 +1,5 @@
 import StoreS3 from "../../../common/StoreS3";
-import {get_level_tiles} from "./FractoData";
+import {get_level_tiles, HIGH_QUALITY} from "./FractoData";
 import FractoUtil from "./FractoUtil";
 
 export class FractoSieve {
@@ -32,7 +32,9 @@ export class FractoSieve {
       return 1;
    }
 
-   static sieve = (point_stacks, epsilon, xy_grid, image_meta) => {
+   static point_stacks = {};
+
+   static sieve = (epsilon, xy_grid, image_meta) => {
       let change_count = 0;
 
       image_meta.stack_indexes.forEach(str_x => {
@@ -58,7 +60,7 @@ export class FractoSieve {
             return;
          }
 
-         const stack = point_stacks[str_x];
+         const stack = FractoSieve.point_stacks[str_x];
          const stack_keys = Object.keys(stack);
          stack_keys.forEach(str_y => {
             const y = parseFloat(str_y);
@@ -75,8 +77,7 @@ export class FractoSieve {
       return change_count;
    }
 
-   static point_sieve = (point_stacks, focal_point, aspect_ratio, scope, width_px) => {
-      console.log("FractoSieve.point_sieve", point_stacks);
+   static point_sieve = (focal_point, aspect_ratio, scope, width_px) => {
 
       const height_px = Math.ceil(width_px * aspect_ratio);
       let xy_grid = [];
@@ -91,7 +92,7 @@ export class FractoSieve {
       const image_meta = {
          width_px: width_px,
          height_px: height_px,
-         stack_indexes: Object.keys(point_stacks),
+         stack_indexes: Object.keys(FractoSieve.point_stacks),
          increment: scope / width_px,
          bounds: {
             left: focal_point.x - scope / 2,
@@ -103,11 +104,11 @@ export class FractoSieve {
 
       let total = 0;
       const expected_total = width_px * height_px;
-      let epsilon = scope / (10 * width_px);
+      let epsilon = scope / (25 * width_px);
       for (let i = 0; i < 10; i++) {
-         const result = FractoSieve.sieve(point_stacks, epsilon, xy_grid, image_meta);
+         const result = FractoSieve.sieve(epsilon, xy_grid, image_meta);
          total += result;
-         if (total >= expected_total || !result) {
+         if (total >= expected_total) {
             console.log(`total=${total}, expected_total=${expected_total}, result=${result}, i=${i}, epsilon=${epsilon}`)
             break;
          }
@@ -147,29 +148,32 @@ export class FractoSieve {
          })
    }
 
-   static stack_data = (point_stacks, all_data) => {
+   static stack_data = (all_data) => {
       // console.log("FractoSieve.stack_data", all_data)
       if (!all_data.tile_data) {
          return;
       }
       const increment = all_data.tile_data.bounds.size / 256;
 
-      all_data.all_points.forEach(point => {
+      for (let p_index = 0; p_index < all_data.all_points.length; p_index++) {
+         const point = all_data.all_points[p_index]
          const x = all_data.tile_data.bounds.left + increment * point.img_x;
          const y = all_data.tile_data.bounds.top - increment * point.img_y;
          const stack_index = `${x}`
-         if (!point_stacks[stack_index]) {
-            point_stacks[stack_index] = {};
+         if (!FractoSieve.point_stacks[stack_index]) {
+            FractoSieve.point_stacks[stack_index] = {};
          }
-         const stack = point_stacks[stack_index];
+         const stack = FractoSieve.point_stacks[stack_index];
          const point_index = `${y}`
          stack[point_index] = [point.pattern, parseInt(point.iterations)]
-      })
+      }
    }
 
-   static extract = (focal_point, aspect_ratio, scope, width_px, cb) => {
+   static tiles_cache = {};
 
-      const all_tiles = get_level_tiles(width_px, scope);
+   static extract = (focal_point, aspect_ratio, scope, width_px, cb, hq = 0) => {
+
+      const all_tiles = get_level_tiles(width_px, scope, hq ? HIGH_QUALITY : 0);
       const visible_tiles = FractoSieve.find_tiles(all_tiles, focal_point, aspect_ratio, scope);
       console.log("visible_tiles", visible_tiles);
       if (!visible_tiles.length) {
@@ -177,24 +181,29 @@ export class FractoSieve {
          return;
       }
 
-      let point_stacks = {};
       let countdown = visible_tiles.length;
       visible_tiles.forEach(tile => {
          const short_code = FractoUtil.get_short_code(tile.code);
          const json_name = `tiles/256/json/${short_code}.json`;
-         StoreS3.get_file_async(json_name, "fracto", json_str => {
-            countdown--;
-            if (json_str) {
-               const all_data = JSON.parse(json_str);
-               FractoSieve.stack_data(point_stacks, all_data);
-            }
-            if (!countdown) {
-               const xy_grid = FractoSieve.point_sieve(point_stacks, focal_point, aspect_ratio, scope, width_px)
-               cb(xy_grid);
-            } else {
-               console.log(`${countdown} to go...`)
-            }
-         });
+         countdown--;
+         console.log(`${countdown} to go...`)
+         const is_final = countdown === 0;
+         if (!FractoSieve.tiles_cache[short_code]) {
+            FractoSieve.tiles_cache[short_code] = 1;
+            StoreS3.get_file_async(json_name, "fracto", json_str => {
+               if (json_str) {
+                  const all_data = JSON.parse(json_str);
+                  FractoSieve.stack_data(all_data);
+               }
+               if (is_final) {
+                  const xy_grid = FractoSieve.point_sieve(focal_point, aspect_ratio, scope, width_px)
+                  cb(xy_grid);
+               }
+            });
+         } else if (is_final) {
+            const xy_grid = FractoSieve.point_sieve(focal_point, aspect_ratio, scope, width_px)
+            cb(xy_grid);
+         }
 
       })
    }

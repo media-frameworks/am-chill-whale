@@ -10,7 +10,7 @@ import SectionIndex, {
 import FractoRender from "./fracto/FractoRender";
 import FractoCapture from "./fracto/FractoCapture";
 import FractoTessellate from "./fracto/FractoTessellate";
-import FractoTileFactory from "./fracto/FractoTileFactory";
+import SequenceCollection from "./fracto/sequence/SequenceCollection";
 
 import LevelDirectory from "./fracto/levels/LevelDirectory";
 import BailiwickRegistry from "./fracto/bailiwick/BailiwickRegistry";
@@ -58,9 +58,9 @@ const SECTIONS = [
    {title: "capture", key: "capture"},
    {title: "tessellate", key: "tessellate"},
    {title: "fractone", key: "fractone"},
-   {title: "levels", key: "levels"},
+   {title: "elevations", key: "elevations"},
    {title: "bailiwicks", key: "bailiwicks"},
-   {title: "tile factory", key: "tile_factory"},
+   {title: "sequencer", key: "sequencer"},
    {title: "burrows", key: "burrows"},
    {title: "observatory", key: "observatory"},
 ];
@@ -158,7 +158,7 @@ export class AdminFracto extends Component {
             </ContentWrapper>;
             break;
 
-         case "levels":
+         case "elevations":
             frame_contents = <ContentWrapper style={wrapperStyle}>
                <LevelDirectory width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
@@ -170,9 +170,9 @@ export class AdminFracto extends Component {
             </ContentWrapper>;
             break;
 
-         case "tile factory":
+         case "sequencer":
             frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoTileFactory width_px={content_wrapper_rect.width}/>
+               <SequenceCollection width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 

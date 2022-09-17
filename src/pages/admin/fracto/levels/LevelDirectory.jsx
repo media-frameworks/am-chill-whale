@@ -98,7 +98,7 @@ export class LevelDirectory extends Component {
 
    render() {
       const {selected_level} = this.state;
-      const title_bar = <TitleBar><TitleSpan>Chaos lab</TitleSpan></TitleBar>
+      const title_bar = <TitleBar><TitleSpan>Dante's Sherpa</TitleSpan></TitleBar>
       let scope_summary = ['', ''];
       for (let i = 2; i < MAX_LEVEL; i++) {
          const marker = selected_level === i ? <SelectedMarker/> : <NotSelectedSpace/>
@@ -111,12 +111,6 @@ export class LevelDirectory extends Component {
          const points_count = tiles_count > 500 ?
             `${Math.round(tiles_count / 1.6) / 10}M` : `${tiles_count * Math.pow(2, 6)}K`;
          const wrapper_style = {backgroundColor: selected_level !== i ? "#dddddd" : "white"}
-         const upstans = selected_level !== i ? '' : <UpstanWrapper>
-            {"up-stan images: "}
-            <UpstanLink>512</UpstanLink>
-            <UpstanLink>1024</UpstanLink>
-            <UpstanLink>2048</UpstanLink>
-         </UpstanWrapper>
          scope_summary.push([
             <LevelSummaryWrapper
                style={wrapper_style}
@@ -126,7 +120,6 @@ export class LevelDirectory extends Component {
                <LevelSummaryInfo>{`${tiles_count} tiles (${points_count} points)`}</LevelSummaryInfo>
             </LevelSummaryWrapper>,
             <LevelContentWrapper>{[
-               upstans,
                tiles_viewer
             ]}</LevelContentWrapper>
          ])

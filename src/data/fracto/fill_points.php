@@ -22,7 +22,7 @@ foreach ($points as $point) {
     if (!isset($results[$slug])) {
         if (!file_exists($file_dir)) {
 //            $changed_point_files = true;
-            system("mkdir $file_dir");
+            mkdir($file_dir, 0777, true);
 //            $point_files[] = [
 //                "x" => $x,
 //                'count' => 1,

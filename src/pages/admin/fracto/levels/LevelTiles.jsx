@@ -7,6 +7,8 @@ import {AppStyles, AppColors} from "app/AppImports";
 import FractoUtil from "../FractoUtil";
 import FractoLocate from "../FractoLocate";
 import TilePatterns from "../tile/TilePatterns";
+import BailiwickDiscover from "../bailiwick/BailiwickDiscover";
+import {render_main_link} from "../FractoStyles";
 
 const FRACTO_S3_URL_BASE = "https://mikehallstudio.s3.amazonaws.com/fracto/tiles/256/png";
 
@@ -49,6 +51,10 @@ const PreviewImageWrapper = styled.img`
    margin: 0.5rem;  
 `;
 
+const ToolsWrapper = styled(AppStyles.InlineBlock)`
+   margin: 0.5rem;  
+`;
+
 export class LevelTiles extends Component {
 
    constructor(props) {
@@ -87,10 +93,11 @@ export class LevelTiles extends Component {
 
    state = {
       selected_row: 0,
+      discover_mode: false
    }
 
    render() {
-      const {selected_row, tiles_list_ref} = this.state;
+      const {selected_row, tiles_list_ref, discover_mode} = this.state;
       const {cells} = this.props;
       const tiles_list = cells.map((cell, i) => {
          const short_code = <ShortCodeSpan>
@@ -107,11 +114,26 @@ export class LevelTiles extends Component {
          <PreviewImageWrapper src={image_url} alt={selected_short_code}/>
       </AppStyles.InlineBlock>
       const tile_patterns = <TilePatterns short_code={selected_short_code}/>
-      // const tile_bailiwicks = <TileBailiwicks short_code={selected_short_code} />
+      const discover_link = render_main_link("bailiwick?", e => this.setState({discover_mode: true}));
+      const tile_tools = <ToolsWrapper>
+         {discover_link}
+      </ToolsWrapper>
+      const bailiwick_discover = !discover_mode ? '' : <BailiwickDiscover
+         initial_params={{
+            focal_point: {
+               x: (cells[selected_row].bounds.right + cells[selected_row].bounds.left) / 2,
+               y: (cells[selected_row].bounds.top + cells[selected_row].bounds.bottom) / 2
+            },
+            scope: cells[selected_row].bounds.right - cells[selected_row].bounds.left
+         }}
+         on_response_modal={r => this.setState({discover_mode: false})}
+      />
       return [
          <TilesWrapper ref={tiles_list_ref}>{tiles_list}</TilesWrapper>,
          tile_view,
-         tile_patterns
+         tile_patterns,
+         tile_tools,
+         bailiwick_discover
       ]
    }
 

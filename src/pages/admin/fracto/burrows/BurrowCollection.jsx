@@ -14,6 +14,7 @@ import CommonCreateDraft from "../common/CommonCreateDraft";
 import BurrowEdit from "./BurrowEdit";
 
 const BurrowsWrapper = styled(AppStyles.Block)`
+   ${AppStyles.noselect}
    margin: 1rem 2rem;
 `;
 
@@ -136,6 +137,7 @@ export class BurrowCollection extends Component {
             </EditNameLink>
             const burrow_dirname = FractoUtil.get_dirname_slug(burrow_name);
             const burrow_editor = burrow_name !== selected_burrow ? '' : <BurrowEdit
+               width_px={width_px}
                burrow_dirname={burrow_dirname}/>
             return <BurrowRow>
                {display_name}

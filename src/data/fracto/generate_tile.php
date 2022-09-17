@@ -33,6 +33,8 @@ $point_hash = [];
 $max_iterations = 0;
 $bad_files = [];
 
+$LIMIT = 0.15;
+
 function process_point_dir($point_dir, $x)
 {
     global $all_points;
@@ -42,12 +44,13 @@ function process_point_dir($point_dir, $x)
     global $left;
     global $bottom;
     global $increment;
-    global $epsilon;
+    global $size;
     global $max_iterations;
     global $bad_files;
+    global $LIMIT;
 
-    $img_x_real = ($x - $left) / $increment;
-    if (abs ($img_x_real - round($img_x_real)) > 0.01) {
+    $img_x_real = 256.0 * (($x - $left) / $size);
+    if (abs ($img_x_real - round($img_x_real)) > $LIMIT) {
         return;
     }
     $img_x = round($img_x_real);
@@ -64,14 +67,14 @@ function process_point_dir($point_dir, $x)
             continue;
         }
         $y = floatval($line_data[0]);
-        if ($y > $top) {
+        if ($y > $top + $increment) {
             continue;
         }
-        if ($y <= $bottom) {
+        if ($y <= $bottom - $increment) {
             continue;
         }
-        $img_y_real = ($top - $y) / $increment;
-        if (abs ($img_y_real - round($img_y_real)) > 0.01) {
+        $img_y_real = 256.0 * (($top - $y) / $size);
+        if (abs ($img_y_real - round($img_y_real)) > $LIMIT) {
             continue;
         }
         $img_y = round($img_y_real);

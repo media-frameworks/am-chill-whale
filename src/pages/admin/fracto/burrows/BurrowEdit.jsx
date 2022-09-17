@@ -12,7 +12,8 @@ import CommonFiles from "../common/CommonFiles";
 import CommonRenderings from "../common/CommonRenderings";
 import CommonResources from "../common/CommonResources";
 
-import BurrowStep from "./BurrowStep"
+import BurrowStep from "./BurrowStep";
+import BurrowSequence from "./BurrowSequence";
 
 const S3_FRACTO_PREFIX = 'https://mikehallstudio.s3.amazonaws.com/fracto';
 
@@ -126,7 +127,7 @@ export class BurrowEdit extends Component {
          const new_burrow_data = new_step_index < 0 ? step_data : burrow_data;
          this.setState({
             step_data: step_data,
-            step_index: new_step_index,
+            step_index: new_step_index < 0 && new_burrow_data.steps ? new_burrow_data.steps.length - 1 : new_step_index,
             burrow_data: new_burrow_data,
          })
       })
@@ -183,7 +184,7 @@ export class BurrowEdit extends Component {
          if (!burrow_data.steps) {
             burrow_data.steps = [];
          }
-         burrow_data.steps.push ({
+         burrow_data.steps.push({
             name: new_step_name,
             filename: `${burrow_s3_prefix}/steps/${new_step_name}`,
             registry: registry
@@ -257,7 +258,14 @@ export class BurrowEdit extends Component {
                fracto_values={step_data.fracto_values}
                s3_folder_prefix={s3_folder_prefix}
                size_list={IMAGE_SIZE_LIST}
-               on_change={() => this.load_resources(s3_folder_prefix)}/>
+               on_change={() => this.load_resources(-1)}/>
+         },
+         {
+            label: "sequences",
+            content: <BurrowSequence
+               width_px={width_px}
+               s3_folder_prefix={s3_folder_prefix}
+               burrow_data={burrow_data}/>
          },
          {label: "patterns", content: "patterns content"},
          {label: "exhibits", content: "exhibits content"},
@@ -290,7 +298,7 @@ export class BurrowEdit extends Component {
             previous_link, next_link
          ]}</AppStyles.Block>,
          main_image,
-         <TabsWrapper style={{width: `${width_px - EDIT_IMAGE_WIDTH_PX - 120}px`}}>{all_tabs}</TabsWrapper>,
+         <TabsWrapper style={{width: `${tab_data.length * 8}rem`}}>{all_tabs}</TabsWrapper>,
          archive_confirm,
          add_step
       ]}</EditBurrowWrapper>

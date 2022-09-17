@@ -11,6 +11,8 @@ import FractoSieve from "../FractoSieve";
 import CommonResources from "./CommonResources";
 import CommonFiles from "./CommonFiles";
 
+const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
+
 const ButtonsRow = styled(AppStyles.Block)`
    ${AppStyles.centered}
 `;
@@ -45,25 +47,47 @@ export class CommonRenderModal extends Component {
       pattern_files: [],
    }
 
+   build_resources = (result) => {
+      const {canvas_ref} = this.state;
+      const {dimension, fracto_values, s3_folder_prefix} = this.props;
+
+      CommonResources.generate_image(fracto_values, s3_folder_prefix, canvas_ref, dimension, result, png_files => {
+         console.log("CommonResources.generate_image returns", png_files)
+         this.setState({png_files: png_files, png_complete: true})
+      })
+      CommonResources.store_json_data(s3_folder_prefix, dimension, result, json_files => {
+         console.log("CommonResources.store_json_data returns", json_files)
+         this.setState({json_files: json_files, json_complete: true})
+      })
+      CommonResources.store_pattern_data(s3_folder_prefix, dimension, result, pattern_files => {
+         console.log("CommonResources.store_pattern_data returns", pattern_files)
+         this.setState({pattern_files: pattern_files, patterns_complete: true})
+      })
+   }
+
    componentDidMount() {
       const {canvas_ref} = this.state;
       const {dimension, fracto_values, s3_folder_prefix} = this.props;
 
-      FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, dimension, result => {
-         console.log("FractoSieve complete", dimension);
-         CommonResources.generate_image(fracto_values, s3_folder_prefix, canvas_ref, dimension, result, png_files => {
-            console.log("CommonResources.generate_image returns", png_files)
-            this.setState({png_files: png_files, png_complete: true})
-         })
-         CommonResources.store_json_data(s3_folder_prefix, dimension, result, json_files => {
-            console.log("CommonResources.store_json_data returns", json_files)
-            this.setState({json_files: json_files, json_complete: true})
-         })
-         CommonResources.store_pattern_data(s3_folder_prefix, dimension, result, pattern_files => {
-            console.log("CommonResources.store_pattern_data returns", pattern_files)
-            this.setState({pattern_files: pattern_files, patterns_complete: true})
-         })
-      });
+      if (true) {
+         FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, dimension, result => {
+            console.log("FractoSieve complete", dimension);
+            this.build_resources(result);
+         });
+      } else {
+         const half_span = fracto_values.scope / 2;
+         const left = fracto_values.focal_point.x - half_span;
+         const top = fracto_values.focal_point.y + half_span;
+         fetch(`${FRACTO_PHP_URL_BASE}/fast_sieve.php?left=${left}&top=${top}&span=${fracto_values.scope}&width_px=${dimension}`)
+            .then(response => {
+               console.log("response",response)
+               return response.json()
+            })
+            .then(result => {
+               console.log("fetch returns", result);
+               this.build_resources(result);
+            });
+      }
    }
 
    modal_response = (value) => {

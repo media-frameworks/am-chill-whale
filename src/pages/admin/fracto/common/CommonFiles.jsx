@@ -4,8 +4,8 @@ import FractoUtil from "../FractoUtil";
 
 export class CommonFiles {
 
-   static load_registry_json = (s3_folder_prefix, cb) => {
-      const filepath = `${s3_folder_prefix}/registry.json`;
+   static load_json_file = (s3_folder_prefix, filename, cb) => {
+      const filepath = `${s3_folder_prefix}/${filename}`;
       StoreS3.remove_from_cache(filepath)
       StoreS3.get_file_async(filepath, "fracto", result => {
          const registry_json = JSON.parse(result);
@@ -13,12 +13,20 @@ export class CommonFiles {
       })
    }
 
-   static save_registry_json = (s3_folder_prefix, data, cb) => {
-      const filepath = `${s3_folder_prefix}/registry.json`;
+   static save_json_file = (s3_folder_prefix, filename, data, cb) => {
+      const filepath = `${s3_folder_prefix}/${filename}`;
       StoreS3.remove_from_cache(filepath)
       StoreS3.put_file_async(filepath, JSON.stringify(data), "fracto", result => {
          cb(true)
       })
+   }
+
+   static load_registry_json = (s3_folder_prefix, cb) => {
+      CommonFiles.load_json_file(s3_folder_prefix, "registry.json", cb)
+   }
+
+   static save_registry_json = (s3_folder_prefix, data, cb) => {
+      CommonFiles.save_json_file(s3_folder_prefix, "registry.json", data, cb);
    }
 
    static create_draft = (base_folder, draft_name, fracto_values, cb) => {
@@ -43,7 +51,7 @@ export class CommonFiles {
          registry[draft_name] = draft_dirname;
          CommonFiles.save_registry_json(base_folder, registry, result => {
             console.log(`CommonFiles.save_registry_json ${base_folder} returns`, result);
-            cb(result)
+            cb(draft_data)
          })
       })
    }
