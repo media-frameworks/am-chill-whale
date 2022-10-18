@@ -16,6 +16,7 @@ import LevelDirectory from "./fracto/levels/LevelDirectory";
 import BailiwickRegistry from "./fracto/bailiwick/BailiwickRegistry";
 import ObservatoryFieldStudies from "./fracto/observatory/ObservatoryFieldStudies";
 import BurrowCollection from "./fracto/burrows/BurrowCollection";
+import TestHarness from "./fracto/test/TestHarness";
 
 import FractoTone from "./fractone/FractoTone";
 import FractonePageBuild from "./fractone/FractonePageBuild";
@@ -63,6 +64,7 @@ const SECTIONS = [
    {title: "sequencer", key: "sequencer"},
    {title: "burrows", key: "burrows"},
    {title: "observatory", key: "observatory"},
+   {title: "test harness", key: "testharness"},
 ];
 
 export class AdminFracto extends Component {
@@ -185,6 +187,12 @@ export class AdminFracto extends Component {
          case "observatory":
             frame_contents = <ContentWrapper style={wrapperStyle}>
                <ObservatoryFieldStudies width_px={content_wrapper_rect.width}/>
+            </ContentWrapper>;
+            break;
+
+         case "test harness":
+            frame_contents = <ContentWrapper style={wrapperStyle}>
+               <TestHarness width_px={content_wrapper_rect.width}/>
             </ContentWrapper>;
             break;
 

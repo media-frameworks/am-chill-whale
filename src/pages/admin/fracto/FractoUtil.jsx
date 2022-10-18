@@ -1,8 +1,17 @@
+import styled from "styled-components";
+
+const EPSILON = 0.0000000001;
 
 export const DEFAULT_FRACTO_VALUES = {
    scope: 2.5,
       focal_point: {x: -.75, y: 0.771}
 };
+
+const HighlightBox = styled.div`
+   position: fixed;
+   border: 1px solid white;
+   pointer-events: none;
+`;
 
 export class FractoUtil {
 
@@ -33,6 +42,45 @@ export class FractoUtil {
          result /= 2;
       }
       return result;
+   }
+
+   static fracto_relative_harmonic = (root, pattern) => {
+      const ratio = pattern / root;
+      return Math.abs(Math.round(ratio) - ratio) < EPSILON ? ratio : 0;
+   }
+
+   static fracto_pattern_octave = (pattern) => {
+      let octave = 0;
+      let reduction = pattern;
+      while (reduction % 2 === 0) {
+         reduction = Math.round(reduction / 2);
+         octave++;
+      }
+      return octave;
+   }
+
+   static fracto_designation = (root, pattern, short_form = false) => {
+      let relative_harmonic = FractoUtil.fracto_relative_harmonic (root, pattern);
+      if (0 === relative_harmonic) {
+         return short_form ? "h0" : "non-harmonic"
+      }
+      const pattern_octave = FractoUtil.fracto_pattern_octave(relative_harmonic);
+      if (0 === pattern_octave) {
+         if (1 === relative_harmonic) {
+            return short_form ? `r${root}` : `root ${root}`
+         }
+         return short_form ? `r${root},h${relative_harmonic}` : `root ${root}, harmonic ${relative_harmonic}`;
+      }
+      for (let i = 0; i < pattern_octave; i++) {
+         relative_harmonic = Math.round(relative_harmonic / 2);
+      }
+      if (relative_harmonic === 1) {
+         if (1 === pattern_octave) {
+            return short_form ? `r${root},o1` : `root ${root} octave`
+         }
+         return short_form ? `r${root},o${pattern_octave}` : `root ${root}, octave ${pattern_octave}`;
+      }
+      return  short_form ? `r${root},h${relative_harmonic},o${pattern_octave}` : `root ${root}, harmonic ${relative_harmonic}, octave ${pattern_octave}`;
    }
 
    static fracto_pattern_color = (pattern, iterations = 255) => {
@@ -122,6 +170,55 @@ export class FractoUtil {
             members: all_families[key].sort((a, b) => a.pattern - b.pattern),
          }
       }).sort((a,b) => a.family - b.family)
+   }
+
+   static highlight_points = (image_ref, fracto_values, point_highlights) => {
+      if (!image_ref.current || !point_highlights.length) {
+         return [];
+      }
+
+      const aspect_ratio = 1.0
+      const image_bounds = image_ref.current.getBoundingClientRect();
+      const scope_x_by_2 = fracto_values.scope / 2;
+      const scope_y_by_2 = aspect_ratio * scope_x_by_2;
+      const leftmost = fracto_values.focal_point.x - scope_x_by_2;
+      const topmost = fracto_values.focal_point.y + scope_y_by_2;
+
+      return point_highlights.map(point_highlight => {
+
+         if (point_highlight.x < leftmost || point_highlight.x > leftmost + fracto_values.scope) {
+            return [];
+         }
+         if (point_highlight.y > topmost || point_highlight.y < topmost - fracto_values.scope * aspect_ratio) {
+            return [];
+         }
+         const img_x = image_bounds.width * (point_highlight.x - leftmost) / fracto_values.scope - 1
+         const img_y = image_bounds.width * (topmost - point_highlight.y) / (fracto_values.scope * aspect_ratio) - 1
+
+         const highlight_outline_1 = {
+            left: image_bounds.left + img_x - 5,
+            top: image_bounds.top + img_y - 5,
+            width: 10,
+            height: 10,
+         }
+         const highlight_outline_2 = {
+            left: image_bounds.left + img_x - 10,
+            top: image_bounds.top + img_y - 10,
+            width: 20,
+            height: 20,
+         }
+         const highlight_outline_3 = {
+            left: image_bounds.left + img_x - 15,
+            top: image_bounds.top + img_y - 15,
+            width: 30,
+            height: 30,
+         }
+         return [
+            <HighlightBox style={highlight_outline_1}/>,
+            <HighlightBox style={highlight_outline_2}/>,
+            <HighlightBox style={highlight_outline_3}/>,
+         ]
+      })
    }
 }
 

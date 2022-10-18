@@ -31,7 +31,7 @@ const DEFAULT_FRACTO_VALUES = {
    }
 };
 
-const BAILIWICK_SAMPLE_WIDTH_PX = 1200;
+const BAILIWICK_SAMPLE_WIDTH_PX = 600;
 
 const FractoWrapper = styled(AppStyles.InlineBlock)`
    margin: 1rem 1rem 0;
@@ -133,8 +133,7 @@ export class BailiwickDiscover extends Component {
          BailiwickFiles.load_registry(bailiwick_files => {
             this.set_core_points(bailiwick_files)
          })
-      }
-      else {
+      } else {
          this.set_core_points(bailiwick_files)
       }
 
@@ -208,9 +207,8 @@ export class BailiwickDiscover extends Component {
       });
    }
 
-   identify_bailiwick = (data) => {
-      const {fracto_values} = this.state;
-      const increment = fracto_values.scope / BAILIWICK_SAMPLE_WIDTH_PX;
+   static identify_bailiwick = (data, fracto_values, bailiwick_sample_width_px, sort_up = true) => {
+      const increment = fracto_values.scope / bailiwick_sample_width_px;
       const leftmost = fracto_values.focal_point.x - fracto_values.scope / 2;
       const bottommost = fracto_values.focal_point.y - fracto_values.scope / 2;
       let pattern_lists = {};
@@ -245,22 +243,23 @@ export class BailiwickDiscover extends Component {
          return {
             pattern: parseInt(key.replace('_', '')),
             values: pattern_lists[key]
-               .sort((a, b) => a.iterations - b.iterations)
+               .sort((a, b) => sort_up ? a.iterations - b.iterations : b.iterations - a.iterations)
                .slice(0, 250)
          };
       }).sort((a, b) => a.pattern - b.pattern)
 
       console.log("potentials", potentials);
-      this.setState({potentials: potentials})
+      return potentials;
    }
 
-   identify_mode = () => {
+   identify_mode = (bailiwick_sample_width_px) => {
       const {fracto_values} = this.state;
       this.setState({in_identify: true})
       FractoSieve.extract(
-         fracto_values.focal_point, 1.0, fracto_values.scope, BAILIWICK_SAMPLE_WIDTH_PX, result => {
+         fracto_values.focal_point, 1.0, fracto_values.scope, bailiwick_sample_width_px, result => {
             console.log("identify_mode sieve", result)
-            this.identify_bailiwick(result)
+            const potentials = BailiwickDiscover.identify_bailiwick(result, fracto_values, bailiwick_sample_width_px)
+            this.setState({potentials: potentials})
          });
    }
 
@@ -303,8 +302,8 @@ export class BailiwickDiscover extends Component {
    }
 
    new_bailiwick = () => {
-      const {potentials, selected_potential} = this.state;
-      BailiwickFiles.new_bailiwick(potentials[0].values[selected_potential], potentials[0].pattern, result => {
+      const {potentials, selected_pattern, selected_potential} = this.state;
+      BailiwickFiles.new_bailiwick(potentials[selected_pattern].values[selected_potential], potentials[selected_pattern].pattern, result => {
          this.setState({in_identify: false})
       });
    }
@@ -335,7 +334,7 @@ export class BailiwickDiscover extends Component {
       const upgrade_link = <UpgradeLink
          onClick={e => this.upgrade_level()}>{"upgrade level"}</UpgradeLink>
       const identify_link = in_identify ? '' : <IdentifyLink
-         onClick={e => this.identify_mode()}>{"click to begin"}</IdentifyLink>
+         onClick={e => this.identify_mode(BAILIWICK_SAMPLE_WIDTH_PX)}>{"click to begin"}</IdentifyLink>
       const new_bailiwick_link = !potentials.length ? '' : <NewBailiwickLink
          onClick={e => this.new_bailiwick()}>{"new bailiwick"}</NewBailiwickLink>
       const core_points_specify = !in_identify ? '' : <CorePointsWrapper>{[

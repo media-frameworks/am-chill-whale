@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import {AppStyles, AppColors} from "app/AppImports";
+import {AppStyles} from "app/AppImports";
 
 import {render_title_bar} from "../FractoStyles";
 import CommonFiles from "../common/CommonFiles";

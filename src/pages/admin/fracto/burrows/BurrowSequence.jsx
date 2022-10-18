@@ -12,9 +12,7 @@ import FractoUtil from "../FractoUtil";
 import CommonFiles from "../common/CommonFiles";
 
 import {
-   render_title_bar,
    render_modal_title,
-   render_fracto_locate,
    render_main_link
 } from "../FractoStyles";
 

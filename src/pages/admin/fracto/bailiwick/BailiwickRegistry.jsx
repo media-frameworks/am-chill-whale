@@ -3,65 +3,60 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {AppStyles, AppColors} from "app/AppImports";
-import StoreS3 from "common/StoreS3";
+import CoolTabs from "common/cool/CoolTabs";
+import CoolGrid from "common/cool/CoolGrid";
 
 import FractoLocate from "../FractoLocate";
-import FractoUtil from "../FractoUtil";
-import {render_title_bar, render_main_link} from "../FractoStyles";
+import {render_title_bar, render_main_link, render_pattern_block} from "../FractoStyles";
+import CommonFiles from "../common/CommonFiles";
 
 import BailiwickDiscover from "./BailiwickDiscover";
+import BailiwickInventory from "./BailiwickInventory";
 import BailiwickEdit from "./BailiwickEdit";
 import BailiwickFiles from "./BailiwickFiles";
+import BailiwickDraft from "./BailiwickDraft";
 
-const FRACTO_COLOR_ITERATIONS = 200;
+const POTENTIALS_GRID_COLUMNS = [
+   {label: "#", key: "pattern", width_rem: 3},
+   {label: "location", key: "location", width_rem: 23},
+   {label: "scope", key: "scope", width_rem: 12},
+   {label: "image sizes", key: "sizes", width_rem: 14},
+   {label: "extra", key: "extra", width_rem: 8},
+]
 
-const UpdateLink = styled(AppStyles.InlineBlock)`
-   ${AppStyles.link}
-   ${AppStyles.italic}
-   ${AppStyles.bold}
-   ${AppStyles.underline}
-   color: ${AppColors.COLOR_DEEP_BLUE};
-   font-size: 0.75rem;
-   margin-left: 0.5rem;
-   opacity: 0;
-   &:hover {
-      opacity: 0.5;
-   }
-`;
+const DRAFTS_GRID_COLUMNS = [
+   {label: "#", key: "pattern", width_rem: 3},
+   {label: "location", key: "location", width_rem: 23},
+   {label: "scope", key: "scope", width_rem: 12},
+   {label: "normalized", key: "normalized", width_rem: 16},
+   {label: "extra", key: "extra", width_rem: 8},
+]
 
 const BailiwicksWrapper = styled(AppStyles.Block)`
-   margin: 1rem 2rem;
+   margin: 0.5rem 1rem;
 `;
 
-const BailiwickRow = styled(AppStyles.Block)`
-   ${AppStyles.pointer}
-   font-size: 1rem;
-   padding: 0.25rem 1rem;
-   border-radius: 0.5rem;
-   &:hover {
-      background-color: #eeeeee;
-   }
+const GridWrapper = styled(AppStyles.Block)`
+   margin: 1rem;
 `;
 
-const BailiwickFilename = styled(AppStyles.InlineBlock)`
+const EditWrapper = styled(AppStyles.Block)`
+   margin: 0 1rem;
+`;
+
+const SizesListing = styled.span`
    ${AppStyles.monospace}
+   font-size: 0.80rem;
+   color: #333333;
+`;
+
+const CenteredColumn = styled(AppStyles.Block)`
+   ${AppStyles.centered}
+`;
+
+const ItemLink = styled(AppStyles.InlineBlock)`
    ${AppStyles.link}
-   ${AppStyles.COOL_BLUE_TEXT};
-   font-size: 1rem;   
-   margin-right: 1rem;
-`;
-
-const PatternBlock = styled(AppStyles.InlineBlock)`
-   ${AppStyles.bold}
-   ${AppStyles.monospace}
-   font-size: 1.25rem;
-   border: 0.1rem solid #666666;
-   border-radius: 0.25rem;
-   color: white;
-   padding: 0.125rem 0.125rem 0;
-   line-height: 1rem;
-   margin-top: 0.25rem;
-   margin-right: 1rem;
+   ${AppColors.COLOR_COOL_BLUE}
 `;
 
 export class BailiwickRegistry extends Component {
@@ -73,11 +68,17 @@ export class BailiwickRegistry extends Component {
    state = {
       discover_mode: false,
       bailiwick_files: [],
-      editing_bailiwick: null
+      editing_bailiwick: null,
+      inventory_mode: false,
+      inventory: [],
+      inventory_loaded: false,
+      selected_potential: -1,
+      selected_draft: -1
    }
 
    componentDidMount() {
       this.load_registry();
+      this.load_inventory();
    }
 
    componentDidUpdate(prevProps, prevState, snapshot) {
@@ -90,84 +91,131 @@ export class BailiwickRegistry extends Component {
       })
    }
 
+   load_inventory = () => {
+      CommonFiles.load_json_file("bailiwicks", "inventory.json", inventory => {
+         console.log("CommonFiles.load_json_file", "bailiwicks", "inventory.json", inventory)
+         this.setState({
+            inventory: inventory,
+            inventory_loaded: true
+         })
+      })
+   }
+
    response_modal = (r) => {
       console.log("response_modal", r);
       this.setState({discover_mode: false});
    }
 
-   update_bailiwick = (b_f) => {
-      const key = b_f.registry_filename.replace("/registry.json", '');
-      StoreS3.get_file_async("bailiwicks/registry.json", "fracto", result => {
-         if (!result) {
-            console.log("update_bailiwick error getting main registry", result);
-            return;
-         }
-         const all_bailiwicks = JSON.parse(result);
-         StoreS3.get_file_async(`bailiwicks/${b_f.registry_filename}`, "fracto", result => {
-            if (!result) {
-               console.log("update_bailiwick error getting target registry", result);
-               return;
-            }
-            const target_bailiwick = JSON.parse(result);
-            all_bailiwicks[key]["pattern"] = target_bailiwick.pattern;
-            BailiwickFiles.save_registry(all_bailiwicks, "bailiwicks/registry.json", result => {
-               console.log("update_bailiwick result", result)
-            })
-         })
-      });
+   fill_potentials_data = (bal) => {
+      let data = {};
+      const pattern_block = render_pattern_block(bal.pattern);
+      data["pattern"] = <CenteredColumn>{pattern_block}</CenteredColumn>
+      if (bal.display_settings) {
+         data["location"] = FractoLocate.render_coordinates(
+            bal.display_settings.focal_point.x, bal.display_settings.focal_point.y);
+         data["scope"] = <SizesListing>{bal.display_settings.scope}</SizesListing>;
+      }
+      if (bal.image_sizes) {
+         data["sizes"] = <SizesListing>{`[${bal.image_sizes.join(',')}]`}</SizesListing>;
+      }
+      if (bal.normalized) {
+         data["normalized"] = <SizesListing>{bal.normalized}</SizesListing>;
+      }
+      return data;
    }
 
    render() {
-      const {discover_mode, bailiwick_files, selected_bailiwick} = this.state;
+      const {
+         bailiwick_files,
+         discover_mode, inventory_mode,
+         inventory, inventory_loaded,
+         selected_potential, selected_draft
+      } = this.state;
       const {width_px} = this.props;
 
       const title_bar = render_title_bar("registry of bailiwicks");
-      const main_link = render_main_link("new bailiwick", e => this.setState({discover_mode: true}));
 
+      const discover_link = render_main_link("new bailiwick", e => this.setState({discover_mode: true}));
       const discover_modal = !discover_mode ? '' : <BailiwickDiscover
          bailiwick_files={bailiwick_files}
          on_response_modal={r => this.response_modal(r)}/>;
-      const bailiwicks = bailiwick_files
+
+      const inventory_link = render_main_link("take inventory", e => this.setState({inventory_mode: true}));
+      const inventory_modal = !inventory_mode ? '' : <BailiwickInventory
+         bailiwick_files={bailiwick_files}
+         on_response_modal={r => this.setState({inventory_mode: false})}/>;
+
+      const potentials = !inventory_loaded ? [] : inventory.potentials
          .sort((a, b) => {
-            if (a.pattern !== b.pattern) {
-               return a.pattern - b.pattern;
+            if (a.display_settings && b.display_settings) {
+               return b.display_settings.scope - a.display_settings.scope;
             }
-            if (a.core_point.x === b.core_point.x) {
-               return a.core_point.y - b.core_point.y;
+            if (a.display_settings) {
+               return -1;
             }
-            return a.core_point.x - b.core_point.x;
+            return 1;
          })
-         .map((b_f, i) => {
-            const pattern_color = FractoUtil.fracto_pattern_color(b_f.pattern, FRACTO_COLOR_ITERATIONS);
-            return [
-               <BailiwickRow>
-                  <PatternBlock
-                     style={{backgroundColor: pattern_color}}>
-                     {b_f.pattern}
-                  </PatternBlock>
-                  <BailiwickFilename
-                     title={"click to edit"}
-                     onClick={e => this.setState({selected_bailiwick: i === selected_bailiwick ? -1 : i})}>
-                     {FractoLocate.render_coordinates(b_f.core_point.x, b_f.core_point.y)}
-                  </BailiwickFilename>
-                  <UpdateLink
-                     title={"click to remove"}
-                     onClick={e => this.update_bailiwick(b_f)}>update</UpdateLink>
-               </BailiwickRow>,
-               i !== selected_bailiwick ? '' : <BailiwickEdit
-                  registry_filename={b_f.registry_filename}
-                  width_px={width_px - 100}
-               />
-            ]
+         .map((bal, i) => {
+            let data = this.fill_potentials_data(bal);
+            data["extra"] = <ItemLink
+               onClick={e => this.setState({selected_potential: i === selected_potential ? -1 : i})}>
+               {"edit"}
+            </ItemLink>
+            if (i === selected_potential) {
+               data["row_expanded"] = <EditWrapper><BailiwickEdit
+                  registry_filename={bal.registry_filename}
+                  width_px={width_px - 120}/>
+               </EditWrapper>
+            }
+            return data;
          })
+
+      const drafts = !inventory_loaded ? [] : inventory.drafts
+         .sort((a, b) => b.display_settings.scope - a.display_settings.scope)
+         .map((bal, i) => {
+            let data = this.fill_potentials_data(bal);
+            data["extra"] = <ItemLink
+               onClick={e => this.setState({selected_draft: i === selected_draft ? -1 : i})}>
+               {"edit"}
+            </ItemLink>
+            if (i === selected_draft) {
+               data["row_expanded"] = <EditWrapper><BailiwickDraft
+                  registry_filename={bal.registry_filename}
+                  width_px={width_px - 120}/>
+               </EditWrapper>
+            }
+            return data;
+         })
+
+      const category_tabs = [
+         {
+            label: !inventory_loaded ? "potentials" : `potentials (${inventory.potentials.length})`,
+            content: <GridWrapper><CoolGrid
+               columns={POTENTIALS_GRID_COLUMNS}
+               data={potentials}/>
+            </GridWrapper>
+         },
+         {
+            label: !inventory_loaded ? "drafts" : `drafts (${inventory.drafts.length})`,
+            content: <GridWrapper><CoolGrid
+               columns={DRAFTS_GRID_COLUMNS}
+               data={drafts}/>
+            </GridWrapper>
+         },
+         {
+            label: !inventory_loaded ? "published" : `published (${inventory.published.length})`,
+            content: "published list"
+         },
+      ];
+
       const bailiwicks_syle = {width: `${width_px - 70}px`}
       return [
          title_bar,
-         main_link,
-         discover_modal,
+         discover_link, discover_modal,
+         inventory_link, inventory_modal,
          <BailiwicksWrapper
             style={bailiwicks_syle}>
-            {bailiwicks}
+            <CoolTabs tab_data={category_tabs}/>
          </BailiwicksWrapper>
       ]
    }

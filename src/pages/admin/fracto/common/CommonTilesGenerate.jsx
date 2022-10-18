@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import {AppStyles} from "app/AppImports";
 import CoolModal from "common/cool/CoolModal";
+import CoolButton from "common/cool/CoolButton";
 
 import {render_modal_title} from "../FractoStyles";
 import {get_level_tiles} from "../FractoData";
@@ -12,6 +13,11 @@ import FractoUtil from "../FractoUtil";
 import TileProcessor from "../tile/TileProcessor";
 
 const S3_FRACTO_PREFIX = 'https://mikehallstudio.s3.amazonaws.com/fracto';
+
+const CenteredBlock = styled(AppStyles.Block)`
+   ${AppStyles.centered}
+   margin: 0.5rem 1rem 0;
+`;
 
 export class CommonTilesGenerate extends Component {
 
@@ -24,7 +30,8 @@ export class CommonTilesGenerate extends Component {
 
    state = {
       generate_tiles: [],
-      tile_index: -1
+      tile_index: -1,
+      did_cancel: false,
    };
 
    componentDidMount() {
@@ -36,31 +43,36 @@ export class CommonTilesGenerate extends Component {
    }
 
    process_tile = (tile_index) => {
-      const {generate_tiles} = this.state;
+      const {generate_tiles, did_cancel} = this.state;
       this.setState({tile_index: tile_index})
+      if (generate_tiles.length === tile_index || did_cancel) {
+         return;
+      }
       TileProcessor.generate_tile(generate_tiles[tile_index], result => {
          console.log("TileProcessor.generate_tile", generate_tiles[tile_index], result)
-         if (generate_tiles.length === tile_index + 1) {
+         if (!result) {
             return;
-         } else if (result) {
-            TileProcessor.publish_tile(result, data => {
-               console.log("TileProcessor.publish_tile", result, data)
-               const canvas = TileProcessor.canvas_ref.current
-               const ctx = canvas.getContext('2d');
-               ctx.fillStyle = 'white';
-               ctx.fillRect(0, 0, 256, 256);
-               if (data) {
-                  this.process_tile(tile_index + 1)
-               }
-            });
          }
+         if (result === 1) {
+            this.process_tile(tile_index + 1)
+            return;
+         }
+         TileProcessor.publish_tile(result, data => {
+            console.log("TileProcessor.publish_tile", result, data)
+            const canvas = TileProcessor.canvas_ref.current
+            const ctx = canvas.getContext('2d');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, 256, 256);
+            if (data) {
+               this.process_tile(tile_index + 1)
+            }
+         });
       })
    }
 
    render() {
-      const {generate_tiles, tile_index} = this.state;
-      const {on_response_modal, s3_folder_prefix} = this.props;
-      const rendering_action = tile_index;
+      const {generate_tiles, tile_index, did_cancel} = this.state;
+      const {on_response_modal} = this.props;
       const title = render_modal_title(`generate ${generate_tiles.length} tiles`);
       const canvas = <canvas
          ref={TileProcessor.canvas_ref}
@@ -76,15 +88,29 @@ export class CommonTilesGenerate extends Component {
          previous_image = <img src={previous_image_url} alt={"no alt for you"}/>
       }
 
+      const done = generate_tiles.length === tile_index;
+      const progress = <CenteredBlock>
+         {!done ? `${tile_index + 1} of ${generate_tiles.length} tiles complete` : "Done!"}
+      </CenteredBlock>
+
+      const cancel_button = <CoolButton
+         primary={1}
+         content={done || did_cancel ? "exit" : "CANCEL"}
+         on_click={e => done ? on_response_modal(1) : this.setState({did_cancel: true})}/>
+
       return <CoolModal
-         width={"800px"}
+         width={"600px"}
          contents={[
             title,
-            rendering_action,
-            previous_image,
-            canvas
+            progress,
+            <CenteredBlock>
+               {previous_image}
+               {canvas}
+            </CenteredBlock>,
+            <CenteredBlock>{cancel_button}</CenteredBlock>
          ]}
          response={r => on_response_modal(r)}
+         settings={{no_escape: true}}
       />
    }
 

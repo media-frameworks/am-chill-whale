@@ -62,6 +62,7 @@ export class BurrowStep extends Component {
             rendering_action
          ]}
          response={r => on_response_modal(r)}
+         settings={{no_escape: true}}
       />
    }
 }

@@ -36,9 +36,13 @@ export class CoolButton extends Component {
          style.backgroundColor = "#cccccc"
       }
       if (disabled) {
-         style.alpha = 0.5;
+         style.opacity = 0.5;
          style.cursor = "default";
          return <BasicButton style={style}>{content}</BasicButton>
+      }
+      else {
+         style.opacity = 1.0;
+         style.cursor = "pointer";
       }
       return <BasicButton
          style={style}

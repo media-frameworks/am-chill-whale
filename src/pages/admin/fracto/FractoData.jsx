@@ -183,7 +183,7 @@ export const GET_ALL_TILES = 3;
 export const HIGH_QUALITY = 4;
 
 export const get_level_tiles = (width_px, scope, flag = GET_ALL_TILES) => {
-   const quality_factor = flag === HIGH_QUALITY ? 3.0 : 1.99;
+   const quality_factor = flag === HIGH_QUALITY ? 3.5 : 2.5;
    const ideal_level = get_ideal_level(width_px, scope, quality_factor);
    const cache_key = `level_${ideal_level}`
    if (flag === GET_COMPLETED_TILES_ONLY) {
@@ -200,4 +200,9 @@ export const get_level_tiles = (width_px, scope, flag = GET_ALL_TILES) => {
 
 export const get_level_cells = (level) => {
    return LEVEL_SCOPES[level].cells;
+}
+
+export const get_tile = (level, code) => {
+   const list_of_one = LEVEL_SCOPES[level].cells.filter(tile => tile.code === code);
+   return list_of_one.length ? list_of_one[0] : null;
 }

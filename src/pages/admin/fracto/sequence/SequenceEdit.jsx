@@ -9,7 +9,6 @@ import StoreS3 from "common/StoreS3";
 import {render_modal_title} from "../FractoStyles";
 import FractoUtil from "../FractoUtil";
 import CommonFiles from "../common/CommonFiles";
-import CommonResources from "../common/CommonResources";
 import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
 import FractoCommon from "../FractoCommon";
@@ -152,7 +151,6 @@ export class SequenceEdit extends Component {
 
    render_frame = (frame_index) => {
       const {sequence_registry, frame_size_px} = this.state;
-      const {sequence_name} = this.props;
 
       if (frame_index >= sequence_registry.frames.length) {
          this.setState({in_sequence_run: false});

@@ -69,19 +69,6 @@ const TilesWrapper = styled(AppStyles.Block)`
    margin: 0 0.5rem 1rem;
 `;
 
-const UpstanWrapper = styled(AppStyles.Block)`
-   ${AppStyles.bold}
-   color: #666666;
-   margin: 0 1rem;
-`;
-
-const UpstanLink = styled.span`
-   ${AppStyles.link}
-   ${AppStyles.COOL_BLUE_TEXT}
-   padding: 0 0.25rem;
-   font-size: 0.85rem;
-`;
-
 const LevelContentWrapper = styled(AppStyles.Block)`
    margin: 0 1rem;
 `;

@@ -66,8 +66,7 @@ export class CommonRenderModal extends Component {
    }
 
    componentDidMount() {
-      const {canvas_ref} = this.state;
-      const {dimension, fracto_values, s3_folder_prefix} = this.props;
+      const {dimension, fracto_values} = this.props;
 
       if (true) {
          FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, dimension, result => {

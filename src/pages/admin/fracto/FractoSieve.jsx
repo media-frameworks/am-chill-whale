@@ -105,15 +105,16 @@ export class FractoSieve {
       let total = 0;
       const expected_total = width_px * height_px;
       let epsilon = scope / (25 * width_px);
-      for (let i = 0; i < 10; i++) {
+      let i = 0;
+      for (; i < 25; i++) {
          const result = FractoSieve.sieve(epsilon, xy_grid, image_meta);
          total += result;
          if (total >= expected_total) {
-            console.log(`total=${total}, expected_total=${expected_total}, result=${result}, i=${i}, epsilon=${epsilon}`)
             break;
          }
          epsilon = epsilon * 1.618;
       }
+      console.log(`total=${total}, expected_total=${expected_total}, i=${i}, epsilon=${epsilon}`)
 
       return xy_grid;
    }

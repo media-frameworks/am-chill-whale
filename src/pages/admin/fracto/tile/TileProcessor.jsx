@@ -8,6 +8,7 @@ import StoreS3 from "common/StoreS3";
 
 import FractoUtil from "../FractoUtil";
 import FractoCalc from "../FractoCalc";
+import {get_tile} from "../FractoData";
 
 const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
 
@@ -109,6 +110,14 @@ export class TileProcessor extends Component {
    static generate_tile = (tile_data, cb, is_redo = false) => {
       console.log("generating tile...", tile_data.code)
       const short_code = FractoUtil.get_short_code(tile_data.code);
+      const level = (tile_data.code.length + 1) / 3;
+      const tile = get_tile(level, tile_data.code);
+      console.log("tile", tile)
+      if (tile) {
+         console.log("found tile, nothing to do")
+         cb(1);
+         return;
+      }
       fetch(`${FRACTO_PHP_URL_BASE}/generate_tile.php?code=${tile_data.code}&short_code=${short_code}`)
          .then(response => response.json())
          .then(result => {

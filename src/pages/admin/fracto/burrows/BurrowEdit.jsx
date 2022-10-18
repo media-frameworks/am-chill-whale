@@ -100,7 +100,6 @@ export class BurrowEdit extends Component {
    }
 
    componentDidMount() {
-      const {burrow_dirname} = this.props;
       this.load_resources(-1)
    }
 
@@ -117,7 +116,7 @@ export class BurrowEdit extends Component {
    }
 
    load_resources = (new_step_index) => {
-      const {burrow_data, step_index} = this.state;
+      const {burrow_data} = this.state;
       const {burrow_dirname} = this.props;
       const pad_name = String(new_step_index + 1).padStart(3, '0');
       const s3_folder_prefix = new_step_index < 0 ? `burrows/${burrow_dirname}` :
@@ -134,7 +133,7 @@ export class BurrowEdit extends Component {
    }
 
    add_step = (e) => {
-      const {step_data, image_ref, step_index} = this.state;
+      const {step_data, image_ref} = this.state;
 
       const image_bounds = image_ref.current.getBoundingClientRect();
       const img_x = Math.round(e.clientX - image_bounds.left)
@@ -203,7 +202,6 @@ export class BurrowEdit extends Component {
 
    change_step = (amount) => {
       const {burrow_data, step_index} = this.state;
-      const {burrow_dirname} = this.props;
       const new_step_index = step_index + amount;
       if (!burrow_data.steps) {
          return;
