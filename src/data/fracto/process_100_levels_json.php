@@ -22,12 +22,23 @@ for ($level = 2; $level <= $MAX_LEVELS; $level++) {
     $stats[$level_name] = $zero_stats;
 }
 
+$completed_file_path = "./json_100/completed.csv";
+$completed_file = fopen($completed_file_path, "w");
+
+$potentials_file_path = "./json_100/potentials.csv";
+$potentials_file = fopen($potentials_file_path, "w");
+
+fwrite($completed_file, "short_code,left,top,right,bottom");
+fwrite($potentials_file, "short_code,left,top,right,bottom");
+
 function process_tile($json_filename, $level)
 {
     global $results;
     global $empties;
     global $stats;
     global $MAX_LEVELS;
+    global $completed_file;
+    global $potentials_file;
 
     if ($level > $MAX_LEVELS) {
         return;
@@ -64,10 +75,30 @@ function process_tile($json_filename, $level)
     if ($status === "complete") {
         $results[$level_name][] = $result;
         $stats[$level_name]["complete"]++;
-    }
-    else {
+    } else {
         $empties[$level_name][] = $result;
         $stats[$level_name]["empty"]++;
+    }
+
+    $short_code_3 = str_replace('11', '3', $code);
+    $short_code_2 = str_replace('10', '2', $short_code_3);
+    $short_code_1 = str_replace('01', '1', $short_code_2);
+    $short_code_0 = str_replace('00', '0', $short_code_1);
+    $short_code = str_replace('-', '', $short_code_0);
+    $parent = substr($short_code, 0, strlen($short_code) - 1);
+    $csv_data = [
+        $short_code,
+        $result["bounds"]["left"],
+        $result["bounds"]["top"],
+        $result["bounds"]["right"],
+        $result["bounds"]["bottom"]
+    ];
+    if (strlen($parent)) {
+        if ($status === "complete") {
+            fwrite($completed_file, "\n" . implode(',', $csv_data));
+        } else {
+            fwrite($potentials_file, "\n" . implode(',', $csv_data));
+        }
     }
 
     $next_level = $level + 1.0;
@@ -80,9 +111,12 @@ function process_tile($json_filename, $level)
 process_tile(__DIR__ . "/archive/00/index.json", 1);
 process_tile(__DIR__ . "/archive/01/index.json", 1);
 
+fclose($completed_file);
+fclose($potentials_file);
+
 $json_dir = __DIR__ . "/json_100";
 if (!file_exists($json_dir)) {
-    system ("mkdir $json_dir");
+    system("mkdir $json_dir");
 }
 
 for ($level = 2; $level <= $MAX_LEVELS; $level++) {
@@ -95,4 +129,5 @@ for ($level = 2; $level <= $MAX_LEVELS; $level++) {
 
 file_put_contents("$json_dir/stats.json", json_encode($stats));
 
-echo ("\ncomplete.\n");
+
+echo("\ncomplete.\n");

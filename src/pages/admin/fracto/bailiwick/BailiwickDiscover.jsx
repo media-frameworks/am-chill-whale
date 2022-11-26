@@ -6,12 +6,11 @@ import {AppStyles, AppColors} from "app/AppImports";
 import CoolModal from "common/cool/CoolModal";
 import StoreS3 from "common/StoreS3";
 
-import FractoRender from "../FractoRender";
 import FractoLocate from "../FractoLocate";
 import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
 import {get_level_tiles, GET_COMPLETED_TILES_ONLY} from "../FractoData";
-import {render_modal_title, render_fracto_locate} from "../FractoStyles";
+import {render_modal_title, render_fracto_navigation} from "../FractoStyles";
 
 import BailiwickFiles from "./BailiwickFiles";
 
@@ -33,22 +32,8 @@ const DEFAULT_FRACTO_VALUES = {
 
 const BAILIWICK_SAMPLE_WIDTH_PX = 600;
 
-const FractoWrapper = styled(AppStyles.InlineBlock)`
-   margin: 1rem 1rem 0;
-`;
-
 const CorePointsWrapper = styled(AppStyles.Block)`
    margin: 1rem 1rem 0;
-`;
-
-const UpgradeLink = styled(AppStyles.Block)`
-   ${AppStyles.link}
-   ${AppStyles.italic}
-   ${AppStyles.underline}
-   ${AppColors.COLOR_COOL_BLUE};
-   font-size: 1.125rem;
-   margin-right: 0.25rem;
-   float: right;
 `;
 
 const IdentifyLink = styled(AppStyles.Block)`
@@ -320,19 +305,7 @@ export class BailiwickDiscover extends Component {
       const {on_response_modal} = this.props;
       const modal_title = render_modal_title("discover a bailiwick")
       const point_highlights = !potentials.length ? core_points : [potentials[selected_pattern].values[selected_potential]];
-      const fracto_render = <FractoWrapper>
-         <FractoRender
-            width_px={500}
-            aspect_ratio={1.0}
-            initial_params={fracto_values}
-            on_param_change={values => this.setState({fracto_values: values})}
-            point_highlights={point_highlights}
-         />
-      </FractoWrapper>
-      const fracto_locate = render_fracto_locate(fracto_values);
 
-      const upgrade_link = <UpgradeLink
-         onClick={e => this.upgrade_level()}>{"upgrade level"}</UpgradeLink>
       const identify_link = in_identify ? '' : <IdentifyLink
          onClick={e => this.identify_mode(BAILIWICK_SAMPLE_WIDTH_PX)}>{"click to begin"}</IdentifyLink>
       const new_bailiwick_link = !potentials.length ? '' : <NewBailiwickLink
@@ -340,18 +313,18 @@ export class BailiwickDiscover extends Component {
       const core_points_specify = !in_identify ? '' : <CorePointsWrapper>{[
          this.patterns_list(potentials)
       ]}</CorePointsWrapper>
+
+      const inner_content = [
+         identify_link,
+         core_points_specify,
+         new_bailiwick_link
+      ]
+      const fracto_navigation = render_fracto_navigation(fracto_values, 500, point_highlights, inner_content, values => {
+         this.setState({fracto_values: values})
+      })
       const discover_contents = [
          modal_title,
-         <AppStyles.InlineBlock style={{width: "520px"}}>{[
-            fracto_render,
-            upgrade_link
-         ]}</AppStyles.InlineBlock>,
-         <AppStyles.InlineBlock>{[
-            fracto_locate,
-            identify_link,
-            core_points_specify,
-            new_bailiwick_link,
-         ]}</AppStyles.InlineBlock>
+         fracto_navigation
       ]
       return <CoolModal
          width={"75%"}

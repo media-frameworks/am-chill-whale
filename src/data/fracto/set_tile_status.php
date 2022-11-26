@@ -12,9 +12,44 @@ $tile_data = json_decode(file_get_contents($tmpname));
 $results = [];
 $results["tmpname"] = $tmpname;
 
+$directiory_complete_dir = __DIR__ . "/directory/complete";
+$directiory_new_dir = __DIR__ . "/directory/new";
+$directiory_empty_dir = __DIR__ . "/directory/empty";
+if (!file_exists($directiory_complete_dir)) {
+    exec("mkdir $directiory_complete_dir");
+    exec("chmod 777 $directiory_complete_dir");
+}
+if (!file_exists($directiory_new_dir)) {
+    exec("mkdir $directiory_new_dir");
+    exec("chmod 777 $directiory_new_dir");
+}
+if (!file_exists($directiory_empty_dir)) {
+    exec("mkdir $directiory_empty_dir");
+    exec("chmod 777 $directiory_empty_dir");
+}
+
+function code_to_short_code($code)
+{
+    $step1 = str_replace('11', '3', $code);
+    $step2 = str_replace('10', '2', $step1);
+    $step3 = str_replace('01', '1', $step2);
+    $step4 = str_replace('00', '0', $step3);
+    $short_code = str_replace('-', '', $step4);
+    return $short_code;
+}
+
+function write_to_directory($dirpath, $code, $bounds)
+{
+    $short_code = code_to_short_code($code);
+    $filepath = $dirpath . "/" . $short_code . ".json";
+    file_put_contents($filepath, json_encode($bounds));
+    exec("chmod 777 $filepath");
+}
+
 function seedLevel($start, $size, $left, $top)
 {
     global $results;
+    global $directiory_new_dir;
 
     $start_path = str_replace('-', '/', $start);
     $tmpdir = __DIR__ . "/archive/$start_path";
@@ -40,29 +75,33 @@ function seedLevel($start, $size, $left, $top)
     $results["new"][$start]["start_path"] = $start_path;
     $results["new"][$start]["tmpdir"] = $tmpdir;
 
-    exec ("mkdir $tmpdir");
-    exec ("chmod 777 $tmpdir");
+    exec("mkdir $tmpdir");
+    exec("chmod 777 $tmpdir");
 
     $tmpname = "$tmpdir/index.json";
     $results["new"][$start]["tmpname"] = $tmpname;
     file_put_contents($tmpname, json_encode($index_json));
 
-//    $s3_path = "s3://mikehallstudio/fracto/orbitals/$start_path/index.json";
-//    $results["new"][$start]["s3_path"] = $s3_path;
-//
-//    exec ("aws s3 cp $tmpname $s3_path --acl public-read");
+    $bounds = new stdClass();
+    $bounds->left = $left;
+    $bounds->top = $top;
+    $bounds->right = $left + $size;
+    $bounds->bottom = $top - $size;
+    write_to_directory($directiory_new_dir, $start, $bounds);
+
 }
 
 if ($status === 'complete') {
     $results["operation"] = "open tile";
     $tile_data->status = "complete";
-    file_put_contents($tmpname, json_encode($tile_data)) ;
+    file_put_contents($tmpname, json_encode($tile_data));
 
-//    $s3_path = "s3://mikehallstudio/fracto/orbitals/$code_path/index.json";
-//    exec ("aws s3 cp $tmpname $s3_path --acl public-read");
-
-//    $s3_path = "s3://mikehallstudio/fracto/orbitals/$code_path/";
-//    $results["s3_path"] = $s3_path;
+    $bounds = new stdClass();
+    $bounds->left = $tile_data->bounds->left;
+    $bounds->top = $tile_data->bounds->top;
+    $bounds->right = $tile_data->bounds->left + $tile_data->bounds->size;
+    $bounds->bottom = $tile_data->bounds->top - $tile_data->bounds->size;
+    write_to_directory($directiory_complete_dir, $code, $bounds);
 
     $results["new"] = [];
     $results["existing"] = [];

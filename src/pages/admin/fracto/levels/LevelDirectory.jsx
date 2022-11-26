@@ -5,25 +5,9 @@ import styled from "styled-components";
 import AppStyles from "app/AppStyles";
 
 import {MAX_LEVEL, get_level_cells} from "../FractoData";
+import {render_title_bar, render_main_link} from "../FractoStyles";
 import LevelTiles from "./LevelTiles";
-
-const TitleBar = styled(AppStyles.Block)`
-   background: linear-gradient(120deg, #999999, #eeeeee);
-   height: 1.25rem;
-   width: 100%;
-   border-bottom: 0.15rem solid #666666;
-`;
-
-const TitleSpan = styled.span`
-   ${AppStyles.uppercase}
-   ${AppStyles.noselect}
-   ${AppStyles.bold}
-   font-size: 1.25rem;
-   letter-spacing: 0.75rem;
-   margin-left: 1rem;
-   color: white;
-   text-shadow: 0.01rem 0.01rem 0.2rem black;
-`;
+import LevelIndexTiles from "./LevelIndexTiles";
 
 const LevelTitleLink = styled.span`
    ${AppStyles.uppercase}
@@ -73,6 +57,10 @@ const LevelContentWrapper = styled(AppStyles.Block)`
    margin: 0 1rem;
 `;
 
+const LinkBlock = styled(AppStyles.Block)`
+   margin: 0;
+`;
+
 export class LevelDirectory extends Component {
 
    static propTypes = {
@@ -80,18 +68,21 @@ export class LevelDirectory extends Component {
    }
 
    state = {
-      selected_level: 2
+      selected_level: 2,
+      index_mode: false
    }
 
    render() {
-      const {selected_level} = this.state;
-      const title_bar = <TitleBar><TitleSpan>Dante's Sherpa</TitleSpan></TitleBar>
+      const {selected_level, index_mode} = this.state;
+      const title_bar = render_title_bar("Dante's Sherpa");
       let scope_summary = ['', ''];
       for (let i = 2; i < MAX_LEVEL; i++) {
          const marker = selected_level === i ? <SelectedMarker/> : <NotSelectedSpace/>
          const cells = get_level_cells (i);
+         const index_link = render_main_link("index tiles", e => this.setState({index_mode: true}));
          const tiles_viewer = selected_level !== i ? '' :
             <TilesWrapper>
+               <LinkBlock>{index_link}</LinkBlock>
                <LevelTiles key={`level_${i}`} cells={cells}/>
             </TilesWrapper>
          const tiles_count = cells.length;
@@ -106,12 +97,18 @@ export class LevelDirectory extends Component {
                <LevelTitleLink>{`level ${i}`}</LevelTitleLink>
                <LevelSummaryInfo>{`${tiles_count} tiles (${points_count} points)`}</LevelSummaryInfo>
             </LevelSummaryWrapper>,
-            <LevelContentWrapper>{[
-               tiles_viewer
-            ]}</LevelContentWrapper>
+            <LevelContentWrapper>{tiles_viewer}</LevelContentWrapper>
          ])
       }
-      return [title_bar, scope_summary]
+      const index_modal = !index_mode ? '' : <LevelIndexTiles
+         level={selected_level}
+         on_response_modal={result => this.setState({index_mode: false}) }
+      />
+      return [
+         title_bar,
+         scope_summary,
+         index_modal
+      ]
    }
 
 }

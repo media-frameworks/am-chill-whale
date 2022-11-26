@@ -4,10 +4,11 @@ import styled from "styled-components";
 
 import {AppStyles, AppColors} from "app/AppImports";
 
-import CoolModal from "common/cool/CoolModal";
 import {render_modal_title} from "../FractoStyles";
+import {CoolModal, CoolInputText} from "common/cool/CoolImports";
 
 const INPUT_TYPE_TEXT = "input_type_text";
+const INPUT_TYPE_TEXTAREA = "input_type_textarea";
 
 const TEXT_ELEMENTS = [
    {
@@ -15,8 +16,12 @@ const TEXT_ELEMENTS = [
       input_type : INPUT_TYPE_TEXT
    },
    {
-      prompt: "description",
+      prompt: "sub-title",
       input_type : INPUT_TYPE_TEXT
+   },
+   {
+      prompt: "description",
+      input_type : INPUT_TYPE_TEXTAREA
    }
 ]
 
@@ -31,6 +36,16 @@ const ActionLink = styled(AppStyles.Block)`
 
 const TextInputRow = styled(AppStyles.Block)`
    margin: 0.25rem 1rem;
+`;
+
+const TextPrompt = styled(AppStyles.InlineBlock)`
+   ${AppStyles.italic}
+   width: 6rem;
+   text-align: right;
+   font-size: 1.125rem;
+   margin-right: 0.25rem;
+   margin-top: 0.125rem;
+   color: #444444;
 `;
 
 export class BailiwickNarrative extends Component {
@@ -52,8 +67,12 @@ export class BailiwickNarrative extends Component {
 
       const modal_title = render_modal_title(`bailiwick narrative text`)
       const text_lines = TEXT_ELEMENTS.map(element => {
+         const text_input = element.input_type === INPUT_TYPE_TEXT ?
+            <CoolInputText is_text_area={false} /> :
+            <CoolInputText is_text_area={true} />
          return <TextInputRow>
-            {`${element.prompt}: `}
+            <TextPrompt>{`${element.prompt}: `}</TextPrompt>
+            {text_input}
          </TextInputRow>
       })
       const modal_contents = !definition_mode ? [] : [

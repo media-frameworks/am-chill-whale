@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {AppStyles} from "../../../app/AppImports";
-import FractoImage from "./FractoImage";
+import FractoActiveImage from "./FractoActiveImage";
 
 const RE_SCOPE_FACTOR = 1.25;
 const DEFAULT_SCOPE = 4;
@@ -86,6 +86,20 @@ export class FractoRender extends Component {
       return {top: _y, left: _x};
    }
 
+   focal_point_from_pos = (img_x, img_y) => {
+      const {width_px, aspect_ratio} = this.props;
+      const {focal_point, scope} = this.state;
+
+      const x_portion = img_x / width_px;
+      const y_portion = img_y / (width_px * aspect_ratio);
+
+      const half_scope = scope / 2;
+      const focal_x = (focal_point.x - half_scope) + x_portion * scope;
+      const focal_y = (focal_point.y + half_scope * aspect_ratio) - y_portion * scope * aspect_ratio;
+
+      return {x: focal_x, y: focal_y}
+   }
+
    re_position = (e) => {
       const {aspect_ratio, on_param_change} = this.props;
       const {focal_point, scope, fracto_ref, in_update} = this.state;
@@ -107,15 +121,7 @@ export class FractoRender extends Component {
       if (e.clientY > image_offset.top + image_bounds.height) {
          return;
       }
-      const x_portion = (e.clientX - image_offset.left) / image_bounds.width;
-      const y_portion = (e.clientY - image_offset.top) / image_bounds.height;
-
-      const half_scope = scope / 2;
-      const focal_x = (focal_point.x - half_scope) + x_portion * scope;
-      const focal_y = (focal_point.y + half_scope * aspect_ratio) - y_portion * scope * aspect_ratio;
-
-      console.log("new center", focal_x, focal_y);
-      const new_focal_point = {x: focal_x, y: focal_y}
+      const new_focal_point = this.focal_point_from_pos(e.clientX - image_offset.left, e.clientY - image_offset.top)
       this.setState({
          focal_point: new_focal_point,
          in_update: true
@@ -147,6 +153,26 @@ export class FractoRender extends Component {
          scope: new_scope,
          focal_point: focal_point
       });
+   }
+
+   re_locate = (e) => {
+      const {fracto_ref, scope, focal_point, in_update} = this.state;
+      const {on_param_change} = this.props;
+      if (!e) { // mouse out of element
+         on_param_change({
+            scope: scope,
+            focal_point: focal_point,
+            location: null
+         });
+      } else {
+         const image_offset = FractoRender.get_offset(e.target)
+         const new_location = this.focal_point_from_pos(e.clientX - image_offset.left, e.clientY - image_offset.top)
+         on_param_change({
+            scope: scope,
+            focal_point: focal_point,
+            location: new_location
+         });
+      }
    }
 
    highlight_points = () => {
@@ -204,7 +230,7 @@ export class FractoRender extends Component {
       const {width_px, aspect_ratio, tile_outline, point_highlights} = this.props;
       const highlights = in_update || !point_highlights.length ? [] : this.highlight_points()
 
-      const fracto_image = !scope ? '' : <FractoImage
+      const fracto_image = !scope ? '' : <FractoActiveImage
          on_click={e => this.re_position(e)}
          on_zoom={e => this.re_scope(e)}
          on_ready={e => {
@@ -212,6 +238,7 @@ export class FractoRender extends Component {
                this.setState({in_update: false})
             }
          }}
+         on_move={e => this.re_locate(e)}
          width_px={width_px}
          aspect_ratio={aspect_ratio}
          focal_point={focal_point}

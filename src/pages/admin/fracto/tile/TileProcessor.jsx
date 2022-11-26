@@ -10,6 +10,11 @@ import FractoUtil from "../FractoUtil";
 import FractoCalc from "../FractoCalc";
 import {get_tile} from "../FractoData";
 
+export const GENERATE_NO_INLAND_TILES = 'generate_no_inland_tiles';
+export const GENERATE_NO_EMPTY_TILES = 'generate_no_empty_tiles';
+export const GENERATE_VERIFY_TILES = 'generate_verify_tiles';
+const GENERATE_2ND_ATTEMPT = 'generate_2nd_attempt';
+
 const FRACTO_PHP_URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
 
 const DeclarationBlock = styled(AppStyles.InlineBlock)`
@@ -107,13 +112,33 @@ export class TileProcessor extends Component {
       this.setState({generate_tiles: generate_tiles,})
    }
 
-   static generate_tile = (tile_data, cb, is_redo = false) => {
-      console.log("generating tile...", tile_data.code)
+   static verify_tile = (tile_data, cb, options = {}) => {
+      console.log("verifying tile", tile_data, options)
+      const short_code = FractoUtil.get_short_code(tile_data.code);
+      const json_name = `tiles/256/json/${short_code}.json`;
+      StoreS3.get_file_async(json_name, "fracto", json_str => {
+         if (json_str) {
+            cb(0);
+            return;
+         }
+         TileProcessor.generate_tile(tile_data, result => {
+            if (result === 1) {
+               cb(0)
+            }
+            else {
+               cb(result)
+            }
+         }, options);
+      }, false)
+   }
+
+   static generate_tile = (tile_data, cb, options = {}) => {
+      console.log("generating tile", tile_data, options)
       const short_code = FractoUtil.get_short_code(tile_data.code);
       const level = (tile_data.code.length + 1) / 3;
       const tile = get_tile(level, tile_data.code);
       console.log("tile", tile)
-      if (tile) {
+      if (tile && !options[GENERATE_VERIFY_TILES]) {
          console.log("found tile, nothing to do")
          cb(1);
          return;
@@ -124,13 +149,31 @@ export class TileProcessor extends Component {
             console.log("fetch returns", result)
             if (!result.tile_data) {
                cb(result)
+               return;
             } else {
+               if (options[GENERATE_NO_EMPTY_TILES]) {
+                  const high_count = result.all_points.filter(point => point.iterations > 20);
+                  if (!high_count.length) {
+                     console.log("tile is apparently empty, excluded by options", tile_data.code)
+                     cb(1)
+                     return;
+                  }
+               }
+               if (options[GENERATE_NO_INLAND_TILES]) {
+                  const offshore = result.all_points.filter(point => point.pattern === 0);
+                  if (!offshore.length) {
+                     console.log("tile is apparently inland, excluded by options", tile_data.code)
+                     cb(1)
+                     return;
+                  }
+               }
                TileProcessor.render_image(result)
-               if (!is_redo && result.all_points.length < 256 * 256) {
-                  TileProcessor.complete_tile(result, cb)
+               if (!options[GENERATE_2ND_ATTEMPT] && result.all_points.length < 256 * 256) {
+                  TileProcessor.complete_tile(result, options, cb)
                } else {
-                  console.log("all points compleed", tile_data.code)
+                  console.log("all points completed", tile_data.code)
                   cb(result)
+                  return;
                }
             }
          });
@@ -140,7 +183,7 @@ export class TileProcessor extends Component {
       return `[${img_x},${img_y}]`;
    }
 
-   static complete_tile = (cell, cb) => {
+   static complete_tile = (cell, options, cb) => {
 
       console.log("completing tile...", cell);
       const points_hash = {};
@@ -179,7 +222,9 @@ export class TileProcessor extends Component {
          .then(response => response.json())
          .then(result => {
             console.log("fill_points result", result);
-            TileProcessor.generate_tile(cell.tile_data, cb, true);
+            let options_2 = Object.assign({}, options);
+            options_2[GENERATE_2ND_ATTEMPT] = true;
+            TileProcessor.generate_tile(cell.tile_data, cb, options_2);
          });
    }
 
@@ -202,21 +247,37 @@ export class TileProcessor extends Component {
       });
    }
 
-   static publish_tile = (result, cb) => {
+   static tile_points = new Array(256).fill(0).map(() => new Array(256).fill(0));
+
+   static publish_tile = (tile_data, cb) => {
+
+      const short_code = tile_data.short_code;
+      const png_filename = `tiles/256/png/${short_code}.png`;
+      const indexed_filename = `tiles/256/indexed/${short_code}.json`;
+      const json_filename = `tiles/256/json/${short_code}.json`;
 
       const blob = FractoUtil.canvas_to_blob(TileProcessor.canvas_ref);
-      const file_name_png = `${result.short_code}.png`;
-      StoreS3.put_file_async(file_name_png, blob, `fracto/tiles/256/png`, data => {
-         console.log("publish png complete", data);
-         const image_name = `/tiles/256/png/${result.short_code}.png`;
-         StoreS3.remove_from_cache(image_name);
+      StoreS3.put_file_async(png_filename, blob, "fracto", data => {
+         console.log("StoreS3.put_file_async", png_filename, data);
       });
 
-      const json = JSON.stringify(result);
-      const file_name_json = `${result.short_code}.json`;
-      StoreS3.put_file_async(file_name_json, json, `fracto/tiles/256/json`, data => {
-         console.log("publish json complete", data);
-         fetch(`${FRACTO_PHP_URL_BASE}/set_tile_status.php?code=${result.code}&status=complete`)
+      for (let data_index = 0; data_index < tile_data.all_points.length; data_index++) {
+         const point = tile_data.all_points[data_index];
+         if (point.img_x > 255 || point.img_y > 255) {
+            continue;
+         }
+         if (point.img_x < 0 || point.img_y < 0) {
+            continue;
+         }
+         TileProcessor.tile_points[point.img_x][point.img_y] = [point.pattern, parseInt(point.iterations)]
+      }
+      StoreS3.put_file_async(indexed_filename, JSON.stringify(TileProcessor.tile_points), "fracto", result => {
+         console.log("StoreS3.put_file_async", indexed_filename, result)
+      })
+
+      StoreS3.put_file_async(json_filename, JSON.stringify(tile_data), "fracto", data => {
+         console.log("StoreS3.put_file_async", json_filename, data);
+         fetch(`${FRACTO_PHP_URL_BASE}/set_tile_status.php?code=${tile_data.code}&status=complete`)
             .then(response => response.json())
             .then(results => {
                console.log("set_tile_status.php returns", results);
@@ -245,6 +306,7 @@ export class TileProcessor extends Component {
 
    start_processing = () => {
       this.setState({processing: true})
+
       this.process_tile(0);
    }
 

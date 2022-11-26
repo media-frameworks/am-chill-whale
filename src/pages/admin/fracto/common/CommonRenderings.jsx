@@ -91,7 +91,8 @@ export class CommonRenderings extends Component {
    state = {
       render_dimension: 0,
       in_view_image: 0,
-      render_level_dimension: false
+      render_level_dimension: false,
+      generate_tiles: []
    }
 
    render_response = (r) => {
@@ -114,8 +115,18 @@ export class CommonRenderings extends Component {
       return `${rounded} MB`;
    }
 
+   setup_render_dimension = (width_px) => {
+      const {fracto_values} = this.props;
+      const level_tiles = get_level_tiles(width_px, fracto_values.scope);
+      const generate_tiles = FractoSieve.find_tiles(level_tiles, fracto_values.focal_point, 1.0, fracto_values.scope);
+      this.setState({
+         render_level_dimension: width_px,
+         generate_tiles: generate_tiles
+      })
+   }
+
    render() {
-      const {render_dimension, in_view_image, render_level_dimension} = this.state;
+      const {render_dimension, in_view_image, render_level_dimension, generate_tiles} = this.state;
       const {registry_data, s3_folder_prefix, fracto_values, size_list} = this.props;
       console.log("CommonRenderings registry_data", registry_data)
 
@@ -163,7 +174,7 @@ export class CommonRenderings extends Component {
                <TableCell>{json_data.length ? "verify" : "---"}{json_cell_extra}</TableCell>
                <TableCell>{pattern_data.length ? "inspect" : "---"}{pattern_cell_extra}</TableCell>
                <TableCell>
-                  <RenderLevelSpan onClick={e => this.setState({render_level_dimension: dim})}>
+                  <RenderLevelSpan onClick={e => this.setup_render_dimension(dim)}>
                      {level}
                   </RenderLevelSpan>
                   {level_cell_extra}
@@ -180,9 +191,7 @@ export class CommonRenderings extends Component {
       />
       const render_level_modal = !render_level_dimension ? '' : <CommonTilesGenerate
          on_response_modal={r => this.render_response(r)}
-         s3_folder_prefix={s3_folder_prefix}
-         fracto_values={fracto_values}
-         width_px={render_level_dimension}
+         tiles_list={generate_tiles}
       />
 
       return [

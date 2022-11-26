@@ -6,8 +6,11 @@ import {AppStyles, AppColors} from "app/AppImports";
 import CoolModal from "common/cool/CoolModal";
 import CoolButton from "common/cool/CoolButton";
 
-import {render_modal_title, render_fracto_locate_cb, render_pattern_block} from "../FractoStyles";
-import FractoRender from "../FractoRender";
+import {
+   render_modal_title,
+   render_pattern_block,
+   render_fracto_navigation
+} from "../FractoStyles";
 import FractoLocate from "../FractoLocate";
 import CommonFiles from "../common/CommonFiles";
 
@@ -25,17 +28,7 @@ const ActionLink = styled(AppStyles.Block)`
    margin-right: 0.25rem;
 `;
 
-const RenderWrapper = styled(AppStyles.InlineBlock)`
-   margin: 1rem;
-   border: 0.125rem solid #aaaaaa;
-   border-radius: 0.25rem;
-`;
-
-const RightSideWrapper = styled(AppStyles.InlineBlock)`
-   margin: 1rem 0;
-`;
-
-const SelectorWrapper = styled(AppStyles.Block)`
+const SelectorWrapper = styled(AppStyles.InlineBlock)`
    margin-top: 1rem;
 `;
 
@@ -136,22 +129,22 @@ export class BailiwickPoints extends Component {
    render_points_list = (all_points, selected_point) => {
       return <PointsList>
          {all_points
-            .sort((a,b) => a.pattern - b.pattern)
+            .sort((a, b) => a.pattern - b.pattern)
             .map((point, i) => {
-            const row_style = (selected_point !== i) ? {} : {
-               backgroundColor: "#666666",
-               color: "white"
-            }
-            const coords = FractoLocate.render_coordinates(point.x, point.y)
-            const pattern_block = render_pattern_block(point.pattern)
-            return <PointRow
-               key={`PointRow_${i}`}
-               style={row_style} onClick={e => this.setState({selected_point: i})}>
-               <PatternBlockColumn>{pattern_block}</PatternBlockColumn>
-               <ShortFormColumn>{`[${point.short_form}]`}</ShortFormColumn>
-               {coords}
-            </PointRow>
-         })}
+               const row_style = (selected_point !== i) ? {} : {
+                  backgroundColor: "#666666",
+                  color: "white"
+               }
+               const coords = FractoLocate.render_coordinates(point.x, point.y)
+               const pattern_block = render_pattern_block(point.pattern)
+               return <PointRow
+                  key={`PointRow_${i}`}
+                  style={row_style} onClick={e => this.setState({selected_point: i})}>
+                  <PatternBlockColumn>{pattern_block}</PatternBlockColumn>
+                  <ShortFormColumn>{`[${point.short_form}]`}</ShortFormColumn>
+                  {coords}
+               </PointRow>
+            })}
       </PointsList>
    }
 
@@ -175,22 +168,7 @@ export class BailiwickPoints extends Component {
          !loading ? '' : <LoadingWrapper>{"Loading, please wait..."}</LoadingWrapper>
       ];
       if (definition_mode && pattern_data.length) {
-
-         const fracto_render = <RenderWrapper>
-            <FractoRender
-               width_px={FRACTO_RENDER_WIDTH_PX}
-               aspect_ratio={1.0}
-               initial_params={fracto_values}
-               on_param_change={values => this.setState({fracto_values: values})}
-               point_highlights={point_highlights}
-            />
-         </RenderWrapper>
-         modal_contents.push(fracto_render);
-
-         const right_side = <RightSideWrapper>
-            {render_fracto_locate_cb(fracto_values, FRACTO_RENDER_WIDTH_PX, values => {
-               this.setState({fracto_values: values})
-            })}
+         const inner_content = [
             <SelectorWrapper><BailiwickPointSelector
                root_pattern={bailiwick_data.pattern}
                pattern_data={pattern_data}
@@ -205,7 +183,7 @@ export class BailiwickPoints extends Component {
                      selected_short_form: short_form
                   })
                }}/>
-            </SelectorWrapper>
+            </SelectorWrapper>,
             <AllPointsWrapper>
                <CoolButton
                   primary={selected_pattern > 0}
@@ -216,8 +194,11 @@ export class BailiwickPoints extends Component {
                />
                {this.render_points_list(all_points, selected_point)}
             </AllPointsWrapper>
-         </RightSideWrapper>
-         modal_contents.push(right_side);
+         ];
+         const fracto_nav = render_fracto_navigation(fracto_values, FRACTO_RENDER_WIDTH_PX, point_highlights, inner_content, values => {
+            this.setState({fracto_values: values})
+         });
+         modal_contents.push(fracto_nav);
       }
 
       const definition_modal = !definition_mode ? '' : <CoolModal

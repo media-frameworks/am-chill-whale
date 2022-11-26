@@ -6,11 +6,10 @@ import {AppStyles, AppColors} from "app/AppImports";
 import Utils from "common/Utils";
 import {PHI} from "common/math/constants";
 
-import FractoRender from "./FractoRender";
 import FractoUtil from "./FractoUtil";
 import FractoCalc from "./FractoCalc";
 import FractoSieve from "./FractoSieve";
-import {render_fracto_locate} from "./FractoStyles";
+import {render_fracto_navigation} from "./FractoStyles";
 
 const RESULT_WIDTH = 2000;
 const RESULT_ASPECT_RATIO = 1 / PHI;
@@ -100,27 +99,27 @@ export class FractoCapture extends Component {
          width: `${result_width}px`,
          height: `${result_height}px`
       }
-      const fracto_locate = render_fracto_locate(fracto_values)
+
+      const inner_content = [
+         <CaptureButton onClick={e => this.capture_image()}>Capture</CaptureButton>
+      ]
+      const with_aspect_ratio = {
+         aspect_ratio: aspect_ratio,
+         focal_point: fracto_values.focal_point,
+         scope: fracto_values.scope,
+         location: fracto_values.location,
+      }
+      const fracto_navigation = render_fracto_navigation(with_aspect_ratio, width_px / 2.0, [], inner_content, values => {
+         this.update_values(values)
+      })
 
       return [
-         <AppStyles.InlineBlock>
-            <FractoRender
-               width_px={width_px / 2.0}
-               aspect_ratio={aspect_ratio}
-               initial_params={fracto_values}
-               on_param_change={values => this.update_values(values)}/>
-         </AppStyles.InlineBlock>,
-         <AppStyles.InlineBlock>
-            {fracto_locate}
-            <CaptureButton onClick={e => this.capture_image()}>Capture</CaptureButton>
-         </AppStyles.InlineBlock>,
-         <AppStyles.InlineBlock>
-            <CanvasField
-               ref={canvas_ref}
-               style={canvas_style}
-               width={`${result_width}px`}
-               height={`${result_height}px`}/>
-         </AppStyles.InlineBlock>
+         fracto_navigation,
+         <CanvasField
+            ref={canvas_ref}
+            style={canvas_style}
+            width={`${result_width}px`}
+            height={`${result_height}px`}/>
       ]
 
    }

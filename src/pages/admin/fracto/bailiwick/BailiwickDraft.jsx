@@ -13,6 +13,7 @@ import FractoUtil from "../FractoUtil";
 import BailiwickPoints from "./BailiwickPoints";
 import BailiwickSeparations from "./BailiwickSeparations";
 import BailiwickNarrative from "./BailiwickNarrative";
+import BailiwickSequence from "./BailiwickSequence";
 
 const FRACTO_S3_URL_BASE = "https://mikehallstudio.s3.amazonaws.com/fracto";
 
@@ -82,6 +83,14 @@ export class BailiwickDraft extends Component {
          {
             label: "separations",
             content: <BailiwickSeparations
+               registry_filename={registry_filename}
+               bailiwick_data={bailiwick_data}
+               on_change={(bailiwick_data) => this.setState({bailiwick_data: bailiwick_data})}
+            />
+         },
+         {
+            label: "sequences",
+            content: <BailiwickSequence
                registry_filename={registry_filename}
                bailiwick_data={bailiwick_data}
                on_change={(bailiwick_data) => this.setState({bailiwick_data: bailiwick_data})}

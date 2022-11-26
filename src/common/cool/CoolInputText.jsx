@@ -8,15 +8,18 @@ export class CoolInputText extends Component {
    static propTypes = {
       value: PropTypes.string,
       style_extra: PropTypes.object,
-      placeholder: PropTypes.string.isRequired,
-      callback: PropTypes.func.isRequired,
-      is_text_area: PropTypes.bool.isRequired,
+      placeholder: PropTypes.string,
+      callback: PropTypes.func,
+      is_text_area: PropTypes.bool,
       on_change: PropTypes.func
    }
 
    static defaultProps = {
       value: '',
-      style_extra: {}
+      style_extra: {},
+      callback: null,
+      placeholder: '',
+      is_text_area: false
    }
 
    state = {
@@ -30,12 +33,16 @@ export class CoolInputText extends Component {
       const key_handler = (key) => {
          if (key.code === "Escape") {
             document.removeEventListener("keydown", key_handler);
-            callback(value);
+            if (callback) {
+               callback(value);
+            }
          }
          if (key.code === "Enter" || key.code === "NumpadEnter") {
             document.removeEventListener("keydown", key_handler);
             if (input_ref.current) {
-               callback(input_ref.current.value);
+               if (callback) {
+                  callback(input_ref.current.value);
+               }
             }
          }
       }
@@ -71,7 +78,11 @@ export class CoolInputText extends Component {
             style={style_extra}
             value={current_value}
             onChange={e => this.on_change(e.target.value)}
-            onBlur={e => callback(input_ref.current.value)}
+            onBlur={e => {
+               if (callback) {
+                  callback(input_ref.current.value)
+               }
+            }}
             placeholder={placeholder}/>
    }
 }

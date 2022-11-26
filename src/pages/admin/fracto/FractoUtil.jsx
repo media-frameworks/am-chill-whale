@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
 const EPSILON = 0.0000000001;
+const ONE_BY_LOG_TEN_THOUSAND = 1 / Math.log(10000);
+const ONE_BY_LOG_ONE_MILLION = 1 / Math.log(1000000);
 
 export const DEFAULT_FRACTO_VALUES = {
    scope: 2.5,
@@ -83,20 +85,28 @@ export class FractoUtil {
       return  short_form ? `r${root},h${relative_harmonic},o${pattern_octave}` : `root ${root}, harmonic ${relative_harmonic}, octave ${pattern_octave}`;
    }
 
+   static color_cache = {};
+
    static fracto_pattern_color = (pattern, iterations = 255) => {
       if (pattern === -1) {
          return 'black'
       }
+      const cache_key = `(${pattern},${iterations})`;
+      if (FractoUtil.color_cache[cache_key]) {
+         return FractoUtil.color_cache[cache_key];
+      }
       if (pattern === 0) {
-         const lum = 1.0 - Math.log(iterations) / Math.log(10000);
+         const lum = 1.0 - Math.log(iterations) * ONE_BY_LOG_TEN_THOUSAND;
          return `hsl(0, 0%, ${Math.round(100 * lum)}%)`;
       }
 
       const log2 = Math.log2(pattern);
       const hue = pattern ? 360 * (log2 - Math.floor(log2)) : 0;
-      const lum = 0.15 + 0.75 * Math.log(iterations) / Math.log(1000000);
+      const lum = 0.15 + 0.75 * Math.log(iterations) * ONE_BY_LOG_ONE_MILLION;
 
-      return `hsl(${Math.round(hue)}, 75%, ${Math.round(100 * lum)}%)`;
+      const result = `hsl(${Math.round(hue)}, 75%, ${Math.round(100 * lum)}%)`;
+      FractoUtil.color_cache[cache_key] = result;
+      return result;
    }
 
    dataURItoBlob = (dataURI) => {

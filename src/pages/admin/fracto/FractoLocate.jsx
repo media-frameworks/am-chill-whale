@@ -3,14 +3,12 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {faCaretRight, faCaretLeft, faCaretUp, faCaretDown} from '@fortawesome/free-solid-svg-icons';
+import {faCaretUp, faCaretDown} from '@fortawesome/free-solid-svg-icons';
 
 import {AppStyles, AppColors} from "app/AppImports";
 
 const CONTROL_TYPE_UP = "control_up";
 const CONTROL_TYPE_DOWN = "control_down";
-const CONTROL_TYPE_LEFT = "control_left";
-const CONTROL_TYPE_RIGHT = "control_right";
 
 const CONTROL_VALUE_SCOPE = "control_span";
 const CONTROL_VALUE_LOCATION = "control_location";
@@ -22,8 +20,8 @@ const PanelEntry = styled(AppStyles.Block)`
 const PanelLabel = styled(AppStyles.InlineBlock)`
    ${AppStyles.bold}
    text-align: right;
-   padding: 0.125rem 0.25rem;
    width: 6rem;
+   height: 1.125rem;
    font-size: 0.85rem;   
    background-color: ${AppColors.HSL_LIGHT_COOL_BLUE};
    margin-top: 0.125rem;
@@ -35,8 +33,7 @@ const PanelValue = styled(AppStyles.InlineBlock)`
 `;
 
 const PanelControls = styled(AppStyles.InlineBlock)`
-   text-align: left;
-   padding: 0.125rem 0.25rem;
+   float: left;
 `;
 
 const PanelWrapper = styled(AppStyles.Block)`
@@ -58,7 +55,7 @@ const ItalicSpan = styled.span`
 `;
 
 const IconControl = styled(AppStyles.InlineBlock)`
-   text-align: right;
+   text-align: left;
    font-size: 1.125rem;
    font-color: #666666;
    opacity: 0.125;
@@ -73,6 +70,10 @@ const UpDownIconControl = styled(IconControl)`
 
 const LeftRightIconControl = styled(IconControl)`
    margin: 0 0.25rem;   
+`;
+
+const TextLabel = styled(AppStyles.InlineBlock)`
+   margin: 0.125rem;   
 `;
 
 export class FractoLocate extends Component {
@@ -109,7 +110,6 @@ export class FractoLocate extends Component {
       if (!cb) {
          return []
       }
-      const location_factor = fracto_values.scope / 8;
       let left_px = bounds_left;
       const controls = control_block.map(block => {
          left_px -= 12;
@@ -118,12 +118,9 @@ export class FractoLocate extends Component {
             case CONTROL_TYPE_UP:
                return <UpDownIconControl
                   style={icon_style}
+                  title={block.tooltip}
                   onClick={e => cb({
-                     focal_point: {
-                        x: fracto_values.focal_point.x,
-                        y: block.value_change === CONTROL_VALUE_LOCATION ?
-                           fracto_values.focal_point.y - location_factor : fracto_values.focal_point.y
-                     },
+                     focal_point: fracto_values.focal_point,
                      scope: block.value_change === CONTROL_VALUE_SCOPE ?
                         fracto_values.scope * block.change_factor : fracto_values.scope
                   })}>
@@ -132,41 +129,14 @@ export class FractoLocate extends Component {
             case CONTROL_TYPE_DOWN:
                return <UpDownIconControl
                   style={icon_style}
+                  title={block.tooltip}
                   onClick={e => cb({
-                     focal_point: {
-                        x: fracto_values.focal_point.x,
-                        y: block.value_change === CONTROL_VALUE_LOCATION ?
-                           fracto_values.focal_point.y + location_factor : fracto_values.focal_point.y
-                     },
+                     focal_point: fracto_values.focal_point,
                      scope: block.value_change === CONTROL_VALUE_SCOPE ?
                         fracto_values.scope * block.change_factor : fracto_values.scope
                   })}>
                   <FontAwesomeIcon icon={faCaretDown}/>
                </UpDownIconControl>
-            case CONTROL_TYPE_LEFT:
-               return <LeftRightIconControl
-                  style={icon_style}
-                  onClick={e => cb({
-                     focal_point: {
-                        x: fracto_values.focal_point.x + location_factor,
-                        y: fracto_values.focal_point.y
-                     },
-                     scope: fracto_values.scope
-                  })}>
-                  <FontAwesomeIcon icon={faCaretLeft}/>
-               </LeftRightIconControl>
-            case CONTROL_TYPE_RIGHT:
-               return <LeftRightIconControl
-                  style={icon_style}
-                  onClick={e => cb({
-                     focal_point: {
-                        x: fracto_values.focal_point.x - location_factor,
-                        y: fracto_values.focal_point.y
-                     },
-                     scope: fracto_values.scope
-                  })}>
-                  <FontAwesomeIcon icon={faCaretRight}/>
-               </LeftRightIconControl>
             default:
                return [];
          }
@@ -185,38 +155,14 @@ export class FractoLocate extends Component {
                {
                   type: CONTROL_TYPE_UP,
                   value_change: CONTROL_VALUE_SCOPE,
-                  change_factor: 1.99
+                  change_factor: 1.99,
+                  tooltip: "zoom out"
                },
                {
                   type: CONTROL_TYPE_DOWN,
                   value_change: CONTROL_VALUE_SCOPE,
-                  change_factor: 0.51
-               },
-            ]
-         },
-         {
-            label: "focal point",
-            value: FractoLocate.render_coordinates(fracto_values.focal_point.x, fracto_values.focal_point.y),
-            controls: [
-               {
-                  type: CONTROL_TYPE_UP,
-                  value_change: CONTROL_VALUE_LOCATION,
-                  change_factor: 2.0
-               },
-               {
-                  type: CONTROL_TYPE_DOWN,
-                  value_change: CONTROL_VALUE_LOCATION,
-                  change_factor: 0.5
-               },
-               {
-                  type: CONTROL_TYPE_LEFT,
-                  value_change: CONTROL_VALUE_LOCATION,
-                  change_factor: 2.0
-               },
-               {
-                  type: CONTROL_TYPE_RIGHT,
-                  value_change: CONTROL_VALUE_LOCATION,
-                  change_factor: 0.5
+                  change_factor: 0.51,
+                  tooltip: "zoom in"
                },
             ]
          },
@@ -227,22 +173,39 @@ export class FractoLocate extends Component {
                {
                   type: CONTROL_TYPE_UP,
                   value_change: CONTROL_VALUE_SCOPE,
-                  change_factor: 0.8
+                  change_factor: 1.25,
+                  tooltip: "zoom out"
                },
                {
                   type: CONTROL_TYPE_DOWN,
                   value_change: CONTROL_VALUE_SCOPE,
-                  change_factor: 1.25
+                  change_factor: 0.8,
+                  tooltip: "zoom in"
                },
             ]
          },
+         {
+            label: "focal point",
+            value: FractoLocate.render_coordinates(fracto_values.focal_point.x, fracto_values.focal_point.y),
+         },
+         {
+            label: "location",
+            value: !fracto_values.location ? '-' :
+               FractoLocate.render_coordinates(fracto_values.location.x, fracto_values.location.y),
+         }
       ];
       const panel = panel_data.map(datum => {
-         const controls = this.render_controls(datum.controls);
+         let controls = '';
+         if (datum.controls) {
+            const rendered = this.render_controls(datum.controls);
+            controls = <PanelControls>{rendered}</PanelControls>
+         }
          return <PanelEntry>
-            <PanelLabel>{datum.label}:</PanelLabel>
+            <PanelLabel>
+               {controls}
+               <TextLabel>{datum.label}:</TextLabel>
+            </PanelLabel>
             <PanelValue>{datum.value}</PanelValue>
-            <PanelControls>{controls}</PanelControls>
          </PanelEntry>
       });
       return <PanelWrapper ref={panel_ref}>{panel}</PanelWrapper>

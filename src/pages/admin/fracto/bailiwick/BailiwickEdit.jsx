@@ -14,18 +14,10 @@ import BailiwickDefine from "./BailiwickDefine";
 import CommonRenderings from "../common/CommonRenderings";
 import CommonFiles from "../common/CommonFiles";
 
-import FractoRender from "../FractoRender";
 import FractoLocate from "../FractoLocate";
-import {render_fracto_locate_cb} from "../FractoStyles";
+import {render_fracto_navigation} from "../FractoStyles";
 
 export const FRACTO_RENDER_WIDTH_PX = 512;
-
-const RenderWrapper = styled(AppStyles.InlineBlock)`
-   margin: 0 1rem 1rem 1rem;
-   border: 0.125rem solid #aaaaaa;
-   border-radius: 0.25rem;
-   height: ${FRACTO_RENDER_WIDTH_PX}px;
-`;
 
 const InfoWrapper = styled(AppStyles.InlineBlock)`
    margin-top: 0.125rem;
@@ -72,6 +64,7 @@ export class BailiwickEdit extends Component {
             focal_point: bailiwick_data.core_point,
             scope: 0.05
          }
+         console.log("fracto_values", fracto_values)
          this.setState({
             bailiwick_data: bailiwick_data,
             fracto_values: fracto_values,
@@ -126,20 +119,6 @@ export class BailiwickEdit extends Component {
       if (bailiwick_data.octave_point) {
          point_highlights.push(bailiwick_data.octave_point);
       }
-      const fracto_render = !fracto_values.scope ? '' : <RenderWrapper>
-         <FractoRender
-            width_px={FRACTO_RENDER_WIDTH_PX}
-            aspect_ratio={1.0}
-            initial_params={fracto_values}
-            on_param_change={values => this.setState({fracto_values: values})}
-            point_highlights={point_highlights}
-         />
-      </RenderWrapper>
-
-      const fracto_locate = render_fracto_locate_cb(fracto_values, FRACTO_RENDER_WIDTH_PX, values => {
-         console.log("render_fracto_locate_cb(fracto_values", FRACTO_RENDER_WIDTH_PX, values)
-         this.setState({fracto_values: values})
-      });
 
       const link_span = <LinkSpan onClick={e => this.set_display_settings()}>{"set now"}</LinkSpan>;
       const display_settings = this.data_row('display settings', [
@@ -148,9 +127,7 @@ export class BailiwickEdit extends Component {
          !bailiwick_data.display_settings ? link_span : [' (', link_span, ')']
       ]);
 
-      console.log("bailiwick_data", bailiwick_data)
       const bailiwick_dirname = registry_filename.replace('/registry.json', '');
-      console.log("bailiwick_dirname", bailiwick_dirname)
       const bailiwick_edit_tabs = [
          {
             label: "renderings",
@@ -188,14 +165,14 @@ export class BailiwickEdit extends Component {
          }
       ];
 
-      return [
-         fracto_render,
-         <AppStyles.InlineBlock>{[
-            fracto_locate,
-            <InfoWrapper>{display_settings}</InfoWrapper>,
-            <CoolTabs tab_data={bailiwick_edit_tabs}/>
-         ]}</AppStyles.InlineBlock>
+      const inner_content = [
+         <InfoWrapper>{display_settings}</InfoWrapper>,
+         <CoolTabs tab_data={bailiwick_edit_tabs}/>
       ]
+      return render_fracto_navigation(fracto_values, FRACTO_RENDER_WIDTH_PX, point_highlights, inner_content, values => {
+         this.setState({fracto_values: values})
+      })
+
    }
 }
 

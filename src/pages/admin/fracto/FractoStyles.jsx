@@ -4,6 +4,7 @@ import {AppStyles, AppColors} from "app/AppImports";
 import FractoImage from "./FractoImage";
 import FractoLocate from "./FractoLocate";
 import FractoUtil from "./FractoUtil";
+import FractoRender from "./FractoRender";
 import {get_ideal_level} from "./FractoData";
 
 const TitleBar = styled(AppStyles.Block)`
@@ -44,16 +45,18 @@ const ModalTitleBar = styled(AppStyles.Block)`
    color: #888888;
    font-size: 0.85rem;
    border-bottom: 0.125rem solid ${AppColors.HSL_COOL_BLUE};
+   margin: 0.5rem 1rem;
 `;
 
 export const render_modal_title = (title) => <ModalTitleBar>{title}</ModalTitleBar>
 
-const LocateWrapper = styled(AppStyles.Block)`   
+const LocateWrapper = styled(AppStyles.InlineBlock)`   
    ${AppStyles.noselect}
    border: 0.125rem solid #aaaaaa;
-   width: auto;
-   height: 5.25rem;
+   width: 32rem;
+   height: 6.25rem;
    border-radius: 0.25rem;
+   margin-top: 1rem;
 `;
 
 export const render_fracto_locate = (fracto_values, width_px = 0) => {
@@ -89,4 +92,37 @@ export const render_pattern_block = (pattern) => {
       style={{backgroundColor: pattern_color}}>
       {pattern}
    </PatternBlock>
+}
+
+const RenderWrapper = styled(AppStyles.InlineBlock)`
+   margin: 1rem;
+   border: 0.125rem solid #aaaaaa;
+   border-radius: 0.25rem;
+`;
+
+export const render_fracto_navigation = (fracto_values, width_px, point_highlights, inner_content, values_cb) => {
+   const aspect_ratio = fracto_values.aspect_ratio ? fracto_values.aspect_ratio : 1.0;
+   const fracto_render = <RenderWrapper>
+      <FractoRender
+         width_px={width_px}
+         aspect_ratio={aspect_ratio}
+         initial_params={fracto_values}
+         on_param_change={values => values_cb(values)}
+         point_highlights={point_highlights}/>
+   </RenderWrapper>
+   const fracto_locate = render_fracto_locate_cb(fracto_values, width_px, values => {
+      console.log("render_fracto_locate_cb(fracto_values", width_px, values)
+      values_cb(values)
+   });
+   return [
+      fracto_render,
+      <AppStyles.InlineBlock>
+         <AppStyles.Block>
+            {fracto_locate}
+         </AppStyles.Block>
+         <AppStyles.Block>
+            {inner_content}
+         </AppStyles.Block>
+      </AppStyles.InlineBlock>
+   ]
 }

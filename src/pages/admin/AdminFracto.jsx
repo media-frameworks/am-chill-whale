@@ -6,11 +6,14 @@ import {AppStyles, AppBrand, AppTitleBar, AppColors} from "app/AppImports";
 import SectionIndex, {
    SECTION_WIDTH_PCT, INITIAL_SPLITTER_POS_PX
 } from "common/SectionIndex";
+import CoolModal from "common/cool/CoolModal";
 
 import FractoRender from "./fracto/FractoRender";
 import FractoCapture from "./fracto/FractoCapture";
 import FractoTessellate from "./fracto/FractoTessellate";
+import FractoCruiser from "./fracto/FractoCruiser";
 import SequenceCollection from "./fracto/sequence/SequenceCollection";
+import FractoData from "./fracto/FractoData";
 
 import LevelDirectory from "./fracto/levels/LevelDirectory";
 import BailiwickRegistry from "./fracto/bailiwick/BailiwickRegistry";
@@ -23,6 +26,8 @@ import FractonePageBuild from "./fractone/FractonePageBuild";
 import FractonePageLoad from "./fractone/FractonePageLoad";
 import FractonePagePlay from "./fractone/FractonePagePlay";
 import FractoneSelector from "./fractone/FractoneSelector";
+
+import Logo from "res/images/logo.jpg"
 
 const FRACTONE_PAGE_LOAD_AND_TEST = "load_and_test";
 const FRACTONE_PAGE_GO_LIVE = "go_live";
@@ -65,7 +70,28 @@ const SECTIONS = [
    {title: "burrows", key: "burrows"},
    {title: "observatory", key: "observatory"},
    {title: "test harness", key: "testharness"},
+   {title: "cruiser", key: "cruiser"},
 ];
+
+const CenteredBlock = styled(AppStyles.Block)`
+   ${AppStyles.centered}
+`;
+
+const MessageText = styled(AppStyles.Block)`
+   ${AppStyles.italic}
+   padding-top: 0.5rem;
+   font-size: 1.125rem;
+`;
+
+const LogoImage = styled.img`
+    width: 100px;
+    padding-bottom: 0.5rem;
+`;
+
+const LoadingWaitWrapper = styled(AppStyles.Block)`
+   border: 0.5rem double ${AppColors.HSL_COOL_BLUE};
+   margin: 0;
+`;
 
 export class AdminFracto extends Component {
 
@@ -84,20 +110,36 @@ export class AdminFracto extends Component {
          selected_page: FRACTONE_PAGE_BUILD_INSTRUMENTS
       },
       fractone_instrument: '',
-      section_splitter_pos: INITIAL_SPLITTER_POS_PX
+      section_splitter_pos: INITIAL_SPLITTER_POS_PX,
+      loading_directory: false
    };
 
    componentDidMount() {
-      const {admin_back_ref} = this.state;
-      AppBrand.swatch_fadein(admin_back_ref, AppBrand.COOL_FADE_IN_MS);
+      window.addEventListener("resize", this.update_window_dimensions);
       this.set_content_wrapper_rect();
+
+      this.setState({loading_directory: true})
+      FractoData.load_completed_async(returns => {
+         this.setState({loading_directory: false})
+      });
+   }
+
+   update_window_dimensions = (e) => {
+      const {section_splitter_pos} = this.state;
+      this.setState({
+         content_wrapper_rect: {
+            width: e.currentTarget.innerWidth - 5 - section_splitter_pos,
+            height: e.currentTarget.innerHeight - 5
+         }
+      });
    }
 
    set_content_wrapper_rect = () => {
       const {fracto_ref, content_wrapper_rect} = this.state;
       if (fracto_ref.current) {
          const new_content_wrapper_rect = fracto_ref.current.getBoundingClientRect();
-         if (content_wrapper_rect.width !== new_content_wrapper_rect.width) {
+         if (content_wrapper_rect.width !== new_content_wrapper_rect.width ||
+            content_wrapper_rect.height !== new_content_wrapper_rect.height) {
             this.setState({content_wrapper_rect: new_content_wrapper_rect});
          }
       }
@@ -123,7 +165,8 @@ export class AdminFracto extends Component {
    render() {
       const {
          admin_back_ref, selected_title, fracto_ref, section_splitter_pos,
-         content_wrapper_rect, fracto_values, fractone, fractone_instrument
+         content_wrapper_rect, fracto_values, fractone, fractone_instrument,
+         loading_directory
       } = this.state;
       const title = "fracto";
       let frame_contents = [];
@@ -196,6 +239,16 @@ export class AdminFracto extends Component {
             </ContentWrapper>;
             break;
 
+         case "cruiser":
+            frame_contents = <ContentWrapper
+               style={wrapperStyle}>
+               <FractoCruiser
+                  width_px={content_wrapper_rect.width}
+                  height_px={content_wrapper_rect.height}
+               />
+            </ContentWrapper>;
+            break;
+
          case "fractone":
             console.log("fractone_instrument", fractone_instrument)
             switch (fractone.selected_page) {
@@ -250,10 +303,27 @@ export class AdminFracto extends Component {
             frame_contents = [`unknown: ${selected_title}`];
             break;
       }
+
+      const modal_contents = !loading_directory ? '' : <LoadingWaitWrapper>
+         <CenteredBlock><MessageText>{"Loading tile data, please look busy..."}</MessageText></CenteredBlock>
+         <CenteredBlock><LogoImage
+            width={100}
+            src={Logo}
+            alt={"am-chill-whale"}
+         />
+         </CenteredBlock>
+      </LoadingWaitWrapper>
+      const loading_modal = !loading_directory ? '' : <CoolModal
+         width={"24rem"}
+         settings={{no_escape: true}}
+         contents={modal_contents}
+      />
+
       return <AppStyles.PageWrapper>
          <AppTitleBar title={title} blurb={AppBrand.CATCH_PHRASE}/>
          {AppBrand.link_swatch(admin_back_ref, AppBrand.ADMIN_TITLE, AppBrand.ADMIN_PATH)}
          {frame_contents}
+         {loading_modal}
          <SectionIndex
             index={SECTIONS}
             width_px={section_splitter_pos}

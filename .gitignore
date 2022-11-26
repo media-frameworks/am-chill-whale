@@ -41,6 +41,7 @@ yarn-error.log*
 /src/data/fracto/studies
 /src/data/fracto/bailiwicks
 /src/data/fracto/sequences
+/src/data/fracto/directory
 
 /script/admin
 

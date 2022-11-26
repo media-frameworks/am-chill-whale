@@ -70,7 +70,7 @@ export class StoreS3 {
 
    static file_cache = {};
 
-   static get_file_async(name, prefix = S3_PREFIX, cb) {
+   static get_file_async(name, prefix = S3_PREFIX, cb, cache_results = true) {
       if (StoreS3.file_cache[name]) {
          cb(StoreS3.file_cache[name]);
          return;
@@ -86,7 +86,9 @@ export class StoreS3 {
             cb(false)
          } else {
             const str_data = data.Body.toString('utf-8');
-            StoreS3.file_cache[name] = str_data;
+            if (cache_results) {
+               StoreS3.file_cache[name] = str_data;
+            }
             cb(str_data)
          }
       })

@@ -99,15 +99,16 @@ export class LevelTiles extends Component {
    render() {
       const {selected_row, tiles_list_ref, discover_mode} = this.state;
       const {cells} = this.props;
-      const tiles_list = cells.map((cell, i) => {
-         const short_code = <ShortCodeSpan>
-            {FractoUtil.get_short_code(cell.code)}
-         </ShortCodeSpan>
-         const location = FractoLocate.render_coordinates(cell.bounds.left, cell.bounds.top)
-         const row_location = i === selected_row ?
-            <SelectedRow>{location}</SelectedRow> : location;
-         return <TileRow onClick={e => this.setState({selected_row: i})}>{short_code}{row_location}</TileRow>
-      })
+      const tiles_list = []
+      // const tiles_list = cells.map((cell, i) => {
+      //    const short_code = <ShortCodeSpan>
+      //       {FractoUtil.get_short_code(cell.code)}
+      //    </ShortCodeSpan>
+      //    const location = FractoLocate.render_coordinates(cell.bounds.left, cell.bounds.top)
+      //    const row_location = i === selected_row ?
+      //       <SelectedRow>{location}</SelectedRow> : location;
+      //    return <TileRow onClick={e => this.setState({selected_row: i})}>{short_code}{row_location}</TileRow>
+      // })
       const selected_short_code = FractoUtil.get_short_code(cells[selected_row].code)
       const image_url = `${FRACTO_S3_URL_BASE}/${selected_short_code}.png`;
       const tile_view = <AppStyles.InlineBlock>

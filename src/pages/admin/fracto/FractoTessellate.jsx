@@ -2,13 +2,16 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled, {css} from "styled-components";
 
-import {AppStyles, AppColors} from "../../../app/AppImports";
+import {AppStyles, AppColors} from "app/AppImports";
 
 import FractoRender from "./FractoRender";
 import FractoTileEditor from "./FractoTileEditor";
 import FractoLocate from "./FractoLocate";
-import {get_ideal_level, get_level_tiles} from "./FractoData";
+import {get_ideal_level, get_level_tiles, get_empties, get_level_cells} from "./FractoData";
 import {render_fracto_locate} from "./FractoStyles";
+
+import CommonTilesGenerate from "./common/CommonTilesGenerate"
+import {GENERATE_NO_INLAND_TILES, GENERATE_NO_EMPTY_TILES, GENERATE_VERIFY_TILES} from "./tile/TileProcessor";
 
 const IMAGE_ASPECT_RATIO = 0.5;
 const IMAGE_WIDTH_PX = 1000;
@@ -79,6 +82,16 @@ const StatsElement = styled(AppStyles.InlineBlock)`
    font-size: 0.85rem; 
 `;
 
+const GoLink = styled(AppStyles.InlineBlock)`
+   ${AppStyles.bold}
+   ${AppStyles.link};
+   ${AppColors.COLOR_COOL_BLUE};
+   ${AppStyles.noselect}
+   ${AppStyles.pointer}
+   margin: 1rem;   
+   font-size: 1.25rem; 
+`;
+
 export class FractoTessellate extends Component {
 
    static propTypes = {
@@ -100,7 +113,11 @@ export class FractoTessellate extends Component {
       all_tiles: [],
       level: 2,
       edit_empties: true,
-      hover_tile: {}
+      hover_tile: {},
+      go_time: false,
+      generate_tiles: [],
+      go_time_verify: false,
+      verify_tiles: []
    };
 
    componentDidMount() {
@@ -314,11 +331,42 @@ export class FractoTessellate extends Component {
       ]
    }
 
+   go = (level, offset) => {
+      const generate_tiles = get_empties(level)
+         .filter(a => a.bounds.left > offset)
+         .sort((a, b) => {
+         return a.bounds.left === b.bounds.left ?
+            b.bounds.top - a.bounds.top :
+            a.bounds.left - b.bounds.left;
+      });
+      console.log("generate_tiles", generate_tiles);
+      this.setState({
+         go_time: level,
+         generate_tiles: generate_tiles
+      })
+   }
+
+   go_verify = (level, offset = -0.60) => {
+      const verify_tiles = get_level_cells(level)
+         .filter(a => a.bounds.left > offset)
+         .sort((a, b) => {
+            return a.bounds.left === b.bounds.left ?
+               b.bounds.top - a.bounds.top :
+               a.bounds.left - b.bounds.left;
+         });
+      console.log("verify_tiles", verify_tiles);
+      this.setState({
+         go_time_verify: level,
+         verify_tiles: verify_tiles
+      })
+   }
+
    render() {
       const {
          fracto_values, fracto_ref,
          cursor_x, cursor_y, tile_outline,
-         selected_tile, edit_empties
+         selected_tile, edit_empties, go_time, generate_tiles,
+         go_time_verify, verify_tiles
       } = this.state;
       const selected_tile_outline = this.get_tile_outline(selected_tile);
 
@@ -331,6 +379,31 @@ export class FractoTessellate extends Component {
             auto_publish={!edit_empties}
          />
       </TileEditWrapper>;
+
+      const go_11_link = <GoLink onClick={e => this.go(11, -0.61)}>Go 11</GoLink>
+      const go_11_verify_link = <GoLink onClick={e => this.go_verify(11)}>Go 11 (verify)</GoLink>
+      const go_12_link = <GoLink onClick={e => this.go(12, -1.155)}>Go 12</GoLink>
+      const go_13_link = <GoLink onClick={e => this.go(13, -1.355)}>Go 13</GoLink>
+      const go_14_link = <GoLink onClick={e => this.go(14, -1.42)}>Go 14</GoLink>
+      const go_15_link = <GoLink onClick={e => this.go(15, -1.77)}>Go 15</GoLink>
+      const go_16_link = <GoLink onClick={e => this.go(16, -1.779)}>Go 16</GoLink>
+      const go_17_link = <GoLink onClick={e => this.go(17, -1.95)}>Go 17</GoLink>
+
+      let options = {};
+      options[GENERATE_NO_EMPTY_TILES] = true;
+      options[GENERATE_NO_INLAND_TILES] = true;
+      const go_time_modal = !go_time ? '' : <CommonTilesGenerate
+         on_response_modal={r => this.setState({go_time: false})}
+         tiles_list={generate_tiles}
+         options={options}/>
+      const verify_options = {};
+
+      let options_verify = Object.assign({}, options);
+      options_verify[GENERATE_VERIFY_TILES] = true;
+      const go_time_verify_modal = !go_time_verify ? '' : <CommonTilesGenerate
+         on_response_modal={r => this.setState({go_time_verify: false})}
+         tiles_list={verify_tiles}
+         options={options_verify}/>
 
       const fracto_locate = render_fracto_locate(fracto_values);
       return <AppStyles.Block>
@@ -355,6 +428,15 @@ export class FractoTessellate extends Component {
          </TileSelectWrapper>
          <CoordsWrapper>{this.render_nav_bar()}</CoordsWrapper>
          {tile_edit}
+         {go_11_link}{go_11_verify_link}
+         {go_12_link}
+         {go_13_link}
+         {go_14_link}
+         {go_15_link}
+         {go_16_link}
+         {go_17_link}
+         {go_time_modal}
+         {go_time_verify_modal}
       </AppStyles.Block>
    }
 

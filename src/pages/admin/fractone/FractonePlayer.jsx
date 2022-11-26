@@ -249,7 +249,9 @@ export class FractonePlayer extends Component {
       const {synths} = this.state;
       this.setState({in_drag: false});
       for (let s = 0; s < SYNTH_COUNT; s++) {
-         synths[s].synth.triggerRelease()
+         if (synths[s].synth) {
+            synths[s].synth.triggerRelease()
+         }
       }
    }
 

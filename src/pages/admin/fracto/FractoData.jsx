@@ -1,3 +1,5 @@
+import React, {Component} from 'react';
+
 import LEVEL_02 from "data/fracto/json_100/level_02_complete.json";
 import LEVEL_03 from "data/fracto/json_100/level_03_complete.json";
 import LEVEL_04 from "data/fracto/json_100/level_04_complete.json";
@@ -157,6 +159,8 @@ const LEVEL_SCOPES = [
 let scope = 2.0;
 for (let level = 0; level < LEVEL_SCOPES.length; level++) {
    LEVEL_SCOPES[level]["scope"] = scope;
+   LEVEL_SCOPES[level]["completed"] = {};
+   LEVEL_SCOPES[level]["potentials"] = {};
    scope *= 0.5;
 }
 
@@ -198,11 +202,98 @@ export const get_level_tiles = (width_px, scope, flag = GET_ALL_TILES) => {
    return cached_level_tiles[cache_key];
 }
 
+export const get_empties = (level) => {
+   return LEVEL_SCOPES[level].empties;
+}
+
 export const get_level_cells = (level) => {
    return LEVEL_SCOPES[level].cells;
+}
+
+export const get_level_scope = (level) => {
+   return LEVEL_SCOPES[level].scope;
 }
 
 export const get_tile = (level, code) => {
    const list_of_one = LEVEL_SCOPES[level].cells.filter(tile => tile.code === code);
    return list_of_one.length ? list_of_one[0] : null;
 }
+
+export const get_region_tiles = (level, focal_point, scope, aspect_ratio = 1.0) => {
+   const scope_by_two = scope / 2;
+   const viewport = {
+      left: focal_point.x - scope_by_two,
+      top: focal_point.y + scope_by_two * aspect_ratio,
+      right: focal_point.x + scope_by_two,
+      bottom: focal_point.y - scope_by_two * aspect_ratio,
+   }
+   return LEVEL_SCOPES[level].cells.filter(cell => {
+      if (cell.bounds.right < viewport.left) {
+         return false;
+      }
+      if (cell.bounds.left > viewport.right) {
+         return false;
+      }
+      if (cell.bounds.top < viewport.bottom) {
+         return false;
+      }
+      if (cell.bounds.bottom > viewport.top) {
+         return false;
+      }
+      return true;
+   })
+}
+
+const URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
+const COMPLETED_TILES_URL = `${URL_BASE}/json_100/completed.csv`;
+const POTENTIALS_TILES_URL = `${URL_BASE}/json_100/potentials.csv`;
+
+export class FractoData extends Component {
+
+   static load_completed_async = (cb) => {
+      fetch(COMPLETED_TILES_URL)
+         .then(response => response.text())
+         .then(csv => {
+            const lines = csv.split("\n");
+            console.log("completed tiles loaded", lines.length)
+            for (let line_index = 1; line_index < lines.length; line_index++) {
+               const values = lines[line_index].split(',');
+               const short_code = values[0];
+               const level = short_code.length;
+               LEVEL_SCOPES[level]["completed"][short_code] = {
+                  left: parseFloat(values[1]),
+                  top: parseFloat(values[2]),
+                  right: parseFloat(values[3]),
+                  bottom: parseFloat(values[4]),
+               }
+            }
+            console.log("completed tiles parsed")
+            cb(true);
+         })
+   }
+
+   static load_potentials_async = (cb) => {
+      fetch(POTENTIALS_TILES_URL)
+         .then(response => response.text())
+         .then(csv => {
+            const lines = csv.split("\n");
+            console.log("potentials tiles loaded", lines.length)
+            for (let line_index = 1; line_index < lines.length; line_index++) {
+               const values = lines[line_index].split(',');
+               const short_code = values[0];
+               const level = short_code.length;
+               LEVEL_SCOPES[level]["potentials"][short_code] = {
+                  left: parseFloat(values[1]),
+                  top: parseFloat(values[2]),
+                  right: parseFloat(values[3]),
+                  bottom: parseFloat(values[4]),
+               }
+            }
+            console.log("potentials tiles parsed")
+            cb(true);
+         })
+   }
+
+}
+
+export default FractoData;
