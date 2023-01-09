@@ -33,7 +33,7 @@ const MainLink = styled(AppStyles.InlineBlock)`
    ${AppStyles.underline}
    ${AppColors.COLOR_COOL_BLUE};
    font-size: 1.125rem;
-   margin: 0.5rem 1rem 0;
+   margin: 0 1rem;
 `;
 
 export const render_main_link = (text, cb) => <MainLink onClick={e => cb(e)}>{text}</MainLink>
@@ -56,7 +56,6 @@ const LocateWrapper = styled(AppStyles.InlineBlock)`
    width: 32rem;
    height: 6.25rem;
    border-radius: 0.25rem;
-   margin-top: 1rem;
 `;
 
 export const render_fracto_locate = (fracto_values, width_px = 0) => {
@@ -94,8 +93,22 @@ export const render_pattern_block = (pattern) => {
    </PatternBlock>
 }
 
+const ShortCodeSpan = styled.span`
+   ${AppStyles.monospace}
+   font-size: 1.125rem;
+   color: white;
+   border-radius: 0.25rem;
+   padding: 0.125rem 0.25rem 0;
+   margin-right: 0.5rem;
+   background-color: ${AppColors.HSL_DEEP_BLUE};
+`;
+
+export const render_short_code = (short_code) => {
+   return <ShortCodeSpan>{short_code}</ShortCodeSpan>
+}
+
 const RenderWrapper = styled(AppStyles.InlineBlock)`
-   margin: 1rem;
+   margin: 0 1rem 1rem 0;
    border: 0.125rem solid #aaaaaa;
    border-radius: 0.25rem;
 `;

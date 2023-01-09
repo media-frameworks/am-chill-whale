@@ -1,8 +1,8 @@
-import React, {Component} from 'react';
+import {Component} from 'react';
 import PropTypes from 'prop-types';
-import styled from "styled-components";
+// import styled from "styled-components";
 
-import {AppStyles} from "app/AppImports";
+// import {AppStyles} from "app/AppImports";
 
 import {render_title_bar} from "./FractoStyles";
 
@@ -16,7 +16,6 @@ export class FractoCruiser extends Component {
    state = {}
 
    render() {
-      const {width_px, height_px} = this.props;
       const title_bar = render_title_bar(`fracto cruiser`);
       return [
          title_bar

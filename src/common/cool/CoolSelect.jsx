@@ -5,7 +5,7 @@ import styled from "styled-components";
 // import {AppStyles} from "../../app/AppImports";
 
 const SelectWrapper = styled.select`
-   padding: 0.5rem 1 rem;
+   padding: 0.25rem 0.5rem;
 `;
 
 const CoolOption = styled.option`

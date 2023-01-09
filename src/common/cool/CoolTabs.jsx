@@ -40,6 +40,11 @@ export class CoolTabs extends Component {
 
    static propTypes = {
       tab_data: PropTypes.array.isRequired,
+      style: PropTypes.object
+   }
+
+   static defaultProps = {
+      style: {}
    }
 
    state = {
@@ -48,15 +53,15 @@ export class CoolTabs extends Component {
 
    render() {
       const {selected_index} = this.state;
-      const {tab_data} = this.props;
+      const {tab_data, style} = this.props;
       const all_tabs = tab_data.map((tab, i) => {
          return i !== selected_index ?
             <TabSpan onClick={e => this.setState({selected_index: i})}>{tab.label}</TabSpan> :
             <TabSpanSelected>{tab.label}</TabSpanSelected>
       })
       return [
-         <TabsWrapper>{all_tabs}</TabsWrapper>,
-         <CardWrapper>{tab_data[selected_index].content}</CardWrapper>
+         <TabsWrapper style={style}>{all_tabs}</TabsWrapper>,
+         <CardWrapper style={style}>{tab_data[selected_index].content}</CardWrapper>
       ]
    }
 }

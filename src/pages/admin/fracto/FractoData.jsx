@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import {Component} from 'react';
 
 import LEVEL_02 from "data/fracto/json_100/level_02_complete.json";
 import LEVEL_03 from "data/fracto/json_100/level_03_complete.json";
@@ -161,6 +161,8 @@ for (let level = 0; level < LEVEL_SCOPES.length; level++) {
    LEVEL_SCOPES[level]["scope"] = scope;
    LEVEL_SCOPES[level]["completed"] = {};
    LEVEL_SCOPES[level]["potentials"] = {};
+   LEVEL_SCOPES[level]["ready"] = {};
+   LEVEL_SCOPES[level]["indexed"] = {};
    scope *= 0.5;
 }
 
@@ -245,12 +247,36 @@ export const get_region_tiles = (level, focal_point, scope, aspect_ratio = 1.0) 
 }
 
 const URL_BASE = "http://dev.mikehallstudio.com/am-chill-whale/src/data/fracto";
-const COMPLETED_TILES_URL = `${URL_BASE}/json_100/completed.csv`;
-const POTENTIALS_TILES_URL = `${URL_BASE}/json_100/potentials.csv`;
+
+const COMPLETED_TILES_URL = `${URL_BASE}/directory/complete.csv`;
+const POTENTIALS_TILES_URL = `${URL_BASE}/directory/new.csv`;
+const READY_TILES_URL = `${URL_BASE}/directory/ready.csv`;
+const INDEXED_TILES_URL = `${URL_BASE}/directory/indexed.csv`;
 
 export class FractoData extends Component {
 
+   static completed_tiles_loaded = false;
+   static potentials_tiles_loaded = false;
+   static ready_tiles_loaded = false;
+   static indexed_tiles_loaded = false;
+
+   static loading_completed_tiles = false;
+   static loading_potentials_tiles = false;
+   static loading_ready_tiles = false;
+   static loading_indexed_tiles = false;
+
+
    static load_completed_async = (cb) => {
+      if (FractoData.completed_tiles_loaded) {
+         cb(true);
+         return;
+      }
+      if (FractoData.loading_completed_tiles) {
+         cb(false);
+         return;
+      }
+      FractoData.loading_completed_tiles = true;
+      console.log(`fetching completed tiles`)
       fetch(COMPLETED_TILES_URL)
          .then(response => response.text())
          .then(csv => {
@@ -258,7 +284,7 @@ export class FractoData extends Component {
             console.log("completed tiles loaded", lines.length)
             for (let line_index = 1; line_index < lines.length; line_index++) {
                const values = lines[line_index].split(',');
-               const short_code = values[0];
+               const short_code = String(values[0]);
                const level = short_code.length;
                LEVEL_SCOPES[level]["completed"][short_code] = {
                   left: parseFloat(values[1]),
@@ -268,11 +294,23 @@ export class FractoData extends Component {
                }
             }
             console.log("completed tiles parsed")
+            FractoData.completed_tiles_loaded = true;
+            FractoData.loading_completed_tiles = false;
             cb(true);
          })
    }
 
    static load_potentials_async = (cb) => {
+      if (FractoData.potentials_tiles_loaded) {
+         cb(true);
+         return;
+      }
+      if (FractoData.loading_potentials_tiles) {
+         cb(false);
+         return;
+      }
+      FractoData.loading_potentials_tiles = true;
+      console.log(`fetching new tiles`)
       fetch(POTENTIALS_TILES_URL)
          .then(response => response.text())
          .then(csv => {
@@ -280,7 +318,7 @@ export class FractoData extends Component {
             console.log("potentials tiles loaded", lines.length)
             for (let line_index = 1; line_index < lines.length; line_index++) {
                const values = lines[line_index].split(',');
-               const short_code = values[0];
+               const short_code = String(values[0]);
                const level = short_code.length;
                LEVEL_SCOPES[level]["potentials"][short_code] = {
                   left: parseFloat(values[1]),
@@ -290,8 +328,196 @@ export class FractoData extends Component {
                }
             }
             console.log("potentials tiles parsed")
+            FractoData.potentials_tiles_loaded = true;
+            FractoData.loading_potentials_tiles = false;
             cb(true);
          })
+   }
+
+   static load_readies_async = (cb) => {
+      if (FractoData.ready_tiles_loaded) {
+         cb(true);
+         return;
+      }
+      if (FractoData.loading_ready_tiles) {
+         cb(false);
+         return;
+      }
+      FractoData.loading_ready_tiles = true;
+      console.log(`fetching ready tiles`)
+      fetch(READY_TILES_URL)
+         .then(response => response.text())
+         .then(csv => {
+            const lines = csv.split("\n");
+            console.log("ready tiles loaded", lines.length)
+            for (let line_index = 1; line_index < lines.length; line_index++) {
+               const values = lines[line_index].split(',');
+               const short_code = String(values[0]);
+               const level = short_code.length;
+               LEVEL_SCOPES[level]["ready"][short_code] = {
+                  left: parseFloat(values[1]),
+                  top: parseFloat(values[2]),
+                  right: parseFloat(values[3]),
+                  bottom: parseFloat(values[4]),
+               }
+            }
+            console.log("ready tiles parsed")
+            FractoData.ready_tiles_loaded = true;
+            FractoData.loading_ready_tiles = false;
+            cb(true);
+         })
+   }
+
+   static load_indexed_async = (cb) => {
+      if (FractoData.indexed_tiles_loaded) {
+         cb(true);
+         return;
+      }
+      if (FractoData.loading_indexed_tiles) {
+         cb(false);
+         return;
+      }
+      FractoData.loading_indexed_tiles = true;
+      console.log(`fetching indexed tiles`)
+      fetch(INDEXED_TILES_URL)
+         .then(response => response.text())
+         .then(csv => {
+            const lines = csv.split("\n");
+            console.log("indexed tiles loaded", lines.length)
+            for (let line_index = 1; line_index < lines.length; line_index++) {
+               const values = lines[line_index].split(',');
+               const short_code = String(values[0]);
+               const level = short_code.length;
+               LEVEL_SCOPES[level]["indexed"][short_code] = {
+                  left: parseFloat(values[1]),
+                  top: parseFloat(values[2]),
+                  right: parseFloat(values[3]),
+                  bottom: parseFloat(values[4]),
+               }
+            }
+            console.log("indexed tiles parsed")
+            FractoData.indexed_tiles_loaded = true;
+            FractoData.loading_indexed_tiles = false;
+            cb(true);
+         })
+   }
+
+   static tiles_in_scope = (level, focal_point, scope, aspect_ratio = 1.0) => {
+      const width_by_two = scope / 2;
+      const height_by_two = width_by_two * aspect_ratio;
+      const viewport = {
+         left: focal_point.x - width_by_two,
+         top: focal_point.y + height_by_two,
+         right: focal_point.x + width_by_two,
+         bottom: focal_point.y - height_by_two,
+      }
+      let all_tiles = Object.assign({}, LEVEL_SCOPES[level]["completed"], LEVEL_SCOPES[level]["indexed"])
+      const level_keys = Object.keys(all_tiles)
+      const filtered_keys = level_keys.filter(key => {
+         const bounds = all_tiles[key];
+         if (bounds.right < viewport.left) {
+            return false;
+         }
+         if (bounds.left > viewport.right) {
+            return false;
+         }
+         if (bounds.top < viewport.bottom) {
+            return false;
+         }
+         if (bounds.bottom > viewport.top) {
+            return false;
+         }
+         return true;
+      })
+      return filtered_keys.map(key => {
+         return {
+            short_code: key,
+            bounds: all_tiles[key]
+         }
+      })
+   }
+
+   static tiles_cache = {}
+
+   static get_tile = (short_code, bin) => {
+      const level = short_code.length;
+      return LEVEL_SCOPES[level][bin][short_code]
+   }
+
+   static get_completed_tiles = (level) => {
+      if (!FractoData.completed_tiles_loaded) {
+         return [];
+      }
+      const cache_key = `completed_${level}`;
+      if (!FractoData.tiles_cache[cache_key]) {
+         console.log(`building cache for completed tiles on level ${level}`)
+         const level_keys = Object.keys(LEVEL_SCOPES[level]["completed"]);
+         const completed_tiles = level_keys.map(key => {
+            return {
+               short_code: key,
+               bounds: LEVEL_SCOPES[level]["completed"][key]
+            }
+         })
+         FractoData.tiles_cache[cache_key] = completed_tiles;
+      }
+      return FractoData.tiles_cache[cache_key]
+   }
+
+   static get_potential_tiles = (level) => {
+      if (!FractoData.potentials_tiles_loaded) {
+         return [];
+      }
+      const cache_key = `potentials_${level}`;
+      if (!FractoData.tiles_cache[cache_key]) {
+         const level_keys = Object.keys(LEVEL_SCOPES[level]["potentials"]);
+         console.log(`building cache for new tiles on level ${level}`)
+         const potential_tiles = level_keys.map(key => {
+            return {
+               short_code: String(key),
+               bounds: LEVEL_SCOPES[level]["potentials"][String(key)]
+            }
+         })
+         FractoData.tiles_cache[cache_key] = potential_tiles;
+      }
+      return FractoData.tiles_cache[cache_key]
+   }
+
+   static get_ready_tiles = (level) => {
+      if (!FractoData.ready_tiles_loaded) {
+         return [];
+      }
+      const cache_key = `readies_${level}`;
+      if (!FractoData.tiles_cache[cache_key]) {
+         const level_keys = Object.keys(LEVEL_SCOPES[level]["ready"]);
+         console.log(`building cache for ready tiles on level ${level}`)
+         const ready_tiles = level_keys.map(key => {
+            return {
+               short_code: String(key),
+               bounds: LEVEL_SCOPES[level]["ready"][String(key)]
+            }
+         })
+         FractoData.tiles_cache[cache_key] = ready_tiles;
+      }
+      return FractoData.tiles_cache[cache_key]
+   }
+
+   static get_indexed_tiles = (level) => {
+      if (!FractoData.indexed_tiles_loaded) {
+         return [];
+      }
+      const cache_key = `indexed_${level}`;
+      if (!FractoData.tiles_cache[cache_key]) {
+         const level_keys = Object.keys(LEVEL_SCOPES[level]["indexed"]);
+         console.log(`building cache for indexed tiles on level ${level}`)
+         const indexed_tiles = level_keys.map(key => {
+            return {
+               short_code: String(key),
+               bounds: LEVEL_SCOPES[level]["indexed"][String(key)]
+            }
+         })
+         FractoData.tiles_cache[cache_key] = indexed_tiles;
+      }
+      return FractoData.tiles_cache[cache_key]
    }
 
 }

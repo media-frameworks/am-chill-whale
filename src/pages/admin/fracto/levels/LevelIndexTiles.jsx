@@ -11,7 +11,7 @@ import {render_modal_title} from "../FractoStyles";
 import {get_level_cells} from "../FractoData";
 import FractoUtil from "../FractoUtil";
 
-const START_AT = 49000;
+const START_AT = 149700;
 const MAXIMUM_COUNT = 1000000;
 
 const CenteredBlock = styled(AppStyles.Block)`
@@ -58,23 +58,8 @@ export class LevelIndexTiles extends Component {
       }, 1000);
    }
 
-   data_to_canvas = () => {
-      const {tile_points, ctx} = this.state;
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, 256, 256);
-      for (let img_x = 0; img_x < 256; img_x++) {
-         const y_values = tile_points[img_x];
-         for (let img_y = 0; img_y < 256; img_y++){
-            const data_values = y_values[img_y];
-            ctx.fillStyle = FractoUtil.fracto_pattern_color(data_values[0], data_values[1])
-            ctx.fillRect(img_x, img_y, 1, 1);
-         }
-      }
-   }
-
    process_tile = (tile_index) => {
-      const {level_tiles, did_cancel, tile_points} = this.state;
-      const {on_response_modal} = this.props;
+      const {level_tiles, did_cancel, tile_points, ctx} = this.state;
 
       if (level_tiles.length === tile_index || did_cancel || (tile_index - START_AT > MAXIMUM_COUNT)) {
          this.setState({
@@ -112,7 +97,7 @@ export class LevelIndexTiles extends Component {
             const index_name = `tiles/256/indexed/${short_code}.json`;
             StoreS3.put_file_async(index_name, JSON.stringify(tile_points), "fracto", result => {
                console.log("StoreS3.put_file_async", index_name, result)
-               this.data_to_canvas()
+               FractoUtil.data_to_canvas(tile_points, ctx)
                setTimeout(() => {
                   this.process_tile(tile_index + 1)
                }, 1000);
@@ -128,7 +113,7 @@ export class LevelIndexTiles extends Component {
    }
 
    render() {
-      const {tile_index, level_tiles, did_cancel, short_code} = this.state;
+      const {tile_index, level_tiles, short_code} = this.state;
       const {level, on_response_modal} = this.props;
 
       const title = render_modal_title(`index tiles for level ${level}`);

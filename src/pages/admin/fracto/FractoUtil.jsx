@@ -6,7 +6,7 @@ const ONE_BY_LOG_ONE_MILLION = 1 / Math.log(1000000);
 
 export const DEFAULT_FRACTO_VALUES = {
    scope: 2.5,
-      focal_point: {x: -.75, y: 0.771}
+   focal_point: {x: -.75, y: 0.771}
 };
 
 const HighlightBox = styled.div`
@@ -62,7 +62,7 @@ export class FractoUtil {
    }
 
    static fracto_designation = (root, pattern, short_form = false) => {
-      let relative_harmonic = FractoUtil.fracto_relative_harmonic (root, pattern);
+      let relative_harmonic = FractoUtil.fracto_relative_harmonic(root, pattern);
       if (0 === relative_harmonic) {
          return short_form ? "h0" : "non-harmonic"
       }
@@ -82,7 +82,7 @@ export class FractoUtil {
          }
          return short_form ? `r${root},o${pattern_octave}` : `root ${root}, octave ${pattern_octave}`;
       }
-      return  short_form ? `r${root},h${relative_harmonic},o${pattern_octave}` : `root ${root}, harmonic ${relative_harmonic}, octave ${pattern_octave}`;
+      return short_form ? `r${root},h${relative_harmonic},o${pattern_octave}` : `root ${root}, harmonic ${relative_harmonic}, octave ${pattern_octave}`;
    }
 
    static color_cache = {};
@@ -96,8 +96,14 @@ export class FractoUtil {
          return FractoUtil.color_cache[cache_key];
       }
       if (pattern === 0) {
-         const lum = 1.0 - Math.log(iterations) * ONE_BY_LOG_TEN_THOUSAND;
-         return `hsl(0, 0%, ${Math.round(100 * lum)}%)`;
+         let offset = Math.log(iterations) * ONE_BY_LOG_TEN_THOUSAND;
+         if (iterations < 21) {
+            offset *= 0.9;
+         }
+         const lum = 1.0 - offset;
+         const result = `hsl(0, 0%, ${Math.round(100 * lum)}%)`;
+         FractoUtil.color_cache[cache_key] = result;
+         return result;
       }
 
       const log2 = Math.log2(pattern);
@@ -130,6 +136,19 @@ export class FractoUtil {
          array.push(binary.charCodeAt(i));
       }
       return new Blob([new Uint8Array(array)], {type: type});
+   }
+
+   static data_to_canvas = (tile_points, ctx) => {
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, 256, 256);
+      for (let img_x = 0; img_x < 256; img_x++) {
+         const y_values = tile_points[img_x];
+         for (let img_y = 0; img_y < 256; img_y++) {
+            const data_values = y_values[img_y];
+            ctx.fillStyle = FractoUtil.fracto_pattern_color(data_values[0], data_values[1])
+            ctx.fillRect(img_x, img_y, 1, 1);
+         }
+      }
    }
 
    static get_pattern_lists = (data) => {
@@ -179,7 +198,7 @@ export class FractoUtil {
             all_patterns: pattern_list,
             members: all_families[key].sort((a, b) => a.pattern - b.pattern),
          }
-      }).sort((a,b) => a.family - b.family)
+      }).sort((a, b) => a.family - b.family)
    }
 
    static highlight_points = (image_ref, fracto_values, point_highlights) => {

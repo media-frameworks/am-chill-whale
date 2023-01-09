@@ -11,7 +11,7 @@ const CONTROL_TYPE_UP = "control_up";
 const CONTROL_TYPE_DOWN = "control_down";
 
 const CONTROL_VALUE_SCOPE = "control_span";
-const CONTROL_VALUE_LOCATION = "control_location";
+// const CONTROL_VALUE_LOCATION = "control_location";
 
 const PanelEntry = styled(AppStyles.Block)`
    margin: 0 0.5rem;
@@ -66,10 +66,6 @@ const IconControl = styled(AppStyles.InlineBlock)`
 
 const UpDownIconControl = styled(IconControl)`
    margin: 0 0.125rem;   
-`;
-
-const LeftRightIconControl = styled(IconControl)`
-   margin: 0 0.25rem;   
 `;
 
 const TextLabel = styled(AppStyles.InlineBlock)`

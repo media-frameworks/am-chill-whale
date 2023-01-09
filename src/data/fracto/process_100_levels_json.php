@@ -5,6 +5,10 @@ set_time_limit(0);
 
 $MAX_LEVELS = 99;
 
+$directiory_complete_dir = __DIR__ . "/directory/complete";
+$directiory_new_dir = __DIR__ . "/directory/new";
+$directiory_empty_dir = __DIR__ . "/directory/empty";
+
 $results = [];
 $empties = [];
 $stats = [];
@@ -39,6 +43,8 @@ function process_tile($json_filename, $level)
     global $MAX_LEVELS;
     global $completed_file;
     global $potentials_file;
+    global $directiory_complete_dir;
+    global $directiory_new_dir;
 
     if ($level > $MAX_LEVELS) {
         return;
@@ -93,11 +99,26 @@ function process_tile($json_filename, $level)
         $result["bounds"]["right"],
         $result["bounds"]["bottom"]
     ];
+    $bounds = new stdClass();
+    $bounds->left = $result["bounds"]["left"];
+    $bounds->top = $result["bounds"]["top"];
+    $bounds->right = $result["bounds"]["right"];
+    $bounds->bottom = $result["bounds"]["bottom"];
     if (strlen($parent)) {
         if ($status === "complete") {
             fwrite($completed_file, "\n" . implode(',', $csv_data));
+            $filepath = $directiory_complete_dir . "/" . $short_code . ".json";
+            if (!file_exists($filepath)) {
+                file_put_contents($filepath, json_encode($bounds));
+//                exec("chmod 777 $filepath");
+            }
         } else {
             fwrite($potentials_file, "\n" . implode(',', $csv_data));
+            $filepath = $directiory_new_dir . "/" . $short_code . ".json";
+            if (!file_exists($filepath)) {
+                file_put_contents($filepath, json_encode($bounds));
+//                exec("chmod 777 $filepath");
+            }
         }
     }
 

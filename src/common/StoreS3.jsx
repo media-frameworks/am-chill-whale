@@ -97,6 +97,10 @@ export class StoreS3 {
    static image_cache = {};
    static fails_cache = {};
 
+   static clear_cache = () => {
+      StoreS3.file_cache = {};
+   }
+
    static remove_from_cache = (name) => {
       delete StoreS3.image_cache[name];
       delete StoreS3.file_cache[name];

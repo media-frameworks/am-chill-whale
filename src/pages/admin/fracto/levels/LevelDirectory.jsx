@@ -3,11 +3,15 @@ import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import AppStyles from "app/AppStyles";
+import CoolTabs from "common/cool/CoolTabs";
 
 import {MAX_LEVEL, get_level_cells} from "../FractoData";
 import {render_title_bar, render_main_link} from "../FractoStyles";
-import LevelTiles from "./LevelTiles";
 import LevelIndexTiles from "./LevelIndexTiles";
+import LevelTileInspector from "./LevelTileInspector";
+
+import LevelTools from "./LevelTools";
+import LevelStats from "./LevelStats";
 
 const LevelTitleLink = styled.span`
    ${AppStyles.uppercase}
@@ -54,7 +58,7 @@ const TilesWrapper = styled(AppStyles.Block)`
 `;
 
 const LevelContentWrapper = styled(AppStyles.Block)`
-   margin: 0 1rem;
+   margin: 0 1rem 0.5rem;
 `;
 
 const LinkBlock = styled(AppStyles.Block)`
@@ -69,22 +73,39 @@ export class LevelDirectory extends Component {
 
    state = {
       selected_level: 2,
-      index_mode: false
+      index_mode: false,
+      inspector_mode: false
    }
 
    render() {
-      const {selected_level, index_mode} = this.state;
+      const {selected_level, index_mode, inspector_mode} = this.state;
+      const {width_px} = this.props;
       const title_bar = render_title_bar("Dante's Sherpa");
       let scope_summary = ['', ''];
       for (let i = 2; i < MAX_LEVEL; i++) {
          const marker = selected_level === i ? <SelectedMarker/> : <NotSelectedSpace/>
-         const cells = get_level_cells (i);
+         const cells = get_level_cells(i);
          const index_link = render_main_link("index tiles", e => this.setState({index_mode: true}));
-         const tiles_viewer = selected_level !== i ? '' :
-            <TilesWrapper>
-               <LinkBlock>{index_link}</LinkBlock>
-               <LevelTiles key={`level_${i}`} cells={cells}/>
-            </TilesWrapper>
+         const inspector_link = render_main_link("inspector", e => this.setState({inspector_mode: true}));
+         const level_tabs = selected_level !== i ? '' : <LevelContentWrapper>
+            <CoolTabs
+               style={{width: "32rem", marginLeft: "1rem"}}
+               tab_data={[
+                  {label: "stats", content: [<LevelStats level={i}/>]},
+                  {
+                     label: "tools",
+                     content: [
+                        <LevelTools level={i} width_px={width_px}/>,
+                        <TilesWrapper>
+                           <LinkBlock>{index_link}</LinkBlock>
+                           <LinkBlock>{inspector_link}</LinkBlock>
+                        </TilesWrapper>
+                     ]
+                  },
+               ]}
+            />
+         </LevelContentWrapper>
+
          const tiles_count = cells.length;
          const points_count = tiles_count > 500 ?
             `${Math.round(tiles_count / 1.6) / 10}M` : `${tiles_count * Math.pow(2, 6)}K`;
@@ -97,17 +118,22 @@ export class LevelDirectory extends Component {
                <LevelTitleLink>{`level ${i}`}</LevelTitleLink>
                <LevelSummaryInfo>{`${tiles_count} tiles (${points_count} points)`}</LevelSummaryInfo>
             </LevelSummaryWrapper>,
-            <LevelContentWrapper>{tiles_viewer}</LevelContentWrapper>
+            level_tabs
          ])
       }
       const index_modal = !index_mode ? '' : <LevelIndexTiles
          level={selected_level}
-         on_response_modal={result => this.setState({index_mode: false}) }
+         on_response_modal={result => this.setState({index_mode: false})}
+      />
+      const inspector_modal = !inspector_mode ? '' : <LevelTileInspector
+         level={selected_level}
+         on_response_modal={result => this.setState({inspector_mode: false})}
       />
       return [
          title_bar,
          scope_summary,
-         index_modal
+         index_modal,
+         inspector_modal,
       ]
    }
 

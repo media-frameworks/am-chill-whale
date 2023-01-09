@@ -2,10 +2,10 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import styled from "styled-components";
 
-import {AppStyles} from "app/AppImports";
+// import {AppStyles} from "app/AppImports";
 import StoreS3 from "common/StoreS3";
 
-import {get_region_tiles, get_ideal_level, get_level_tiles, get_level_scope} from "./FractoData";
+import FractoData, {get_ideal_level, get_level_scope} from "./FractoData";
 import FractoUtil from "./FractoUtil";
 
 const FractoCanvas = styled.canvas`
@@ -23,6 +23,7 @@ export class FractoActiveImage extends Component {
       on_zoom: PropTypes.func,
       on_ready: PropTypes.func,
       on_move: PropTypes.func,
+      level: PropTypes.number,
    }
 
    static defaultProps = {
@@ -33,6 +34,7 @@ export class FractoActiveImage extends Component {
       on_zoom: null,
       on_ready: null,
       on_move: null,
+      level: 0,
    };
 
    state = {
@@ -70,7 +72,7 @@ export class FractoActiveImage extends Component {
       let loaded = 0;
       const loaded_tiles = new Array(tiles.length)
       for (let tile_index = 0; tile_index < tiles.length; tile_index++) {
-         const short_code = FractoUtil.get_short_code(tiles[tile_index].code);
+         const short_code = tiles[tile_index].short_code;
          if (FractoActiveImage.tile_cache[short_code]) {
             loaded_tiles[tile_index] = FractoActiveImage.tile_cache[short_code];
             loaded = loaded + 1;
@@ -81,7 +83,7 @@ export class FractoActiveImage extends Component {
          } else {
             const filepath = `tiles/256/indexed/${short_code}.json`
             StoreS3.get_file_async(filepath, "fracto", data => {
-               console.log("StoreS3.get_file_async", filepath);
+               // console.log("StoreS3.get_file_async", filepath);
                if (!data) {
                   console.log("data error");
                   this.setState({loading_tiles: false});
@@ -102,30 +104,29 @@ export class FractoActiveImage extends Component {
 
    fill_canvas = (ctx) => {
       const {loading_tiles} = this.state;
-      const {width_px, focal_point, aspect_ratio, scope, on_ready} = this.props;
+      const {width_px, focal_point, aspect_ratio, scope, on_ready, level} = this.props;
 
       if (loading_tiles) {
          return;
       }
       const height_px = aspect_ratio * width_px;
 
-      const ideal_level = get_ideal_level(width_px, scope);
+      const ideal_level = !level ? get_ideal_level(width_px, scope) : level;
       const level_scope = get_level_scope(ideal_level);
-      const tiles = get_region_tiles(ideal_level, focal_point, scope, aspect_ratio);
-      console.log("ideal_level", ideal_level);
+      const tiles = FractoData.tiles_in_scope(ideal_level, focal_point, scope, aspect_ratio)
+      console.log("tiles = FractoData.tiles_in_scope(ideal_level, focal_point, scope, aspect_ratio)", tiles, ideal_level, focal_point, scope, aspect_ratio)
 
       const QUALITY_FACTOR = 1.25;
       const PIXEL_SIZE = 1.5 / QUALITY_FACTOR;
       const SCOPE_FACTOR = 128 / level_scope;
 
       const increment = scope / (QUALITY_FACTOR * width_px);
-      const tile_increment = (tiles[0].bounds.right - tiles[0].bounds.left) / 256;
 
       this.load_all_tiles_async(tiles, loaded => {
          ctx.fillStyle = 'white';
          ctx.fillRect(0, 0, width_px, height_px);
 
-         console.log("load_all_tiles_async, tile count:", tiles.length)
+         // console.log("load_all_tiles_async, tile count:", tiles.length)
          const scope_by_two = scope / 2;
          let x = focal_point.x - scope_by_two - increment;
          for (let img_x = 0; img_x < width_px * QUALITY_FACTOR; img_x++) {

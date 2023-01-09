@@ -44,7 +44,7 @@ export class CoolModal extends Component {
 
    static propTypes = {
       contents: PropTypes.element.isRequired,
-      response: PropTypes.func.isRequired,
+      response: PropTypes.func,
       width: PropTypes.string,
       settings: PropTypes.object,
    }

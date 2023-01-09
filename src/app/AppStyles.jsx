@@ -210,7 +210,7 @@ export class AppStyles {
 
     static InputText = styled.input`
         ${AppStyles.COOL_BORDER};
-        min-width: 15rem;
+        min-width: 5rem;
         outline: none;
         padding: 0.125rem 0.25rem;
         :: placeholder {

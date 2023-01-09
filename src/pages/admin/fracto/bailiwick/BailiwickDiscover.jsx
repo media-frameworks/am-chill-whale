@@ -4,12 +4,10 @@ import styled from "styled-components";
 
 import {AppStyles, AppColors} from "app/AppImports";
 import CoolModal from "common/cool/CoolModal";
-import StoreS3 from "common/StoreS3";
 
 import FractoLocate from "../FractoLocate";
 import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
-import {get_level_tiles, GET_COMPLETED_TILES_ONLY} from "../FractoData";
 import {render_modal_title, render_fracto_navigation} from "../FractoStyles";
 
 import BailiwickFiles from "./BailiwickFiles";
@@ -159,37 +157,6 @@ export class BailiwickDiscover extends Component {
       const x_part = Math.round(focal_point.x * 1000000) / 1000000;
       const y_part = Math.round(focal_point.y * 1000000) / 1000000;
       return `[${x_part},${y_part}].json`
-   }
-
-   upgrade_level = () => {
-      const {fracto_values} = this.state;
-
-      let sample_size = 2000;
-      let completed_tiles_in_scope = [];
-      while (true) {
-         console.log("sample_size", sample_size)
-         if (sample_size < 200) {
-            break;
-         }
-         const completed_tiles = get_level_tiles(sample_size, fracto_values.scope, GET_COMPLETED_TILES_ONLY);
-         if (!completed_tiles.length) {
-            sample_size -= 100;
-            continue;
-         }
-         completed_tiles_in_scope = FractoSieve.find_tiles(
-            completed_tiles, fracto_values.focal_point, 1.0, fracto_values.scope);
-         if (!completed_tiles_in_scope.length) {
-            sample_size -= 100;
-            continue;
-         }
-
-         break;
-      }
-      console.log("completed_tiles_in_scope.length", completed_tiles_in_scope.length)
-      const filename = this.focal_point_filename(fracto_values.focal_point);
-      StoreS3.put_file_async(filename, JSON.stringify(completed_tiles_in_scope), `fracto/orders`, data => {
-         console.log(`upgrade_level order issued ${filename}`, data);
-      });
    }
 
    static identify_bailiwick = (data, fracto_values, bailiwick_sample_width_px, sort_up = true) => {

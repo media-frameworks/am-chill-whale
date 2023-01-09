@@ -1,0 +1,32 @@
+<html>
+<head>
+    <title>p-adic</title>
+    <script type="text/javascript">
+       window.onload = function(){
+          var ctx = document.getElementById('z_p').getContext('2d')
+          var scale = 256
+          ctx.translate(512, 512)
+          ctx.scale(scale, scale)
+          ctx.lineWidth = 1/scale
+
+          var p = 17
+          var i
+          var tau = 2 * Math.PI
+          var radius = 1/p
+          ctx.beginPath()
+          ctx.arc(0, 0, radius, 0, tau, true)
+          ctx.moveTo(1, 0)
+          ctx.arc(0, 0, 1, 0, tau, true)
+          ctx.stroke()
+          for (i = 0; i < p - 1; i++){
+             ctx.beginPath()
+             ctx.arc(Math.cos(tau/(p-1)*i), Math.sin(tau/(p-1)*i), radius, 0, tau, true)
+             ctx.stroke()
+          }
+       }
+    </script>
+</head>
+<body>
+<canvas id="z_p" width="1024" height="1024"></canvas>
+</body>
+</html>

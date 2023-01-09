@@ -4,6 +4,7 @@ import styled from "styled-components";
 
 import {AppStyles} from "../../../app/AppImports";
 import FractoActiveImage from "./FractoActiveImage";
+import {get_ideal_level} from "./FractoData";
 
 const RE_SCOPE_FACTOR = 1.25;
 const DEFAULT_SCOPE = 4;
@@ -30,6 +31,7 @@ export class FractoRender extends Component {
       initial_params: PropTypes.object,
       tile_outline: PropTypes.object,
       point_highlights: PropTypes.array,
+      render_level: PropTypes.number,
    }
 
    static defaultProps = {
@@ -40,6 +42,7 @@ export class FractoRender extends Component {
       },
       tile_outline: null,
       point_highlights: [],
+      render_level: 0
    };
 
    componentDidMount() {
@@ -101,8 +104,8 @@ export class FractoRender extends Component {
    }
 
    re_position = (e) => {
-      const {aspect_ratio, on_param_change} = this.props;
-      const {focal_point, scope, fracto_ref, in_update} = this.state;
+      const {on_param_change} = this.props;
+      const {scope, fracto_ref, in_update} = this.state;
       if (in_update) {
          console.log("re_position returning during update");
          return;
@@ -156,7 +159,7 @@ export class FractoRender extends Component {
    }
 
    re_locate = (e) => {
-      const {fracto_ref, scope, focal_point, in_update} = this.state;
+      const {scope, focal_point} = this.state;
       const {on_param_change} = this.props;
       if (!e) { // mouse out of element
          on_param_change({
@@ -227,7 +230,7 @@ export class FractoRender extends Component {
 
    render() {
       const {focal_point, scope, fracto_ref, in_update} = this.state;
-      const {width_px, aspect_ratio, tile_outline, point_highlights} = this.props;
+      const {width_px, aspect_ratio, tile_outline, point_highlights, render_level} = this.props;
       const highlights = in_update || !point_highlights.length ? [] : this.highlight_points()
 
       const fracto_image = !scope ? '' : <FractoActiveImage
@@ -243,6 +246,7 @@ export class FractoRender extends Component {
          aspect_ratio={aspect_ratio}
          focal_point={focal_point}
          scope={scope}
+         level={render_level ? render_level : get_ideal_level(width_px, scope)}
       />
       return <AppStyles.Block
          ref={fracto_ref}>

@@ -111,16 +111,26 @@ export class AdminFracto extends Component {
       },
       fractone_instrument: '',
       section_splitter_pos: INITIAL_SPLITTER_POS_PX,
-      loading_directory: false
+      loading_completed: true,
+      loading_potentials: true,
+      loading_indexed: true,
    };
 
    componentDidMount() {
       window.addEventListener("resize", this.update_window_dimensions);
       this.set_content_wrapper_rect();
 
-      this.setState({loading_directory: true})
       FractoData.load_completed_async(returns => {
-         this.setState({loading_directory: false})
+         console.log("FractoData.load_completed_async", returns)
+         this.setState({loading_completed: false})
+      });
+      FractoData.load_potentials_async(returns => {
+         console.log("FractoData.load_potentials_async", returns)
+         this.setState({loading_potentials: false})
+      });
+      FractoData.load_indexed_async(returns => {
+         console.log("FractoData.load_indexed_async", returns)
+         this.setState({loading_indexed: false})
       });
    }
 
@@ -166,7 +176,7 @@ export class AdminFracto extends Component {
       const {
          admin_back_ref, selected_title, fracto_ref, section_splitter_pos,
          content_wrapper_rect, fracto_values, fractone, fractone_instrument,
-         loading_directory
+         loading_completed, loading_potentials, loading_indexed
       } = this.state;
       const title = "fracto";
       let frame_contents = [];
@@ -177,7 +187,6 @@ export class AdminFracto extends Component {
       switch (selected_title) {
 
          case "explore" :
-            console.log("content_wrapper_rect", content_wrapper_rect);
             frame_contents = <ContentWrapper style={wrapperStyle} ref={fracto_ref}>
                <FractoRender
                   width_px={content_wrapper_rect.width}
@@ -304,7 +313,8 @@ export class AdminFracto extends Component {
             break;
       }
 
-      const modal_contents = !loading_directory ? '' : <LoadingWaitWrapper>
+      const data_ready = !loading_completed && !loading_potentials && !loading_indexed;
+      const modal_contents = data_ready ? '' : <LoadingWaitWrapper>
          <CenteredBlock><MessageText>{"Loading tile data, please look busy..."}</MessageText></CenteredBlock>
          <CenteredBlock><LogoImage
             width={100}
@@ -313,7 +323,7 @@ export class AdminFracto extends Component {
          />
          </CenteredBlock>
       </LoadingWaitWrapper>
-      const loading_modal = !loading_directory ? '' : <CoolModal
+      const loading_modal = data_ready ? '' : <CoolModal
          width={"24rem"}
          settings={{no_escape: true}}
          contents={modal_contents}

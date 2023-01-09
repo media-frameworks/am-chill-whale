@@ -6,6 +6,7 @@ import {AppStyles, AppColors} from "../../app/AppImports";
 
 const BasicButton = styled(AppStyles.InlineBlock)`
    ${AppStyles.pointer}
+   ${AppStyles.noselect}
    border-radius: 0.25rem;
    padding: 0.325rem 0.75rem;
 `;
