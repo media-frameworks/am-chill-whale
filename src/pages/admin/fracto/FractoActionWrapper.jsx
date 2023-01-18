@@ -107,6 +107,7 @@ export class FractoActionWrapper extends Component {
       const {fracto_values, content, options} = this.props;
       const width_px = options[OPTION_WIDTH_PX] || DEFAULT_WIDTH_PX
       const render_level = options[OPTION_RENDER_LEVEL] || get_ideal_level(width_px, fracto_values.scope)
+      console.log("fracto_values", fracto_values)
       const fracto_render = <FractoRender
          width_px={width_px}
          aspect_ratio={options[OPTION_ASPECT_RATIO] || DEFAULT_ASPECT_RATIO}

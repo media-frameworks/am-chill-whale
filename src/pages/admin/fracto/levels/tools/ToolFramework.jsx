@@ -11,13 +11,15 @@ import {
    render_modal_title,
    render_short_code
 } from "../../FractoStyles";
-import FractoActionWrapper, {OPTION_TILE_OUTLINE} from "../../FractoActionWrapper";
+import FractoActionWrapper, {OPTION_TILE_OUTLINE, OPTION_RENDER_LEVEL} from "../../FractoActionWrapper";
 import FractoUtil from "../../FractoUtil";
+import FractoCalc from "../../FractoCalc";
+import FractoLayeredCanvas from "../../FractoLayeredCanvas";
 
 import ToolSelectTile from "./ToolSelectTile"
 import ToolUtils from "./ToolUtils"
 
-const CADENCE_MS = 500;
+const CADENCE_MS = 850;
 
 export const OPTION_NO_CANVAS = "no_canvas";
 
@@ -85,16 +87,16 @@ export class ToolFramework extends Component {
    }
 
    run_modal = () => {
-      const {level} = this.props
+      const {level, level_tiles} = this.props
       const tile_index_str = localStorage.getItem(`level_${level}_tile_index`);
-      const tile_index = tile_index_str ? parseInt(tile_index_str) : 0;
+      let tile_index = tile_index_str ? parseInt(tile_index_str) : 0;
+      if (tile_index >= level_tiles.length) {
+         tile_index = 0;
+      }
       this.setState({
          in_modal: true,
          tile_index: tile_index
       })
-      setTimeout(() => {
-         this.tile_action(tile_index);
-      }, CADENCE_MS)
    }
 
    run_tool = () => {
@@ -107,27 +109,46 @@ export class ToolFramework extends Component {
       }
    }
 
-   tile_action = (new_tile_index) => {
-      const {level, level_tiles, tile_action, options} = this.props
-      let tile = level_tiles[new_tile_index];
+   update_tile_index = (new_tile_index) => {
+      const {level, level_tiles} = this.props;
+      if (new_tile_index > level_tiles.length) {
+         console.log("bad index", new_tile_index, level_tiles.length);
+         return null;
+      }
+      const tile = level_tiles[new_tile_index];
       if (!tile) {
          console.log("can't load tile", new_tile_index, level_tiles.length);
-         return;
+         return null;
       }
-      console.log("tile_action", new_tile_index, tile);
+      if (isNaN(tile.bounds.right) || isNaN(tile.bounds.left) || isNaN(tile.bounds.top) || isNaN(tile.bounds.bottom)) {
+         console.log("bad numbers in tile bounds", tile.bounds);
+         return null;
+      }
+      console.log("update_tile_index tile", tile)
       const half_scope = (tile.bounds.right - tile.bounds.left) / 2;
       const fracto_values = {
          focal_point: {
             x: tile.bounds.left + half_scope,
             y: tile.bounds.top - half_scope
          },
-         scope: half_scope * 10
+         scope: half_scope * 8
       }
       this.setState({
          tile_index: new_tile_index,
          fracto_values: fracto_values,
       });
       localStorage.setItem(`level_${level}_tile_index`, String(new_tile_index));
+
+      return tile;
+   }
+
+   tile_action = (new_tile_index) => {
+      const {tile_action, options} = this.props
+
+      let tile = this.update_tile_index(new_tile_index);
+      if (!tile) {
+         return;
+      }
 
       const framework_options = options.framework_options || {};
       if (OPTION_NO_CANVAS in framework_options) {
@@ -184,8 +205,42 @@ export class ToolFramework extends Component {
          disabled={automate}
          content={label}
          style={button_style}
-         on_click={r => this.tile_action(result_number)}
+         on_click={r => this.update_tile_index(result_number)}
       />
+   }
+
+   repair_tile = (tile_index) => {
+      const canvas = ToolFramework.canvas_ref.current
+      const ctx = canvas.getContext('2d');
+
+      const {level_tiles} = this.props
+      const tile = level_tiles[tile_index]
+      const tile_points = new Array(256).fill(0).map(() => new Array(256).fill([0, 0]));
+      const increment = (tile.bounds.right - tile.bounds.left) / 256.0;
+      for (let img_x = 0; img_x < 256; img_x++) {
+         const x = tile.bounds.left + img_x * increment;
+         for (let img_y = 0; img_y < 256; img_y++) {
+            const y = tile.bounds.top - img_y * increment;
+            const values = FractoCalc.calc(x, y);
+            ctx.fillStyle = FractoUtil.fracto_pattern_color(values.pattern, values.iteration)
+            ctx.fillRect(img_x, img_y, 1, 1);
+            tile_points[img_x][img_y] = [values.pattern, values.iteration];
+         }
+      }
+      const index_url = `tiles/256/indexed/${tile.short_code}.json`;
+      delete FractoLayeredCanvas.tile_cache[tile.short_code]
+      StoreS3.remove_from_cache(index_url);
+      StoreS3.put_file_async(index_url, JSON.stringify(tile_points), "fracto", result => {
+         console.log("StoreS3.put_file_async", index_url, result);
+         this.setState({status: `repair complete (${result})`})
+         if (!this.state.automate) {
+            return;
+         }
+         setTimeout(() => {
+            this.update_tile_index(tile_index + 1);
+            this.repair_tile(tile_index + 1);
+         }, CADENCE_MS)
+      })
    }
 
    render_modal_content = () => {
@@ -194,7 +249,9 @@ export class ToolFramework extends Component {
       let selected_short_code = '-';
       if (tile_index >= 0) {
          const tile = level_tiles[tile_index];
-         selected_short_code = render_short_code(tile.short_code);
+         if (tile) {
+            selected_short_code = render_short_code(tile.short_code);
+         }
       }
       const canvas = <canvas
          ref={ToolFramework.canvas_ref}
@@ -221,9 +278,18 @@ export class ToolFramework extends Component {
          this.render_button(10000, "+10k"),
          this.render_button(100000, "+100k"),
       ]
+      const repair_button = automate ? '' : <CenteredBlock><CoolButton
+         primary={1}
+         content={"repair"}
+         on_click={r => {
+            this.setState({automate: true});
+            this.repair_tile(tile_index);
+         }}
+      /></CenteredBlock>;
       return <AppStyles.Block>{[
          <CenteredBlock>{selected_short_code}</CenteredBlock>,
          <CenteredBlock>{status}</CenteredBlock>,
+         repair_button,
          <CenteredBlock>{canvas}</CenteredBlock>,
          <CenteredBlock>{button_bar}</CenteredBlock>,
       ]}</AppStyles.Block>
@@ -239,9 +305,9 @@ export class ToolFramework extends Component {
       let fracto_options = options.fracto_options || {};
       if (tile) {
          fracto_options[OPTION_TILE_OUTLINE] = tile.bounds;
-         // if (fracto_options[OPTION_RENDER_LEVEL]) {
-         //    fracto_options[OPTION_RENDER_LEVEL] = level;
-         // }
+         if (fracto_options[OPTION_RENDER_LEVEL]) {
+            fracto_options[OPTION_RENDER_LEVEL] = level;
+         }
       }
       const fracto_action = <FractoActionWrapper
          fracto_values={fracto_values}

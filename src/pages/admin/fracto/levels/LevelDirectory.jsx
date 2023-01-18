@@ -7,8 +7,6 @@ import CoolTabs from "common/cool/CoolTabs";
 
 import {MAX_LEVEL, get_level_cells} from "../FractoData";
 import {render_title_bar, render_main_link} from "../FractoStyles";
-import LevelIndexTiles from "./LevelIndexTiles";
-import LevelTileInspector from "./LevelTileInspector";
 
 import LevelTools from "./LevelTools";
 import LevelStats from "./LevelStats";
@@ -73,12 +71,10 @@ export class LevelDirectory extends Component {
 
    state = {
       selected_level: 2,
-      index_mode: false,
-      inspector_mode: false
    }
 
    render() {
-      const {selected_level, index_mode, inspector_mode} = this.state;
+      const {selected_level} = this.state;
       const {width_px} = this.props;
       const title_bar = render_title_bar("Dante's Sherpa");
       let scope_summary = ['', ''];
@@ -121,19 +117,9 @@ export class LevelDirectory extends Component {
             level_tabs
          ])
       }
-      const index_modal = !index_mode ? '' : <LevelIndexTiles
-         level={selected_level}
-         on_response_modal={result => this.setState({index_mode: false})}
-      />
-      const inspector_modal = !inspector_mode ? '' : <LevelTileInspector
-         level={selected_level}
-         on_response_modal={result => this.setState({inspector_mode: false})}
-      />
       return [
          title_bar,
          scope_summary,
-         index_modal,
-         inspector_modal,
       ]
    }
 

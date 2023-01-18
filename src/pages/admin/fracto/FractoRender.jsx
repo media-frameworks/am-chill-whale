@@ -58,16 +58,20 @@ export class FractoRender extends Component {
 
    componentDidUpdate(prevProps, prevState, snapshot) {
       const {initial_params} = this.props;
-      if (initial_params.focal_point.x !== prevProps.initial_params.focal_point.x ||
-         initial_params.focal_point.y !== prevProps.initial_params.focal_point.y) {
+      const focal_x_changed_state = initial_params.focal_point.x !== this.state.focal_point.x;
+      const focal_y_changed_state = initial_params.focal_point.y !== this.state.focal_point.y;
+      if (focal_x_changed_state || focal_y_changed_state) {
          const new_focal_point = {
             x: initial_params.focal_point.x,
             y: initial_params.focal_point.y
          };
          this.setState({focal_point: new_focal_point});
       }
-      if (initial_params.scope !== prevProps.initial_params.scope) {
+      if (initial_params.scope !== prevProps.initial_params.scope
+         && this.state.scope !== initial_params.scope
+         && initial_params.scope > 0) {
          this.setState({scope: initial_params.scope});
+         console.log("componentDidUpdate initial_params", initial_params)
       }
    }
 

@@ -120,16 +120,24 @@ export class AdminFracto extends Component {
       window.addEventListener("resize", this.update_window_dimensions);
       this.set_content_wrapper_rect();
 
-      FractoData.load_completed_async(returns => {
-         console.log("FractoData.load_completed_async", returns)
-         this.setState({loading_completed: false})
-      });
       FractoData.load_potentials_async(returns => {
          console.log("FractoData.load_potentials_async", returns)
          this.setState({loading_potentials: false})
       });
+      FractoData.load_completed_async(returns => {
+         console.log("FractoData.load_completed_async", returns)
+         this.setState({loading_completed: false})
+      });
       FractoData.load_indexed_async(returns => {
          console.log("FractoData.load_indexed_async", returns)
+         this.setState({loading_indexed: false})
+      });
+      FractoData.load_error_async(returns => {
+         console.log("FractoData.load_error_async", returns)
+         this.setState({loading_indexed: false})
+      });
+      FractoData.load_ready_async(returns => {
+         console.log("FractoData.load_ready_async", returns)
          this.setState({loading_indexed: false})
       });
    }
