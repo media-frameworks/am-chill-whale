@@ -9,8 +9,6 @@ import SectionIndex, {
 import CoolModal from "common/cool/CoolModal";
 
 import FractoRender from "./fracto/FractoRender";
-import FractoCapture from "./fracto/FractoCapture";
-import FractoTessellate from "./fracto/FractoTessellate";
 import FractoCruiser from "./fracto/FractoCruiser";
 import SequenceCollection from "./fracto/sequence/SequenceCollection";
 import FractoData from "./fracto/FractoData";
@@ -61,8 +59,6 @@ const AspectLink = styled(AppStyles.Block)`
 
 const SECTIONS = [
    {title: "explore", key: "explore"},
-   {title: "capture", key: "capture"},
-   {title: "tessellate", key: "tessellate"},
    {title: "fractone", key: "fractone"},
    {title: "elevations", key: "elevations"},
    {title: "bailiwicks", key: "bailiwicks"},
@@ -100,7 +96,7 @@ export class AdminFracto extends Component {
    }
 
    state = {
-      selected_title: "explore",
+      selected_title: "elevations",
       content_width: window.innerWidth * 0.85,
       admin_back_ref: React.createRef(),
       fracto_ref: React.createRef(),
@@ -111,35 +107,53 @@ export class AdminFracto extends Component {
       },
       fractone_instrument: '',
       section_splitter_pos: INITIAL_SPLITTER_POS_PX,
-      loading_completed: true,
-      loading_potentials: true,
-      loading_indexed: true,
+      data_ready: false
    };
+
+   static bin_counts = {};
+   static loading_completed = true;
+   static loading_potentials = true;
+   static loading_indexed = true;
 
    componentDidMount() {
       window.addEventListener("resize", this.update_window_dimensions);
       this.set_content_wrapper_rect();
 
-      FractoData.load_potentials_async(returns => {
-         console.log("FractoData.load_potentials_async", returns)
-         this.setState({loading_potentials: false})
-      });
-      FractoData.load_completed_async(returns => {
-         console.log("FractoData.load_completed_async", returns)
-         this.setState({loading_completed: false})
-      });
-      FractoData.load_indexed_async(returns => {
-         console.log("FractoData.load_indexed_async", returns)
-         this.setState({loading_indexed: false})
-      });
-      FractoData.load_error_async(returns => {
-         console.log("FractoData.load_error_async", returns)
-         this.setState({loading_indexed: false})
-      });
-      FractoData.load_ready_async(returns => {
-         console.log("FractoData.load_ready_async", returns)
-         this.setState({loading_indexed: false})
-      });
+      if (!this.state.data_ready) {
+         setTimeout(() => {
+            FractoData.load_bin_counts_async(returns => {
+               console.log("FractoData.load_bin_counts_async", returns)
+               AdminFracto.bin_counts = returns;
+            });
+            FractoData.load_potentials_async(returns => {
+               console.log("FractoData.load_potentials_async", returns)
+               AdminFracto.loading_potentials = !returns;
+            });
+            FractoData.load_completed_async(returns => {
+               console.log("FractoData.load_completed_async", returns)
+               AdminFracto.loading_completed = !returns;
+            });
+            FractoData.load_indexed_async(returns => {
+               console.log("FractoData.load_indexed_async", returns)
+               AdminFracto.loading_indexed = !returns;
+            });
+            FractoData.load_error_async(returns => {
+               console.log("FractoData.load_error_async", returns)
+            });
+            FractoData.load_ready_async(returns => {
+               console.log("FractoData.load_ready_async", returns)
+            })
+         }, 500);
+
+         const interval = setInterval(() => {
+            console.log("waiting for tile data...", AdminFracto.loading_completed, AdminFracto.loading_potentials, AdminFracto.loading_indexed)
+            if (!AdminFracto.loading_completed && !AdminFracto.loading_potentials && !AdminFracto.loading_indexed) {
+               console.log("data_ready", true)
+               this.setState({data_ready: true})
+               clearInterval(interval);
+            }
+         }, 1000)
+      }
    }
 
    update_window_dimensions = (e) => {
@@ -180,11 +194,15 @@ export class AdminFracto extends Component {
       })
    }
 
+   title_selected = (title) => {
+      this.setState({selected_title: title});
+      localStorage.setItem("selected_title", title)
+   }
+
    render() {
       const {
          admin_back_ref, selected_title, fracto_ref, section_splitter_pos,
-         content_wrapper_rect, fracto_values, fractone, fractone_instrument,
-         loading_completed, loading_potentials, loading_indexed
+         content_wrapper_rect, fracto_values, fractone, fractone_instrument, data_ready
       } = this.state;
       const title = "fracto";
       let frame_contents = [];
@@ -208,18 +226,7 @@ export class AdminFracto extends Component {
             </SelectedContentWrapper>
             break;
 
-         case "capture":
-            frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoCapture width_px={content_wrapper_rect.width}/>
-            </ContentWrapper>;
-            break;
-
-         case "tessellate":
-            frame_contents = <ContentWrapper style={wrapperStyle}>
-               <FractoTessellate width_px={content_wrapper_rect.width}/>
-            </ContentWrapper>;
-            break;
-
+         default:
          case "elevations":
             frame_contents = <ContentWrapper style={wrapperStyle}>
                <LevelDirectory width_px={content_wrapper_rect.width}/>
@@ -316,12 +323,8 @@ export class AdminFracto extends Component {
             </SelectedContentWrapper>
             break;
 
-         default:
-            frame_contents = [`unknown: ${selected_title}`];
-            break;
       }
 
-      const data_ready = !loading_completed && !loading_potentials && !loading_indexed;
       const modal_contents = data_ready ? '' : <LoadingWaitWrapper>
          <CenteredBlock><MessageText>{"Loading tile data, please look busy..."}</MessageText></CenteredBlock>
          <CenteredBlock><LogoImage
@@ -347,7 +350,7 @@ export class AdminFracto extends Component {
             width_px={section_splitter_pos}
             title={"fractal graphics"}
             selected_index={selected_title}
-            on_select_index={title => this.setState({selected_title: title})}
+            on_select_index={title => this.title_selected({title})}
             on_resize={pos => this.resize_regions(pos)}
             selected_content={selected_content}
          />

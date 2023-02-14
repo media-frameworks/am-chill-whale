@@ -17,10 +17,23 @@ if (!file_exists($backup_dir)) {
 }
 $base_dir = __DIR__ . '/directory';
 
+$MAX_LEVELS = 50;
+
+$bin_counts = [
+    "complete" => array_fill(0, $MAX_LEVELS, 0),
+    "new" => array_fill(0, $MAX_LEVELS, 0),
+    "empty" => array_fill(0, $MAX_LEVELS, 0),
+    "inland" => array_fill(0, $MAX_LEVELS, 0),
+    "error" => array_fill(0, $MAX_LEVELS, 0),
+    "ready" => array_fill(0, $MAX_LEVELS, 0),
+    "indexed" => array_fill(0, $MAX_LEVELS, 0),
+];
+
 function process_bin($bin)
 {
     global $backup_dir;
     global $base_dir;
+    global $bin_counts;
 
     $file_path = $backup_dir . "/$bin.csv";
     $bin_file = fopen($file_path, "w");
@@ -63,6 +76,8 @@ function process_bin($bin)
         if ($counter % 10000 === 0) {
             echo("\n$counter");
         }
+        $level = strlen($short_code);
+        $bin_counts[$bin][$level] += 1;
     }
     echo("\n$counter\n$bin\n");
     fclose($bin_file);
@@ -79,6 +94,8 @@ process_bin("inland");
 process_bin("error");
 process_bin("ready");
 process_bin("indexed");
+
+file_put_contents($base_dir . "/bin_counts.json", json_encode($bin_counts) );
 
 
 

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import styled from "styled-components";
-import PropTypes from 'introspective-prop-types'
+import PropTypes from 'prop-types'
 
 import Slider from 'rc-slider';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';

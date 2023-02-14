@@ -7,7 +7,6 @@ import CoolModal from "common/cool/CoolModal";
 
 import {
    render_modal_title,
-   render_fracto_locate,
    render_main_link
 } from "../FractoStyles";
 import FractoRender from "../FractoRender";
@@ -85,7 +84,7 @@ export class CommonCreateDraft extends Component {
             on_param_change={values => this.setState({fracto_values: values})}
          />
       </FractoWrapper>
-      const fracto_locate = render_fracto_locate(fracto_values);
+      const fracto_locate ='';// render_fracto_locate(fracto_values);
 
       const draft_name_input = FractoCommon.render_entity_name_input("enter", draft_name,
          value => this.setState({draft_name: value}))

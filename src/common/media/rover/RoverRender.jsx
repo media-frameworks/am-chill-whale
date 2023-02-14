@@ -1,5 +1,5 @@
 import {Component} from 'react';
-import PropTypes from 'introspective-prop-types'
+import PropTypes from 'prop-types'
 import styled from "styled-components";
 
 import {AppStyles, AppColors} from "../../../app/AppImports";

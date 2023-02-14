@@ -9,7 +9,6 @@ import CoolTabs from "common/cool/CoolTabs";
 
 import FractoCommon from "../FractoCommon";
 import CommonFiles from "../common/CommonFiles";
-import CommonRenderings from "../common/CommonRenderings";
 import CommonResources from "../common/CommonResources";
 
 import BurrowStep from "./BurrowStep";
@@ -249,15 +248,15 @@ export class BurrowEdit extends Component {
       })
 
       const tab_data = [
-         {
-            label: "renderings",
-            content: <CommonRenderings
-               registry_data={step_data}
-               fracto_values={step_data.fracto_values}
-               s3_folder_prefix={s3_folder_prefix}
-               size_list={IMAGE_SIZE_LIST}
-               on_change={() => this.load_resources(-1)}/>
-         },
+         // {
+         //    label: "renderings",
+         //    content: <CommonRenderings
+         //       registry_data={step_data}
+         //       fracto_values={step_data.fracto_values}
+         //       s3_folder_prefix={s3_folder_prefix}
+         //       size_list={IMAGE_SIZE_LIST}
+         //       on_change={() => this.load_resources(-1)}/>
+         // },
          {
             label: "sequences",
             content: <BurrowSequence

@@ -7,9 +7,8 @@ import CoolButton from "common/cool/CoolButton";
 
 import {ENTITY_STATUS_DRAFT} from "../FractoCommon";
 import {DEFAULT_FRACTO_VALUES} from "../FractoUtil";
-import FractoSieve from "../FractoSieve";
 
-import CommonResources from "./CommonResources";
+// import CommonResources from "./CommonResources";
 import CommonFiles from "./CommonFiles";
 
 const CanvasField = styled.canvas`
@@ -79,33 +78,33 @@ export class CommonRenderSizes extends Component {
    }
 
    render_draft_size = (size_index, cb) => {
-      const {fracto_values, canvas_refs} = this.state;
-      const {image_sizes_px, s3_folder_prefix} = this.props;
+      // const {fracto_values, canvas_refs} = this.state;
+      // const {image_sizes_px, s3_folder_prefix} = this.props;
+      //
+      // const size = image_sizes_px[size_index];
+      // const canvas_ref = canvas_refs[size_index];
+      // this.setState({rendering_size: size});
 
-      const size = image_sizes_px[size_index];
-      const canvas_ref = canvas_refs[size_index];
-      this.setState({rendering_size: size});
-
-      FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, size, result => {
-         console.log("FractoSieve complete", size);
-         CommonResources.generate_image(fracto_values, s3_folder_prefix, canvas_ref, size, result, png_files => {
-            console.log("CommonResources.generate_image returns", png_files)
-            this.setState({png_files: png_files, png_complete: true})
-         })
-         CommonResources.store_json_data(s3_folder_prefix, size, result, json_files => {
-            console.log("CommonResources.store_json_data returns", json_files)
-            this.setState({json_files: json_files, json_complete: true})
-         })
-         CommonResources.store_pattern_data(s3_folder_prefix, size, result, pattern_files => {
-            console.log("CommonResources.store_pattern_data returns", pattern_files)
-            this.setState({pattern_files: pattern_files, patterns_complete: true})
-         })
-         if (size_index === image_sizes_px.length - 1) {
-            setTimeout(() => cb(), 3000);
-            return;
-         }
-         setTimeout(() => this.render_draft_size(size_index + 1, cb), 3000);
-      });
+      // FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, size, result => {
+      //    console.log("FractoSieve complete", size);
+      //    CommonResources.generate_image(fracto_values, s3_folder_prefix, canvas_ref, size, result, png_files => {
+      //       console.log("CommonResources.generate_image returns", png_files)
+      //       this.setState({png_files: png_files, png_complete: true})
+      //    })
+      //    CommonResources.store_json_data(s3_folder_prefix, size, result, json_files => {
+      //       console.log("CommonResources.store_json_data returns", json_files)
+      //       this.setState({json_files: json_files, json_complete: true})
+      //    })
+      //    CommonResources.store_pattern_data(s3_folder_prefix, size, result, pattern_files => {
+      //       console.log("CommonResources.store_pattern_data returns", pattern_files)
+      //       this.setState({pattern_files: pattern_files, patterns_complete: true})
+      //    })
+      //    if (size_index === image_sizes_px.length - 1) {
+      //       setTimeout(() => cb(), 3000);
+      //       return;
+      //    }
+      //    setTimeout(() => this.render_draft_size(size_index + 1, cb), 3000);
+      // });
    }
 
    create_draft = () => {

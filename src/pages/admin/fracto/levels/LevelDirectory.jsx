@@ -5,8 +5,8 @@ import styled from "styled-components";
 import AppStyles from "app/AppStyles";
 import CoolTabs from "common/cool/CoolTabs";
 
-import {MAX_LEVEL, get_level_cells} from "../FractoData";
-import {render_title_bar, render_main_link} from "../FractoStyles";
+import {MAX_LEVEL} from "../FractoData";
+import {render_title_bar} from "../FractoStyles";
 
 import LevelTools from "./LevelTools";
 import LevelStats from "./LevelStats";
@@ -42,25 +42,8 @@ const SelectedMarker = styled(AppStyles.InlineBlock)`
    background-color: #cccccc;
 `;
 
-const LevelSummaryInfo = styled(AppStyles.InlineBlock)`
-   ${AppStyles.italic}
-   font-size: 0.90rem;
-   vertical-align: top;
-   color: rgba(0,0,0,0.65);
-   margin-left: 0.25rem;
-   margin-top: 0.25rem;
-`;
-
-const TilesWrapper = styled(AppStyles.Block)`
-   margin: 0 0.5rem 1rem;
-`;
-
 const LevelContentWrapper = styled(AppStyles.Block)`
    margin: 0 1rem 0.5rem;
-`;
-
-const LinkBlock = styled(AppStyles.Block)`
-   margin: 0;
 `;
 
 export class LevelDirectory extends Component {
@@ -71,18 +54,38 @@ export class LevelDirectory extends Component {
 
    state = {
       selected_level: 2,
+      selected_tab: "stats"
+   }
+
+   componentDidMount() {
+      const selected_level = parseInt (localStorage.getItem("selected_level", '2'));
+      this.level_selected(selected_level);
+   }
+
+   level_selected = (level) => {
+      localStorage.setItem("selected_level", `${level}`)
+      const storage_key = `level_${level}_selected_tab`
+      const selected_tab = localStorage.getItem(storage_key, "stats");
+      this.setState({
+         selected_level: level,
+         selected_tab: selected_tab
+      });
+   }
+
+   select_tab = (tab) => {
+      const {selected_level} = this.state;
+      this.setState({selected_tab: tab})
+      const storage_key = `level_${selected_level}_selected_tab`
+      localStorage.setItem(storage_key, tab)
    }
 
    render() {
-      const {selected_level} = this.state;
+      const {selected_level, selected_tab} = this.state;
       const {width_px} = this.props;
       const title_bar = render_title_bar("Dante's Sherpa");
       let scope_summary = ['', ''];
       for (let i = 2; i < MAX_LEVEL; i++) {
          const marker = selected_level === i ? <SelectedMarker/> : <NotSelectedSpace/>
-         const cells = get_level_cells(i);
-         const index_link = render_main_link("index tiles", e => this.setState({index_mode: true}));
-         const inspector_link = render_main_link("inspector", e => this.setState({inspector_mode: true}));
          const level_tabs = selected_level !== i ? '' : <LevelContentWrapper>
             <CoolTabs
                style={{width: "32rem", marginLeft: "1rem"}}
@@ -90,29 +93,21 @@ export class LevelDirectory extends Component {
                   {label: "stats", content: [<LevelStats level={i}/>]},
                   {
                      label: "tools",
-                     content: [
-                        <LevelTools level={i} width_px={width_px}/>,
-                        <TilesWrapper>
-                           <LinkBlock>{index_link}</LinkBlock>
-                           <LinkBlock>{inspector_link}</LinkBlock>
-                        </TilesWrapper>
-                     ]
+                     content: <LevelTools level={i} width_px={width_px}/>
                   },
                ]}
+               selected_tab={selected_tab}
+               on_tab_select={tab => this.select_tab(tab)}
             />
          </LevelContentWrapper>
 
-         const tiles_count = cells.length;
-         const points_count = tiles_count > 500 ?
-            `${Math.round(tiles_count / 1.6) / 10}M` : `${tiles_count * Math.pow(2, 6)}K`;
          const wrapper_style = {backgroundColor: selected_level !== i ? "#dddddd" : "white"}
          scope_summary.push([
             <LevelSummaryWrapper
                style={wrapper_style}
-               onClick={e => this.setState({selected_level: i})}>
+               onClick={e => this.level_selected(i)}>
                {marker}
                <LevelTitleLink>{`level ${i}`}</LevelTitleLink>
-               <LevelSummaryInfo>{`${tiles_count} tiles (${points_count} points)`}</LevelSummaryInfo>
             </LevelSummaryWrapper>,
             level_tabs
          ])

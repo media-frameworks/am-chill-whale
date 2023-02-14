@@ -1,15 +1,15 @@
 import React, {Component} from 'react';
-import PropTypes from 'introspective-prop-types'
+import PropTypes from 'prop-types'
 import styled from "styled-components";
 
 import {AppStyles, AppColors} from "../../app/AppImports";
 import CoolModal from "../../common/cool/CoolModal";
-import MediaEntry from "./MediaEntry";
-import {check_vimeo_auth} from "./VimeoAuth";
+// import MediaEntry from "./MediaEntry";
+// import {check_vimeo_auth} from "./VimeoAuth";
 
 const MEDIA_VIDEO_EDIT_ENTRY = 10001;
 
-const vimeo_client = check_vimeo_auth();
+// const vimeo_client = check_vimeo_auth();
 
 const PromptText = styled.span`
    ${AppStyles.pointer};
@@ -52,7 +52,7 @@ const YearSection = styled.div`
 export class MediaVideo extends Component {
 
    static propTypes = {
-      vimeo_id: PropTypes.string.required,
+      vimeo_id: PropTypes.string.isRequired,
       description: PropTypes.string,
       pictures: PropTypes.array,
       on_update_props: PropTypes.func.isRequired,
@@ -91,16 +91,16 @@ export class MediaVideo extends Component {
 
    load_all_videos = (uri, vimeo_videos) => {
       console.log("load_all_videos", uri)
-      vimeo_client.request({path: uri}, (error, body, status_code, headers) => {
-         vimeo_videos = vimeo_videos.concat(body.data)
-         MediaVideo.vimeo_videos = vimeo_videos;
-         if (body.paging && body.paging.next) {
-            this.setState({video_load_progress_pct: Math.floor(vimeo_videos.length * 100 / body.total)})
-            this.load_all_videos(body.paging.next, vimeo_videos)
-         } else {
-            this.setState({video_load_progress_pct: 100})
-         }
-      })
+      // vimeo_client.request({path: uri}, (error, body, status_code, headers) => {
+      //    vimeo_videos = vimeo_videos.concat(body.data)
+      //    MediaVideo.vimeo_videos = vimeo_videos;
+      //    if (body.paging && body.paging.next) {
+      //       this.setState({video_load_progress_pct: Math.floor(vimeo_videos.length * 100 / body.total)})
+      //       this.load_all_videos(body.paging.next, vimeo_videos)
+      //    } else {
+      //       this.setState({video_load_progress_pct: 100})
+      //    }
+      // })
    }
 
    static get_menu_options = (segment_data) => {
@@ -174,16 +174,16 @@ export class MediaVideo extends Component {
             on_update_props({vimeo_id: vimeo_id})
          }}
       />
-      const video_entry = <MediaEntry
-         vimeo_id={vimeo_id}
-         description={description}
-         pictures={pictures}
-         on_update_props={props => on_update_props(props)}
-      />
+      // const video_entry = <MediaEntry
+      //    vimeo_id={vimeo_id}
+      //    description={description}
+      //    pictures={pictures}
+      //    on_update_props={props => on_update_props(props)}
+      // />
       return <AppStyles.Block>
          {video_select_prompt}
          {select_modal}
-         {video_entry}
+         {/*{video_entry}*/}
       </AppStyles.Block>
    }
 }

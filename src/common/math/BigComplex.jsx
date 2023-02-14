@@ -34,6 +34,9 @@ export class BigComplex {
    }
 
    magnitude = () => {
+      if (isNaN(this.re) || isNaN(this.im)) {
+         return -1;
+      }
       const re_squared = this.re.mul(this.re);
       const im_squared = this.im.mul(this.im);
       const sum_squares = math.chain(re_squared).add(im_squared).valueOf();
@@ -86,6 +89,10 @@ export class BigComplex {
 
    offset = (re, im) => {
       return new BigComplex(this.re.add(re), this.im.add(im));
+   }
+
+   add = (c) => {
+      return new BigComplex(this.re.add(c.re), this.im.add(c.im));
    }
 
    sqrt = () => {

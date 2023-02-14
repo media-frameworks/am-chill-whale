@@ -59,32 +59,36 @@ function add_new_sub_tiles($dest_filename)
 $result = 'OK';
 $source_file = __DIR__ . "/directory/$from/$short_code.json";
 $dest_filename = __DIR__ . "/directory/$to/$short_code.json";
-if (!file_exists($source_file)) {
-    $result = "error, file does not exist";
-    $new_file = "/directory/new/$short_code.json";
-    if (file_exists($new_file)) {
-        rename($new_file, $dest_filename);
-        $result = "OK, but file found in new";
-    }
-    $ready_file = "/directory/ready/$short_code.json";
-    if (file_exists($ready_file)) {
-        rename($ready_file, $dest_filename);
-        $result = "OK, but file found in ready";
-    }
-    $complete_file = "/directory/complete/$short_code.json";
-    if (file_exists($complete_file)) {
-        rename($complete_file, $dest_filename);
-        $result = "OK, but file found in complete";
-    }
-    $indexed_file = "/directory/indexed/$short_code.json";
-    if (file_exists($indexed_file)) {
-        rename($indexed_file, $dest_filename);
-        $result = "OK, but file found in indexed";
-    }
+if (file_exists($dest_filename)) {
+    $result = "file is already there";
 } else {
-    rename($source_file, $dest_filename);
-    if ($to === "complete") {
-        $result = add_new_sub_tiles($dest_filename);
+    if (!file_exists($source_file)) {
+        $result = "error, file does not exist";
+        $new_file = "/directory/new/$short_code.json";
+        if (file_exists($new_file)) {
+            rename($new_file, $dest_filename);
+            $result = "OK, but file found in new";
+        }
+        $ready_file = "/directory/ready/$short_code.json";
+        if (file_exists($ready_file)) {
+            rename($ready_file, $dest_filename);
+            $result = "OK, but file found in ready";
+        }
+        $complete_file = "/directory/complete/$short_code.json";
+        if (file_exists($complete_file)) {
+            rename($complete_file, $dest_filename);
+            $result = "OK, but file found in complete";
+        }
+        $indexed_file = "/directory/indexed/$short_code.json";
+        if (file_exists($indexed_file)) {
+            rename($indexed_file, $dest_filename);
+            $result = "OK, but file found in indexed";
+        }
+    } else {
+        rename($source_file, $dest_filename);
+        if ($to === "complete") {
+            $result = add_new_sub_tiles($dest_filename);
+        }
     }
 }
 

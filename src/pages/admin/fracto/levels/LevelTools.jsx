@@ -4,17 +4,16 @@ import styled from "styled-components";
 
 import AppStyles from "app/AppStyles";
 
-// import ToolIndexer from "./tools/ToolIndexer";
-import ToolIndex from "./tools/ToolIndex";
-import ToolGenerate from "./tools/ToolGenerate";
-import ToolVerifier from "./tools/ToolVerifier";
-import ToolInspect from "./tools/ToolInspect";
 import ToolClassify from "./tools/ToolClassify";
-import ToolAudit from "./tools/ToolAudit";
-import ToolError from "./tools/ToolError";
+import ToolEdge from "./tools/ToolEdge";
+import ToolFills from "./tools/ToolFills";
+import ToolGenerate from "./tools/ToolGenerate";
+import ToolIndex from "./tools/ToolIndex";
+import ToolInspect from "./tools/ToolInspect";
+import ToolMeta from "./tools/ToolMeta";
 
 const ToolBlock = styled(AppStyles.Block)`
-   margin: 0 1rem;
+   margin: 0 0.75rem;
 `;
 
 export class LevelTools extends Component {
@@ -27,13 +26,13 @@ export class LevelTools extends Component {
    render() {
       const {level, width_px} = this.props;
       return [
-         <ToolBlock key={"ToolAudit"}><ToolAudit width_px={width_px} level={level}/></ToolBlock>,
-         <ToolBlock key={"ToolGenerate"}><ToolGenerate width_px={width_px} level={level}/></ToolBlock>,
-         <ToolBlock key={"ToolVerifier"}><ToolVerifier width_px={width_px} level={level}/></ToolBlock>,
-         <ToolBlock key={"ToolIndex"}><ToolIndex width_px={width_px} level={level}/></ToolBlock>,
          <ToolBlock key={"ToolClassify"}><ToolClassify width_px={width_px} level={level}/></ToolBlock>,
+         <ToolBlock key={"ToolEdge"}><ToolEdge width_px={width_px} level={level}/></ToolBlock>,
+         <ToolBlock key={"ToolFills"}><ToolFills width_px={width_px} level={level}/></ToolBlock>,
+         <ToolBlock key={"ToolGenerate"}><ToolGenerate width_px={width_px} level={level}/></ToolBlock>,
+         <ToolBlock key={"ToolIndex"}><ToolIndex width_px={width_px} level={level}/></ToolBlock>,
          <ToolBlock key={"ToolInspect"}><ToolInspect width_px={width_px} level={level}/></ToolBlock>,
-         <ToolBlock key={"ToolError"}><ToolError width_px={width_px} level={level}/></ToolBlock>,
+         <ToolBlock key={"ToolMeta"}><ToolMeta width_px={width_px} level={level}/></ToolBlock>,
       ]
    }
 }

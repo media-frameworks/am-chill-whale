@@ -40,11 +40,26 @@ export class CoolTabs extends Component {
 
    static propTypes = {
       tab_data: PropTypes.array.isRequired,
-      style: PropTypes.object
+      style: PropTypes.object,
+      initial_selection: PropTypes.number
    }
 
    static defaultProps = {
-      style: {}
+      style: {},
+      initial_selection: 0
+   }
+
+   componentDidMount() {
+      const {initial_selection} = this.props;
+      this.setState({selected_index: initial_selection})
+   }
+
+   componentDidUpdate(prevProps, prevState, snapshot) {
+      // const {selected_index} = this.state;
+      // const {initial_selection} = this.props;
+      // if (selected_index !== initial_selection) {
+      //    this.setState({selected_index: initial_selection})
+      // }
    }
 
    state = {

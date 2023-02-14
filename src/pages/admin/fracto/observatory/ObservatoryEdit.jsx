@@ -9,7 +9,6 @@ import CoolTabs from "common/cool/CoolTabs";
 
 import FractoCommon from "../FractoCommon";
 import CommonFiles from "../common/CommonFiles";
-import CommonRenderings from "../common/CommonRenderings";
 
 const S3_FRACTO_PREFIX = 'https://mikehallstudio.s3.amazonaws.com/fracto';
 
@@ -126,15 +125,15 @@ export class ObservatoryEdit extends Component {
       })
 
       const tab_data = [
-         {
-            label: "renderings",
-            content: <CommonRenderings
-               registry_data={field_study_data}
-               fracto_values={field_study_data.fracto_values}
-               s3_folder_prefix={`studies/${study_dirname}`}
-               size_list={[128, 256, 512, 1024, 2048]}
-               on_change={() => this.load_resources()}/>
-         },
+         // {
+         //    label: "renderings",
+         //    content: <CommonRenderings
+         //       registry_data={field_study_data}
+         //       fracto_values={field_study_data.fracto_values}
+         //       s3_folder_prefix={`studies/${study_dirname}`}
+         //       size_list={[128, 256, 512, 1024, 2048]}
+         //       on_change={() => this.load_resources()}/>
+         // },
          {label: "patterns", content: "patterns content"},
          {label: "exhibits", content: "exhibits content"},
          {label: "commentary", content: "commentary content"},

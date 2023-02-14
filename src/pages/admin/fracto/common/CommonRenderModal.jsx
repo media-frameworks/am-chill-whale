@@ -7,7 +7,6 @@ import CoolModal from "common/cool/CoolModal"
 import CoolButton from "common/cool/CoolButton"
 
 import {render_modal_title} from "../FractoStyles";
-import FractoSieve from "../FractoSieve";
 import CommonResources from "./CommonResources";
 import CommonFiles from "./CommonFiles";
 
@@ -66,27 +65,27 @@ export class CommonRenderModal extends Component {
    }
 
    componentDidMount() {
-      const {dimension, fracto_values} = this.props;
-
-      if (true) {
-         FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, dimension, result => {
-            console.log("FractoSieve complete", dimension);
-            this.build_resources(result);
-         });
-      } else {
-         const half_span = fracto_values.scope / 2;
-         const left = fracto_values.focal_point.x - half_span;
-         const top = fracto_values.focal_point.y + half_span;
-         fetch(`${FRACTO_PHP_URL_BASE}/fast_sieve.php?left=${left}&top=${top}&span=${fracto_values.scope}&width_px=${dimension}`)
-            .then(response => {
-               console.log("response",response)
-               return response.json()
-            })
-            .then(result => {
-               console.log("fetch returns", result);
-               this.build_resources(result);
-            });
-      }
+      // const {dimension, fracto_values} = this.props;
+      //
+      // if (false) {
+      //    FractoSieve.extract(fracto_values.focal_point, 1.0, fracto_values.scope, dimension, result => {
+      //       console.log("FractoSieve complete", dimension);
+      //       this.build_resources(result);
+      //    });
+      // } else {
+      //    const half_span = fracto_values.scope / 2;
+      //    const left = fracto_values.focal_point.x - half_span;
+      //    const top = fracto_values.focal_point.y + half_span;
+      //    fetch(`${FRACTO_PHP_URL_BASE}/fast_sieve.php?left=${left}&top=${top}&span=${fracto_values.scope}&width_px=${dimension}`)
+      //       .then(response => {
+      //          console.log("response",response)
+      //          return response.json()
+      //       })
+      //       .then(result => {
+      //          console.log("fetch returns", result);
+      //          this.build_resources(result);
+      //       });
+      // }
    }
 
    modal_response = (value) => {

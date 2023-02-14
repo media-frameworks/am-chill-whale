@@ -11,7 +11,6 @@ import BailiwickTools from "./BailiwickTools";
 import BailiwickDefine from "./BailiwickDefine";
 // import BailiwickOrbitals from "./BailiwickOrbitals";
 
-import CommonRenderings from "../common/CommonRenderings";
 import CommonFiles from "../common/CommonFiles";
 
 import FractoLocate from "../FractoLocate";
@@ -129,16 +128,16 @@ export class BailiwickEdit extends Component {
 
       const bailiwick_dirname = registry_filename.replace('/registry.json', '');
       const bailiwick_edit_tabs = [
-         {
-            label: "renderings",
-            content: <CommonRenderings
-               registry_data={bailiwick_data}
-               fracto_values={bailiwick_data.display_settings}
-               s3_folder_prefix={`bailiwicks/${bailiwick_dirname}`}
-               size_list={[128, 256, 512, 1024, 2048, 4096]}
-               on_change={() => this.load_resources()}
-            />
-         },
+         // {
+         //    label: "renderings",
+         //    content: <CommonRenderings
+         //       registry_data={bailiwick_data}
+         //       fracto_values={bailiwick_data.display_settings}
+         //       s3_folder_prefix={`bailiwicks/${bailiwick_dirname}`}
+         //       size_list={[128, 256, 512, 1024, 2048, 4096]}
+         //       on_change={() => this.load_resources()}
+         //    />
+         // },
          {
             label: "definition",
             content: <BailiwickDefine

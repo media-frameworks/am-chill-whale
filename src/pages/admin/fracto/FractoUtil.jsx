@@ -93,7 +93,8 @@ export class FractoUtil {
       }
       const cache_key = `(${pattern},${iterations})`;
       if (FractoUtil.color_cache[cache_key]) {
-         return FractoUtil.color_cache[cache_key];
+         const [hue, sat_pct, lum_pct] = FractoUtil.color_cache[cache_key];
+         return `hsl(${hue}, ${sat_pct}%, ${lum_pct}%)`
       }
       if (pattern === 0) {
          let offset = Math.log(iterations) * ONE_BY_LOG_TEN_THOUSAND;
@@ -101,8 +102,9 @@ export class FractoUtil {
             offset *= 0.9;
          }
          const lum = 1.0 - offset;
-         const result = `hsl(0, 0%, ${Math.round(100 * lum)}%)`;
-         FractoUtil.color_cache[cache_key] = result;
+         const lum_pct = Math.round(100 * lum)
+         const result = `hsl(0, 0%, ${lum_pct}%)`;
+         FractoUtil.color_cache[cache_key] = [0, 0, lum_pct];
          return result;
       }
 
@@ -110,8 +112,9 @@ export class FractoUtil {
       const hue = pattern ? 360 * (log2 - Math.floor(log2)) : 0;
       const lum = 0.15 + 0.75 * Math.log(iterations) * ONE_BY_LOG_ONE_MILLION;
 
-      const result = `hsl(${Math.round(hue)}, 75%, ${Math.round(100 * lum)}%)`;
-      FractoUtil.color_cache[cache_key] = result;
+      const lum_pct = Math.round(100 * lum)
+      const result = `hsl(${Math.round(hue)}, 75%, ${lum_pct}%)`;
+      FractoUtil.color_cache[cache_key] = [Math.round(hue), 75, lum_pct];
       return result;
    }
 
@@ -139,10 +142,16 @@ export class FractoUtil {
    }
 
    static data_to_canvas = (tile_points, ctx) => {
+      if (!ctx || !tile_points) {
+         return;
+      }
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, 256, 256);
       for (let img_x = 0; img_x < 256; img_x++) {
          const y_values = tile_points[img_x];
+         if (!y_values) {
+            return;
+         }
          for (let img_y = 0; img_y < 256; img_y++) {
             const data_values = y_values[img_y];
             ctx.fillStyle = FractoUtil.fracto_pattern_color(data_values[0], data_values[1])

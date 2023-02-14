@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 import AppStyles from "app/AppStyles";
 import StoreS3 from "common/StoreS3";
-import {CoolModal, CoolButton} from "common/cool/CoolImports";
+import {CoolModal, CoolButton, CoolTabs} from "common/cool/CoolImports";
 
 import {
    render_main_link,
@@ -14,12 +14,22 @@ import {
 import FractoActionWrapper, {OPTION_TILE_OUTLINE, OPTION_RENDER_LEVEL} from "../../FractoActionWrapper";
 import FractoUtil from "../../FractoUtil";
 import FractoCalc from "../../FractoCalc";
+import FractoProfile from "../../FractoProfile";
 import FractoLayeredCanvas from "../../FractoLayeredCanvas";
 
 import ToolSelectTile from "./ToolSelectTile"
 import ToolUtils from "./ToolUtils"
+import FrameworkMetaBlock from "./framework/FrameworkMetaBlock"
 
-const CADENCE_MS = 850;
+const CADENCE_MS = 1000;
+
+const NAV_BUTTON_STYLE = {
+   fontFamily: "monospace",
+   fontSize: "0.85rem",
+   fontWeight: "bold",
+   padding: "0.25rem 0.5rem",
+   margin: "0 0.05rem"
+}
 
 export const OPTION_NO_CANVAS = "no_canvas";
 
@@ -40,11 +50,26 @@ const LinkWrapper = styled(AppStyles.InlineBlock)`
 
 const CenteredBlock = styled(AppStyles.Block)`
    ${AppStyles.centered}
-   margin: 0.5rem 1rem 0;
+   margin: 0.25rem 1rem 0;
 `;
 
 const NavigationWrapper = styled(AppStyles.Block)`
-   margin: 0.5rem 1rem 0;
+   ${AppStyles.align_left}
+   margin: 0.5rem 0 0;
+`;
+
+const TabContentWrapper = styled(AppStyles.Block)`
+   ${AppStyles.align_left}
+   margin: 0.25rem 1rem;
+`;
+
+const CanvasWrapper = styled(AppStyles.InlineBlock)`
+   ${AppStyles.align_left}
+`;
+
+const TabsWrapper = styled(AppStyles.InlineBlock)`
+   ${AppStyles.align_left}
+   margin-left: 0.5rem;
 `;
 
 export class ToolFramework extends Component {
@@ -56,13 +81,15 @@ export class ToolFramework extends Component {
       verb: PropTypes.string.isRequired,
       tile_action: PropTypes.func.isRequired,
       options: PropTypes.object,
+      extra_meta: PropTypes.array
    }
 
    static defaultProps = {
       options: {
          fracto_options: {},
          framework_options: {}
-      }
+      },
+      extra_meta: []
    }
 
    static fracto_ref = React.createRef();
@@ -71,12 +98,12 @@ export class ToolFramework extends Component {
    state = {
       in_modal: false,
       tile_index: -1,
-      fracto_values: {
-         scope: 2.5,
-         focal_point: {x: -.75, y: 0.25}
-      },
+      fracto_values: null,
       status: '',
-      automate: false
+      automate: false,
+      tile_meta: null,
+      ctx: null,
+      tab_index: 0
    }
 
    static move_tile = (short_code, from, to) => {
@@ -86,22 +113,25 @@ export class ToolFramework extends Component {
       })
    }
 
+   componentDidMount() {
+   }
+
    run_modal = () => {
-      const {level, level_tiles} = this.props
-      const tile_index_str = localStorage.getItem(`level_${level}_tile_index`);
+      const {level, level_tiles, verb} = this.props
+      const tile_index_str = localStorage.getItem(`level_${level}_${verb}_tile_index`);
       let tile_index = tile_index_str ? parseInt(tile_index_str) : 0;
       if (tile_index >= level_tiles.length) {
          tile_index = 0;
       }
-      this.setState({
-         in_modal: true,
-         tile_index: tile_index
+      this.setState({in_modal: true})
+      this.update_tile_index(tile_index, tile => {
+         this.update_tile(tile);
       })
    }
 
    run_tool = () => {
       const {tile_index, automate} = this.state;
-      this.setState({automate: !automate})
+      this.setState({automate: !automate, tab_index: 1})
       if (!automate) {
          setTimeout(() => {
             this.tile_action(tile_index);
@@ -109,20 +139,24 @@ export class ToolFramework extends Component {
       }
    }
 
-   update_tile_index = (new_tile_index) => {
-      const {level, level_tiles} = this.props;
+   update_tile_index = (new_tile_index, cb) => {
+      const {level, level_tiles, verb} = this.props;
       if (new_tile_index > level_tiles.length) {
          console.log("bad index", new_tile_index, level_tiles.length);
-         return null;
+         cb(null);
+         return;
       }
       const tile = level_tiles[new_tile_index];
       if (!tile) {
          console.log("can't load tile", new_tile_index, level_tiles.length);
-         return null;
+         cb(null);
+         return;
       }
       if (isNaN(tile.bounds.right) || isNaN(tile.bounds.left) || isNaN(tile.bounds.top) || isNaN(tile.bounds.bottom)) {
          console.log("bad numbers in tile bounds", tile.bounds);
-         return null;
+         this.update_tile_index(new_tile_index + 1, cb)
+         // cb(null);
+         return;
       }
       console.log("update_tile_index tile", tile)
       const half_scope = (tile.bounds.right - tile.bounds.left) / 2;
@@ -137,22 +171,43 @@ export class ToolFramework extends Component {
          tile_index: new_tile_index,
          fracto_values: fracto_values,
       });
-      localStorage.setItem(`level_${level}_tile_index`, String(new_tile_index));
+      localStorage.setItem(`level_${level}_${verb}_tile_index`, String(new_tile_index));
 
-      return tile;
+      const index_name = `tiles/256/indexed/${tile.short_code}.json`;
+      StoreS3.get_file_async(index_name, "fracto", json_str => {
+         console.log("StoreS3.get_file_async", index_name);
+         if (json_str) {
+            const tile_data = JSON.parse(json_str);
+            tile['index'] = tile_data;
+         } else {
+            this.setState({status: "tile not found..."});
+            tile['index'] = [];
+         }
+         cb(tile);
+      }, false);
+
+      const meta_name = `tiles/256/meta/${tile.short_code}.json`;
+      StoreS3.get_file_async(meta_name, "fracto", json_str => {
+         console.log("StoreS3.get_file_async", meta_name);
+         if (json_str) {
+            const tile_meta = JSON.parse(json_str);
+            this.setState({tile_meta: tile_meta});
+         } else {
+            this.setState({tile_meta: null})
+         }
+      }, false);
+
    }
 
    tile_action = (new_tile_index) => {
-      const {tile_action, options} = this.props
+      const {tile_action} = this.props
 
-      let tile = this.update_tile_index(new_tile_index);
-      if (!tile) {
-         return;
-      }
-
-      const framework_options = options.framework_options || {};
-      if (OPTION_NO_CANVAS in framework_options) {
-         tile_action(tile, null, status => {
+      this.update_tile_index(new_tile_index, tile => {
+         if (!tile) {
+            return;
+         }
+         const ctx = this.update_tile(tile);
+         tile_action(tile, ctx, status => {
             const automate = status === "STOP" ? false : this.state.automate;
             this.setState({status: status, automate: automate});
             if (automate) {
@@ -161,57 +216,46 @@ export class ToolFramework extends Component {
                }, CADENCE_MS)
             }
          })
-      } else {
-         const canvas = ToolFramework.canvas_ref.current
-         const ctx = canvas.getContext('2d');
-         const index_name = `tiles/256/indexed/${tile.short_code}.json`;
-         StoreS3.get_file_async(index_name, "fracto", json_str => {
-            console.log("StoreS3.get_file_async", index_name);
-            if (json_str) {
-               const tile_data = JSON.parse(json_str);
-               FractoUtil.data_to_canvas(tile_data, ctx)
-               tile['index'] = tile_data;
-            } else {
-               this.setState({status: "tile not found..."});
-               tile['index'] = [];
-            }
-            tile_action(tile, ctx, status => {
-               const automate = status === "STOP" ? false : this.state.automate;
-               this.setState({status: status, automate: automate});
-               if (automate) {
-                  setTimeout(() => {
-                     this.tile_action(new_tile_index + 1);
-                  }, CADENCE_MS)
-               }
-            })
-         })
-      }
+      });
+   }
 
+   update_tile = (tile) => {
+      const {options} = this.props
+      if (!tile) {
+         return;
+      }
+      let ctx = this.state.ctx;
+      if (!ctx) {
+         const canvas = ToolFramework.canvas_ref.current
+         ctx = canvas.getContext('2d');
+         this.setState({ctx: ctx})
+      }
+      const framework_options = options.framework_options || {};
+      if (!(OPTION_NO_CANVAS in framework_options)) {
+         FractoUtil.data_to_canvas(tile.index, ctx)
+      }
+      return ctx;
+   }
+
+   navigate_tile = (tile_index) => {
+      this.update_tile_index(tile_index, tile => this.update_tile(tile))
    }
 
    render_button = (number, label) => {
       const {tile_index, automate} = this.state;
       const {level_tiles} = this.props;
       const result_number = tile_index + number;
-      const button_style = {
-         fontFamily: "monospace",
-         fontSize: "0.85rem",
-         fontWeight: "bold",
-         padding: "0.25rem 0.5rem",
-         margin: "0 0.05rem"
-      }
       return <CoolButton
          primary={result_number >= 0 && result_number < level_tiles.length}
          disabled={automate}
          content={label}
-         style={button_style}
-         on_click={r => this.update_tile_index(result_number)}
+         style={NAV_BUTTON_STYLE}
+         on_click={r => this.navigate_tile(result_number)}
       />
    }
 
    repair_tile = (tile_index) => {
-      const canvas = ToolFramework.canvas_ref.current
-      const ctx = canvas.getContext('2d');
+      const {ctx} = this.state
 
       const {level_tiles} = this.props
       const tile = level_tiles[tile_index]
@@ -237,28 +281,94 @@ export class ToolFramework extends Component {
             return;
          }
          setTimeout(() => {
-            this.update_tile_index(tile_index + 1);
-            this.repair_tile(tile_index + 1);
+            this.update_tile_index(tile_index + 1, tile => {
+               if (tile) {
+                  this.repair_tile(tile_index + 1);
+               }
+            });
          }, CADENCE_MS)
       })
    }
 
-   render_modal_content = () => {
-      const {tile_index, status, automate} = this.state;
-      const {level_tiles} = this.props
-      let selected_short_code = '-';
-      if (tile_index >= 0) {
-         const tile = level_tiles[tile_index];
-         if (tile) {
-            selected_short_code = render_short_code(tile.short_code);
+   next_top = () => {
+      const {tile_index} = this.state;
+      const {level_tiles} = this.props;
+      const base_tile = level_tiles[tile_index];
+
+      let target_index = tile_index;
+      while (target_index < level_tiles.length) {
+         target_index += 1;
+         const target_tile = level_tiles[target_index];
+         if (target_tile.bounds.left !== base_tile.bounds.left) {
+            this.navigate_tile(target_index);
+            return;
          }
       }
-      const canvas = <canvas
-         ref={ToolFramework.canvas_ref}
-         width={256}
-         height={256}
-      />
-      const button_bar = [
+      this.navigate_tile(level_tiles.length - 1);
+   }
+
+   previous_top = () => {
+      const {tile_index} = this.state;
+      const {level_tiles} = this.props;
+      const base_tile = level_tiles[tile_index];
+
+      let target_index = tile_index;
+      let target_leftmost = 0;
+      while (target_index >= 0) {
+         target_index -= 1;
+         const target_tile = level_tiles[target_index];
+         if (target_tile.bounds.left !== base_tile.bounds.left && target_leftmost === 0) {
+            target_leftmost = target_tile.bounds.left;
+         }
+         if (target_leftmost && target_tile.bounds.left !== target_leftmost) {
+            this.navigate_tile(target_index + 1);
+            return;
+         }
+      }
+      this.navigate_tile(0);
+   }
+
+   render_modal_content = () => {
+      const {tile_index, status, automate, tile_meta, tab_index} = this.state;
+      const {level_tiles, extra_meta} = this.props
+      let selected_short_code = '-';
+      let tile_short_code = null;
+      let tile = null;
+      if (tile_index >= 0) {
+         tile = level_tiles[tile_index];
+         if (tile) {
+            selected_short_code = render_short_code(tile.short_code);
+            tile_short_code = tile.short_code;
+         }
+      }
+      const canvas = <CanvasWrapper>
+         <canvas
+            ref={ToolFramework.canvas_ref}
+            width={256}
+            height={256}
+         />
+      </CanvasWrapper>
+      const info_block = !tile_short_code ? '' : <TabsWrapper><CoolTabs
+         style={{width: "20rem"}}
+         tab_data={[
+            {
+               label: "meta",
+               content: <TabContentWrapper>
+                  <FrameworkMetaBlock tile_meta={tile_meta} short_code={tile_short_code}/>
+               </TabContentWrapper>
+            },
+            {
+               label: "action",
+               content: <TabContentWrapper>{extra_meta ? extra_meta : ''}</TabContentWrapper>
+            },
+            {
+               label: "orbitals",
+               content: <FractoProfile tile_data={tile} width_px={350}/>
+            },
+         ]}
+         initial_selection={tab_index}
+      /></TabsWrapper>
+      const nav_buttons = [
          this.render_button(-100000, "-100k"),
          this.render_button(-10000, "-10k"),
          this.render_button(-1000, "-1k"),
@@ -278,6 +388,29 @@ export class ToolFramework extends Component {
          this.render_button(10000, "+10k"),
          this.render_button(100000, "+100k"),
       ]
+      const top_row_buttons = [
+         <CoolButton
+            primary={1}
+            disabled={automate}
+            content={"prev. top"}
+            style={NAV_BUTTON_STYLE}
+            on_click={r => this.previous_top()}
+         />,
+         <CoolButton
+            primary={1}
+            disabled={automate}
+            content={"first"}
+            style={NAV_BUTTON_STYLE}
+            on_click={r => this.navigate_tile(0)}
+         />,
+         <CoolButton
+            primary={1}
+            disabled={automate}
+            content={"next top"}
+            style={NAV_BUTTON_STYLE}
+            on_click={r => this.next_top()}
+         />,
+      ]
       const repair_button = automate ? '' : <CenteredBlock><CoolButton
          primary={1}
          content={"repair"}
@@ -290,15 +423,15 @@ export class ToolFramework extends Component {
          <CenteredBlock>{selected_short_code}</CenteredBlock>,
          <CenteredBlock>{status}</CenteredBlock>,
          repair_button,
-         <CenteredBlock>{canvas}</CenteredBlock>,
-         <CenteredBlock>{button_bar}</CenteredBlock>,
+         <CenteredBlock>{canvas}{info_block}</CenteredBlock>,
+         <CenteredBlock>{top_row_buttons}</CenteredBlock>,
+         <CenteredBlock>{nav_buttons}</CenteredBlock>,
       ]}</AppStyles.Block>
    }
 
    render() {
       const {in_modal, fracto_values, tile_index} = this.state;
       const {level, level_tiles, data_ready, verb, options} = this.props;
-      console.log("render fracto_values", fracto_values)
 
       const fracto_content = this.render_modal_content();
       const tile = level_tiles.length && tile_index >= 0 ? level_tiles[tile_index] : null
@@ -309,20 +442,20 @@ export class ToolFramework extends Component {
             fracto_options[OPTION_RENDER_LEVEL] = level;
          }
       }
-      const fracto_action = <FractoActionWrapper
+      const fracto_action = fracto_values === null ? '' : <FractoActionWrapper
          fracto_values={fracto_values}
          content={fracto_content}
          options={fracto_options}
       />
 
       const title = render_modal_title(`${verb} tiles for level ${level}`);
-      const done = level_tiles.length === tile_index;
+      const done = level_tiles.length - 1 === tile_index;
       const progress = <CenteredBlock key={"progress"}>
          {!done ? `${verb} ${tile_index + 1} of ${level_tiles.length + 1} tiles` : "Done!"}
       </CenteredBlock>
       const cancel_button = <CoolButton
          content={"cancel"}
-         on_click={r => this.setState({in_modal: false})}
+         on_click={r => this.setState({in_modal: false, automate: false})}
          style={{margin: "0.5rem"}}
       />
 

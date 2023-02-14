@@ -9,7 +9,6 @@ import StoreS3 from "common/StoreS3";
 import {render_modal_title} from "../FractoStyles";
 import FractoUtil from "../FractoUtil";
 import CommonFiles from "../common/CommonFiles";
-import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
 import FractoCommon from "../FractoCommon";
 
@@ -150,27 +149,27 @@ export class SequenceEdit extends Component {
    }
 
    render_frame = (frame_index) => {
-      const {sequence_registry, frame_size_px} = this.state;
-
-      if (frame_index >= sequence_registry.frames.length) {
-         this.setState({in_sequence_run: false});
-         return;
-      }
-      this.setState({
-         in_sequence_run: true,
-         frame_index: frame_index
-      });
-
-      const frame = sequence_registry.frames[frame_index];
-      FractoSieve.extract(frame.focal_point, 1.0, frame.scope, frame_size_px, result => {
-         console.log("FractoSieve.extract", frame.focal_point, 1.0, frame.scope, frame_size_px, result);
-         this.generate_image(frame_index, frame, result, response => {
-            console.log("this.generate_image", response);
-            setTimeout(() => {
-               this.render_frame(frame_index + 1)
-            }, 250);
-         })
-      }, 1);
+      // const {sequence_registry, frame_size_px} = this.state;
+      //
+      // if (frame_index >= sequence_registry.frames.length) {
+      //    this.setState({in_sequence_run: false});
+      //    return;
+      // }
+      // this.setState({
+      //    in_sequence_run: true,
+      //    frame_index: frame_index
+      // });
+      //
+      // const frame = sequence_registry.frames[frame_index];
+      // FractoSieve.extract(frame.focal_point, 1.0, frame.scope, frame_size_px, result => {
+      //    console.log("FractoSieve.extract", frame.focal_point, 1.0, frame.scope, frame_size_px, result);
+      //    this.generate_image(frame_index, frame, result, response => {
+      //       console.log("this.generate_image", response);
+      //       setTimeout(() => {
+      //          this.render_frame(frame_index + 1)
+      //       }, 250);
+      //    })
+      // }, 1);
    }
 
    start_sequence_run = () => {

@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import PropTypes from 'introspective-prop-types'
+import PropTypes from 'prop-types'
 import styled from "styled-components";
 
 import {AppStyles} from "app/AppImports";
 import {PHI} from "common/math/constants";
 
-import FractoSieve from "pages/admin/fracto/FractoSieve";
 import FractoCalc from "pages/admin/fracto/FractoCalc";
 import FractoUtil from "pages/admin/fracto/FractoUtil";
 
@@ -63,22 +62,22 @@ export class ThreeDFractopography extends Component {
    }
 
    componentDidMount() {
-      const {holodeck_controls} = this.state;
-      const grid_vectors = HolodeckUtil.compute_grid_vectors(holodeck_controls);
-      this.setState({grid_vectors: grid_vectors})
-
-      const fracto_values = {
-         scope: 2.5,
-         focal_point: {x: -0.625001, y: 0.00001}
-      };
-      const GRID_SIDE = 1200;
-      FractoSieve.extract(
-         fracto_values.focal_point, 1.0, fracto_values.scope, GRID_SIDE, data => {
-            console.log("sieve resilts", data)
-            const all_triangles = this.build_triangles(data, fracto_values, GRID_SIDE);
-            this.setState({all_triangles: all_triangles})
-         }
-      );
+      // const {holodeck_controls} = this.state;
+      // const grid_vectors = HolodeckUtil.compute_grid_vectors(holodeck_controls);
+      // this.setState({grid_vectors: grid_vectors})
+      //
+      // const fracto_values = {
+      //    scope: 2.5,
+      //    focal_point: {x: -0.625001, y: 0.00001}
+      // };
+      // const GRID_SIDE = 1200;
+      // FractoSieve.extract(
+      //    fracto_values.focal_point, 1.0, fracto_values.scope, GRID_SIDE, data => {
+      //       console.log("sieve resilts", data)
+      //       const all_triangles = this.build_triangles(data, fracto_values, GRID_SIDE);
+      //       this.setState({all_triangles: all_triangles})
+      //    }
+      // );
    }
 
    static get_menu_options = (segment_data) => {
@@ -291,32 +290,32 @@ export class ThreeDFractopography extends Component {
    }
 
    update_region = (region) => {
-      const {holodeck_controls, enhancing} = this.state;
-      if (holodeck_controls.enhance && !enhancing) {
-         const scope = ((region.right - region.left) + (region.top - region.bottom)) / 2;
-         const aspect_ratio = 1.0;
-         const grid_side = 1200;
-         const focal_point = {x: holodeck_controls.focal_x, y: holodeck_controls.focal_y + 0.0001};
-         this.setState({
-            render_region: region,
-            enhancing: true
-         })
-         FractoSieve.extract(
-            focal_point, aspect_ratio, scope, grid_side, data => {
-               console.log("update_region sieve resilts", data)
-               const fracto_values = {
-                  scope: scope,
-                  focal_point: focal_point
-               }
-               const enhanced_triangles = this.build_triangles(data, fracto_values, grid_side);
-               holodeck_controls.enhance = false;
-               this.setState({
-                  enhancing: false,
-                  enhanced_triangles: enhanced_triangles,
-                  holodeck_controls: holodeck_controls
-               })
-            });
-      }
+      // const {holodeck_controls, enhancing} = this.state;
+      // if (holodeck_controls.enhance && !enhancing) {
+      //    const scope = ((region.right - region.left) + (region.top - region.bottom)) / 2;
+      //    const aspect_ratio = 1.0;
+      //    const grid_side = 1200;
+      //    const focal_point = {x: holodeck_controls.focal_x, y: holodeck_controls.focal_y + 0.0001};
+      //    this.setState({
+      //       render_region: region,
+      //       enhancing: true
+      //    })
+      //    FractoSieve.extract(
+      //       focal_point, aspect_ratio, scope, grid_side, data => {
+      //          console.log("update_region sieve resilts", data)
+      //          const fracto_values = {
+      //             scope: scope,
+      //             focal_point: focal_point
+      //          }
+      //          const enhanced_triangles = this.build_triangles(data, fracto_values, grid_side);
+      //          holodeck_controls.enhance = false;
+      //          this.setState({
+      //             enhancing: false,
+      //             enhanced_triangles: enhanced_triangles,
+      //             holodeck_controls: holodeck_controls
+      //          })
+      //       });
+      // }
    }
 
    render() {

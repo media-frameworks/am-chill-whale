@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 //
 // import AppStyles from "app/AppStyles";
 import StoreS3 from "common/StoreS3";
+import ErrorBoundary from "common/ErrorBoundary";
 
 import ToolUtils from "./ToolUtils"
 import ToolFramework from "./ToolFramework";
@@ -48,6 +49,10 @@ export class ToolIndex extends Component {
    }
 
    index_tile = (tile, ctx, cb) => {
+      if (!tile) {
+         cb(`no tile, cannot index`)
+         return;
+      }
       const index_name = `tiles/256/indexed/${tile.short_code}.json`;
       StoreS3.get_file_async(index_name, "fracto", json_str => {
          console.log("StoreS3.get_file_async", index_name);
@@ -56,7 +61,7 @@ export class ToolIndex extends Component {
             FractoUtil.data_to_canvas(tile_data, ctx)
             console.log("tile is currently indexed", index_name);
             this.move_tile(tile.short_code, "complete", "indexed", result => {
-               cb (`moved tile to indexed: ${result}`)
+               cb(`moved tile to indexed: ${result}`)
             })
          } else {
             delete FractoLayeredCanvas.tile_cache[tile.short_code]
@@ -82,13 +87,13 @@ export class ToolIndex extends Component {
                   StoreS3.put_file_async(index_name, JSON.stringify(tile_points), "fracto", result => {
                      console.log("StoreS3.put_file_async", index_name, result)
                      this.move_tile(tile.short_code, "complete", "indexed", result => {
-                        cb (`generated index: ${result}`)
+                        cb(`generated index: ${result}`)
                      })
                   })
                } else {
                   console.log("json file error", json_name);
                   this.move_tile(tile.short_code, "complete", "new", result => {
-                     cb (`json file  error, moved to new: ${result}`)
+                     cb(`json file  error, moved to new: ${result}`)
                   })
                }
             }, false)
@@ -104,14 +109,16 @@ export class ToolIndex extends Component {
       fracto_options[OPTION_RENDER_LEVEL] = level;
 
       const options = {fracto_options: fracto_options,}
-      return <ToolFramework
-         level={level}
-         level_tiles={level_tiles}
-         data_ready={data_ready}
-         verb={"index"}
-         tile_action={this.index_tile}
-         options={options}
-      />
+      return <ErrorBoundary>
+         <ToolFramework
+            level={level}
+            level_tiles={level_tiles}
+            data_ready={data_ready}
+            verb={"index"}
+            tile_action={this.index_tile}
+            options={options}
+         />
+      </ErrorBoundary>
    }
 
 }

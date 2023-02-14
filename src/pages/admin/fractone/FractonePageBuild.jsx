@@ -12,8 +12,6 @@ import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
 import {faArrowRight, faArrowDown, faCog} from '@fortawesome/free-solid-svg-icons'
 
 import FractoRender from "../fracto/FractoRender";
-import FractoLocate from "../fracto/FractoLocate";
-import FractoImage from "../fracto/FractoImage";
 import {ONE_BY_PHI} from "../../../common/math/constants";
 
 import FractoneInstrument from "./FractoneInstrument";
@@ -141,7 +139,7 @@ export class FractonePageBuild extends Component {
 
       const contents_width = zone_width - 2 * ZONE_MARGIN_PX - 1;
       const zone_style = {width: zone_width - 2 * ZONE_MARGIN_PX - 1};
-      const level = FractoImage.find_best_level(fracto_values.scope);
+      // const level = FractoImage.find_best_level(fracto_values.scope);
       const render_zone = <ZoneWrapper style={zone_style}>
          <FractoRender
             width_px={contents_width - 1}
@@ -149,7 +147,7 @@ export class FractonePageBuild extends Component {
             initial_params={fracto_values}
             on_param_change={values => this.setState({fracto_values: values})}
          />
-         <FractoLocate level={level} fracto_values={fracto_values}/>
+         {/*<FractoLocate level={level} fracto_values={fracto_values}/>*/}
          <CoolButton
             content={button_content}
             style={button_style}

@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import PropTypes from 'introspective-prop-types'
+import PropTypes from 'prop-types'
 import styled from "styled-components";
 
 import {AppStyles} from "../../app/AppImports";
@@ -75,7 +75,7 @@ const YearSpan = styled.span`
 export class MediaEntry extends Component {
 
    static propTypes = {
-      vimeo_id: PropTypes.string.required,
+      vimeo_id: PropTypes.string.isRequired,
       description: PropTypes.string,
       pictures: PropTypes.array,
       on_update_props: PropTypes.func.isRequired,

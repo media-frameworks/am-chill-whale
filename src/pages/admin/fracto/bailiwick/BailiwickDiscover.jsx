@@ -6,7 +6,6 @@ import {AppStyles, AppColors} from "app/AppImports";
 import CoolModal from "common/cool/CoolModal";
 
 import FractoLocate from "../FractoLocate";
-import FractoSieve from "../FractoSieve";
 import FractoCalc from "../FractoCalc";
 import {render_modal_title, render_fracto_navigation} from "../FractoStyles";
 
@@ -205,14 +204,14 @@ export class BailiwickDiscover extends Component {
    }
 
    identify_mode = (bailiwick_sample_width_px) => {
-      const {fracto_values} = this.state;
-      this.setState({in_identify: true})
-      FractoSieve.extract(
-         fracto_values.focal_point, 1.0, fracto_values.scope, bailiwick_sample_width_px, result => {
-            console.log("identify_mode sieve", result)
-            const potentials = BailiwickDiscover.identify_bailiwick(result, fracto_values, bailiwick_sample_width_px)
-            this.setState({potentials: potentials})
-         });
+      // const {fracto_values} = this.state;
+      // this.setState({in_identify: true})
+      // FractoSieve.extract(
+      //    fracto_values.focal_point, 1.0, fracto_values.scope, bailiwick_sample_width_px, result => {
+      //       console.log("identify_mode sieve", result)
+      //       const potentials = BailiwickDiscover.identify_bailiwick(result, fracto_values, bailiwick_sample_width_px)
+      //       this.setState({potentials: potentials})
+      //    });
    }
 
    patterns_list = (potentials) => {

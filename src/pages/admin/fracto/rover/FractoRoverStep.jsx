@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
-import PropTypes from 'introspective-prop-types'
+import PropTypes from 'prop-types';
 import styled from "styled-components";
 
 import {AppStyles} from "app/AppImports";
 
 import FractoValues from "../FractoValues";
-import FractoImage from "../FractoImage";
 
 const StepWrapper = styled(AppStyles.InlineBlock)`
    border: 0.1rem solid #666666;
@@ -41,11 +40,11 @@ export class FractoRoverStep extends Component {
          </StepWrapper>,
          <PreviewWrapper
             onClick={e => on_click()}>
-            <FractoImage
-               width_px={100}
-               aspect_ratio={aspect_ratio}
-               focal_point={fracto_values.focal_point}
-               scope={fracto_values.scope}/>
+            {/*<FractoImage*/}
+            {/*   width_px={100}*/}
+            {/*   aspect_ratio={aspect_ratio}*/}
+            {/*   focal_point={fracto_values.focal_point}*/}
+            {/*   scope={fracto_values.scope}/>*/}
          </PreviewWrapper>
       ]
    }

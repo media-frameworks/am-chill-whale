@@ -5,7 +5,7 @@ import styled from "styled-components";
 import {AppStyles, AppColors} from "app/AppImports";
 import CommonFiles from "../common/CommonFiles";
 import FractoLocate from "../FractoLocate";
-import FractoSieve from "../FractoSieve";
+// import FractoSieve from "../FractoSieve";
 
 import BailiwickDiscover from "./BailiwickDiscover";
 import {FRACTO_RENDER_WIDTH_PX} from "./BailiwickEdit";
@@ -53,19 +53,19 @@ export class BailiwickDefine extends Component {
    }
 
    componentDidMount() {
-      const {bailiwick_data} = this.props;
-      const fracto_values = bailiwick_data.display_settings;
-      FractoSieve.extract(
-         fracto_values.focal_point, 1.0, fracto_values.scope, FRACTO_RENDER_WIDTH_PX, result => {
-            console.log("FractoSieve.extract", result)
-            const all_potentials = BailiwickDiscover.identify_bailiwick(result, fracto_values, FRACTO_RENDER_WIDTH_PX, true)
-            const all_potentials_reverse = BailiwickDiscover.identify_bailiwick(result, fracto_values, FRACTO_RENDER_WIDTH_PX, false)
-            this.setState({
-               json_file: result,
-               all_potentials: all_potentials,
-               all_potentials_reverse: all_potentials_reverse,
-            })
-         });
+      // const {bailiwick_data} = this.props;
+      // const fracto_values = bailiwick_data.display_settings;
+      // FractoSieve.extract(
+      //    fracto_values.focal_point, 1.0, fracto_values.scope, FRACTO_RENDER_WIDTH_PX, result => {
+      //       console.log("FractoSieve.extract", result)
+      //       const all_potentials = BailiwickDiscover.identify_bailiwick(result, fracto_values, FRACTO_RENDER_WIDTH_PX, true)
+      //       const all_potentials_reverse = BailiwickDiscover.identify_bailiwick(result, fracto_values, FRACTO_RENDER_WIDTH_PX, false)
+      //       this.setState({
+      //          json_file: result,
+      //          all_potentials: all_potentials,
+      //          all_potentials_reverse: all_potentials_reverse,
+      //       })
+      //    });
    }
 
    set_root_index = (index) => {
